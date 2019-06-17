@@ -9,4 +9,5 @@ public class TenantConfiguration {
     private String tenantId;
     private String clientId;
     private String authUrl;
+    private String idTokenRedirectUrl;
 }

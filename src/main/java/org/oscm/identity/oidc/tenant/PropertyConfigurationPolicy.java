@@ -1,5 +1,6 @@
 package org.oscm.identity.oidc.tenant;
 
+import org.oscm.identity.error.TenantConfigurationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -21,9 +22,9 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
             File file = ResourceUtils.getFile("classpath:tenant-" + tenantId + ".properties");
             InputStream inputStream = new FileInputStream(file);
             properties.load(inputStream);
-        } catch (IOException e) {
-            //TODO: add exception handling
-            e.printStackTrace();
+        } catch (IOException exc) {
+            throw new TenantConfigurationException("Tenant configuration [tenantId = "+tenantId+"] could not be loaded", exc);
+
         }
 
         TenantConfiguration configuration = new TenantConfiguration();
@@ -31,6 +32,7 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
         configuration.setProvider(properties.getProperty("oidc.provider"));
         configuration.setAuthUrl(properties.getProperty("oidc.authUrl"));
         configuration.setClientId(properties.getProperty("oidc.clientId"));
+        configuration.setIdTokenRedirectUrl(properties.getProperty("oidc.idTokenRedirectUrl"));
 
         return configuration;
     }
