@@ -3,3 +3,6 @@
 
 # oscm-identity
 Identity service for managing authentication with external IdPs using OpenId Connect
+
+## Building the application
+To build the application simply run `mvn clean package`
