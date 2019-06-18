@@ -81,6 +81,7 @@
                 </executions>
             </plugin>
         </plugins>
+        <finalName>oscm-identity</finalName>
     </build>
 
 </project>
