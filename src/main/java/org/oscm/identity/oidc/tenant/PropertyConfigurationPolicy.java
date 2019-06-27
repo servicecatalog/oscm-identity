@@ -5,10 +5,7 @@ import org.oscm.identity.error.TenantConfigurationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 @Component
@@ -22,9 +19,10 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
   public TenantConfiguration loadTenant(String tenantId) {
 
     Properties properties = new Properties();
+    String propertyFilePath = getPropertiesFilePathForTenant(tenantId);
 
     try {
-      InputStream inputStream = new FileInputStream(getPropertiesFilePathForTenant(tenantId));
+      InputStream inputStream = getFileInputSteam(propertyFilePath);
       properties.load(inputStream);
     } catch (IOException exc) {
       TenantConfigurationException ex =
@@ -55,5 +53,9 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
 
     return jarAbsolutePath.substring(0, jarAbsolutePath.length() - classPath.getName().length())
         + tenantConfigDirectoryRelativePath;
+  }
+
+  protected InputStream getFileInputSteam(String propertyFilePath) throws FileNotFoundException {
+    return new FileInputStream(propertyFilePath);
   }
 }
