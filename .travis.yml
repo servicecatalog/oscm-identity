@@ -2,6 +2,18 @@ language: java
 
 jdk: openjdk8
 
-script: mvn clean verify
+cache:
+  directories:
+    - $HOME/.m2
+    - $TRAVIS_BUILD_DIR/libraries
 
-after_success: bash <(curl -s https://codecov.io/bash)
+env:
+  - MAVEN_OPTS=-Dorg.slf4j.simpleLogger.defaultLogLevel=info mvn org.jacoco:jacoco-maven-plugin:prepare-agent $MVN_GOAL -q -fae -Dmaven.javadoc.skip=true -DfailIfNoTests=false -B -P travis
+
+jobs:
+  include:
+    - stage: run_tests
+      name: Run Tests
+      script:
+        - mvn clean test jacoco:report
+        - bash <(curl -s https://codecov.io/bash)
