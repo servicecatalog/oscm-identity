@@ -8,4 +8,6 @@ Identity service for managing authentication with external IdPs using OpenId Con
 To build the application simply run `mvn clean package`
 
 ## Starting the application
-To start the application simply run `mvn spring-boot:run`
+1. Copy *config* directory to the same path, where You've put Your JAR file
+2. Provide default tenant configuration in *config/tenants/tenant-default.properties*
+3. Start the application using *java -jar* command
