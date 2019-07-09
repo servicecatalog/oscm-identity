@@ -25,6 +25,9 @@ public abstract class AuthorizationRequest {
     @Getter
     private String nonce;
 
+    @Getter
+    private String state;
+
     public AuthorizationRequest baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
         return this;
@@ -57,6 +60,11 @@ public abstract class AuthorizationRequest {
 
     public AuthorizationRequest nonce(String nonce) {
         this.nonce = nonce;
+        return this;
+    }
+
+    public AuthorizationRequest state(String state) {
+        this.state = state;
         return this;
     }
 

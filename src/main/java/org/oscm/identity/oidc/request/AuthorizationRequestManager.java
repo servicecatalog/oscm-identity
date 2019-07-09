@@ -4,7 +4,7 @@ public class AuthorizationRequestManager {
 
     public static AuthorizationRequest buildRequest(String provider) {
 
-        AuthorizationRequest request = null;
+        AuthorizationRequest request;
 
         switch (provider) {
             case "default":

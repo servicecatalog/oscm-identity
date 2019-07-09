@@ -15,6 +15,7 @@ public class DefaultAuthorizationRequest extends AuthorizationRequest {
                 .append("response_mode=" + getResponseMode()).append("&")
                 .append("scope=" + getScope()).append("&")
                 .append("nonce=" + getNonce()).append("&")
+                .append("state=" + getState())
                 .toString();
     }
 }

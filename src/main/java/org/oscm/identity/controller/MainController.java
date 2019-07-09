@@ -34,7 +34,8 @@ public class MainController {
     }
 
     @GetMapping("/login")
-    public void loginPage(@RequestParam(value = "tenantId", required = false) String tenantId, HttpServletRequest request,
+    public void loginPage(@RequestParam(value = "tenantId", required = false) String tenantId,
+                          @RequestParam(value = "state", required = false) String state,
                           HttpServletResponse response) {
 
 
@@ -48,6 +49,7 @@ public class MainController {
                 .responseMode("form_post")
                 //TODO: create nonce which should be validated for id_token
                 .nonce("test-nonce")
+                .state(state)
                 .buildUrl();
 
         try {
@@ -57,29 +59,21 @@ public class MainController {
         }
     }
 
-    @PostMapping("/token")
-    public ModelAndView idTokenCallback(@RequestParam(value = "id_token", required = false) String idToken,
-                                        @RequestParam(value = "error", required = false) String error,
-                                        @RequestParam(value = "error_description", required = false) String errorDescription) {
+    @PostMapping("/id_token")
+    public void idTokenCallback(@RequestParam(value = "id_token", required = false) String idToken,
+                                @RequestParam(value = "state", required = false) String state,
+                                @RequestParam(value = "error", required = false) String error,
+                                @RequestParam(value = "error_description", required = false) String errorDescription,
+                                HttpServletResponse response) throws IOException {
 
         if (error != null) {
             throw new IdentityProviderException(error + ": " + errorDescription);
         }
 
         //TODO: validate the token and when it it successful send redirection back to oscm to put proper user into session context
-        //TODO: cleanup this method - this is now only done for initial understanding id_token
 
         logger.info("Received id_token:" + idToken);
-        DecodedJWT decodedToken = JWT.decode(idToken);
-
-        ModelAndView view = new ModelAndView();
-        view.addObject("idToken", idToken);
-        view.addObject("expirationDate", decodedToken.getExpiresAt());
-        view.addObject("name", decodedToken.getClaim("name").asString());
-        view.addObject("uniqueName", decodedToken.getClaim("unique_name").asString());
-        view.setViewName("idtoken");
-
-        return view;
+        response.sendRedirect(state + "?id_token=" + idToken);
     }
 
 }
