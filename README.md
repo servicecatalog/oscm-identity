@@ -4,8 +4,10 @@
 # oscm-identity
 Identity service for managing authentication with external IdPs using OpenId Connect
 
-## Building the application
-To build the application simply run `mvn clean package`
+## Building from source
+To build the application
+1. Download and install lombok for you IDE. Instructions for Eclipse and IntelliJ can be found [here](https://www.baeldung.com/lombok-ide).     
+2. Run `mvn clean package`
 
 ## Starting the application
 1. Copy *config* directory to the same path, where You've put Your JAR file
