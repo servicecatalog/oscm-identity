@@ -109,7 +109,7 @@ public class MainController {
       throw new IdentityProviderException("Problem with contacting identity provider", exc);
     }
   }
-
+  
   /**
    * Token validation endpoint
    *
