@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            <version>${lombok.version}</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
@@ -50,20 +50,20 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${jupiter.version}</version>
+            <version>${jupiter.version}</version><!--$NO-MVN-MAN-VER$-->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version>
+            <version>${jupiter.version}</version><!--$NO-MVN-MAN-VER$-->
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
+            <version>${mockito.version}</version><!--$NO-MVN-MAN-VER$-->
             <scope>test</scope>
         </dependency>
     </dependencies>
