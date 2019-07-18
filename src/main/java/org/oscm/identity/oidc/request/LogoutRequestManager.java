@@ -1,21 +1,22 @@
 package org.oscm.identity.oidc.request;
 
+import org.oscm.identity.error.IdentityProviderException;
+
 public class LogoutRequestManager {
 
-    public static LogoutRequest buildRequest(String provider) {
+  public static LogoutRequest buildRequest(String provider) {
 
-        LogoutRequest request;
+    LogoutRequest request;
 
-        switch (provider) {
-            case "default":
-                request = new DefaultLogoutRequest();
-                break;
-            default:
-                //TODO: add throwing exception and its handling
-                request = new DefaultLogoutRequest();
-                break;
-        }
-
-        return request;
+    switch (provider) {
+      case "default":
+        request = new DefaultLogoutRequest();
+        break;
+      default:
+        throw new IdentityProviderException(
+            "No logout request implementation for identity provider [" + provider + "]");
     }
+
+    return request;
+  }
 }
