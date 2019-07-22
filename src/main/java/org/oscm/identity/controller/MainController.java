@@ -3,6 +3,7 @@ package org.oscm.identity.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.error.IdentityProviderException;
 import org.oscm.identity.oidc.request.AuthorizationRequestManager;
+import org.oscm.identity.oidc.request.LogoutRequestManager;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
 import org.oscm.identity.oidc.response.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.response.validation.TokenValidationResult;
@@ -78,8 +79,8 @@ public class MainController {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    TokenValidationResult validationResult = tokenValidator.validate(
-            TokenValidationRequest.of().token(idToken).build());
+    TokenValidationResult validationResult =
+        tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
 
     if (validationResult.isValid()) {
       response.sendRedirect(state + "?id_token=" + idToken);
@@ -89,16 +90,34 @@ public class MainController {
     }
   }
 
+  @GetMapping("/logout")
+  public void logoutPage(
+      @RequestParam(value = "tenantId", required = false) String tenantId,
+      @RequestParam(value = "state", required = false) String state,
+      HttpServletResponse response) {
+
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String url =
+        LogoutRequestManager.buildRequest(configuration.getProvider())
+            .baseUrl(configuration.getLogoutUrl())
+            .redirectUrl(state)
+            .buildUrl();
+
+    try {
+      response.sendRedirect(url);
+    } catch (IOException exc) {
+      throw new IdentityProviderException("Problem with contacting identity provider", exc);
+    }
+  }
+  
   /**
    * Token validation endpoint
    *
    * @param request validation request wrapper
-   *
    * @return HTTP Response
    */
   @PostMapping("/verify_token")
-  public ResponseEntity verifyToken(
-      @RequestBody TokenValidationRequest request) {
+  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request) {
     TokenValidationResult validationResult = tokenValidator.validate(request);
 
     if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);

@@ -9,6 +9,7 @@ public class TenantConfiguration {
     private String tenantId;
     private String clientId;
     private String authUrl;
+    private String logoutUrl;
     private String idTokenRedirectUrl;
     private String oidConfigUrl;
 }

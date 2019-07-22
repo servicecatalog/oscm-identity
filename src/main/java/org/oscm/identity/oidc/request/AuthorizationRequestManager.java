@@ -1,21 +1,22 @@
 package org.oscm.identity.oidc.request;
 
+import org.oscm.identity.error.IdentityProviderException;
+
 public class AuthorizationRequestManager {
 
-    public static AuthorizationRequest buildRequest(String provider) {
+  public static AuthorizationRequest buildRequest(String provider) {
 
-        AuthorizationRequest request;
+    AuthorizationRequest request;
 
-        switch (provider) {
-            case "default":
-                request = new DefaultAuthorizationRequest();
-                break;
-            default:
-                //TODO: add throwing exception and its handling
-                request = new DefaultAuthorizationRequest();
-                break;
-        }
-
-        return request;
+    switch (provider) {
+      case "default":
+        request = new DefaultAuthorizationRequest();
+        break;
+      default:
+        throw new IdentityProviderException(
+            "No auth request implementation for identity provider [" + provider + "]");
     }
+
+    return request;
+  }
 }
