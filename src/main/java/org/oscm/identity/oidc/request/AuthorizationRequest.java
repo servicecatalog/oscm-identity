@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Jun 18, 2019
+ *
+ *******************************************************************************/
 package org.oscm.identity.oidc.request;
 
 import lombok.Getter;

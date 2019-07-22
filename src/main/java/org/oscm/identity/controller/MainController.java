@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Jun 18, 2019
+ *
+ *******************************************************************************/
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
