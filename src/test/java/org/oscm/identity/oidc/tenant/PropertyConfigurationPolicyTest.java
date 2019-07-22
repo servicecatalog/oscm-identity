@@ -34,6 +34,7 @@ public class PropertyConfigurationPolicyTest {
   @ValueSource(strings = {"default", "test"})
   public void shouldLoadTenant_givenTenantOf(String tenantId) throws FileNotFoundException {
 
+    //TODO: Change it that way it would use new retriever
     InputStream stream =
         Thread.currentThread()
             .getContextClassLoader()
