@@ -22,13 +22,16 @@ import java.util.Date;
 @Component
 public class ExpirationTimeValidationStrategy implements TokenValidationStrategy {
 
-  private static final String VALIDATION_FAILURE_MESSAGE = "Token has expired";
-
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     if (LocalDateTime.now()
         .isAfter(convertDateToLocalDateTime(request.getDecodedToken().getExpiresAt())))
-      throw new ValidationException(VALIDATION_FAILURE_MESSAGE);
+      throw new ValidationException(getFailureMessage());
+  }
+
+  @Override
+  public String getFailureMessage() {
+    return "Token has expired";
   }
 
   /**

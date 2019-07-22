@@ -23,4 +23,11 @@ public interface TokenValidationStrategy {
    * @throws ValidationException
    */
   void execute(TokenValidationRequest request) throws ValidationException;
+
+  /**
+   * Returns validation failure message
+   *
+   * @return failure message
+   */
+  String getFailureMessage();
 }

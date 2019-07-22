@@ -23,9 +23,6 @@ import java.util.Optional;
 @Component
 public class AudienceValidationStrategy implements TokenValidationStrategy {
 
-  private static final String VALIDATION_FAILURE_MESSAGE =
-      "Token's audience " + "does not contain client ID from current tenant configuraion";
-
   private TenantService tenantService;
 
   @Autowired
@@ -39,6 +36,11 @@ public class AudienceValidationStrategy implements TokenValidationStrategy {
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
     if (!request.getDecodedToken().getAudience().contains(tenantConfiguration.getClientId()))
-      throw new ValidationException(VALIDATION_FAILURE_MESSAGE);
+      throw new ValidationException(getFailureMessage());
+  }
+
+  @Override
+  public String getFailureMessage() {
+    return "Token's audience does not contain client ID from current tenant configuration";
   }
 }

@@ -19,14 +19,16 @@ import javax.xml.bind.ValidationException;
 @Component
 public class NonceValidationStrategy implements TokenValidationStrategy {
 
-  private static final String VALIDATION_FAILURE_MESSAGE =
-      "Nonce provided in a request does not match the one from OID Token";
-
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     if (request.getNonce() != null) {
       if (!request.getNonce().equals(request.getDecodedToken().getClaim("nonce").asString()))
-        throw new ValidationException(VALIDATION_FAILURE_MESSAGE);
+        throw new ValidationException(getFailureMessage());
     }
+  }
+
+  @Override
+  public String getFailureMessage() {
+    return "Nonce provided in a request does not match the one from OID Token";
   }
 }

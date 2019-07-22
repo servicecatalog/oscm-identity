@@ -26,9 +26,6 @@ import java.util.Optional;
 @Component
 public class ISSValidationStrategy implements TokenValidationStrategy {
 
-  private static final String VALIDATION_FAILURE_MESSAGE =
-      "Issuer values from " + "OID config and OID token does not match";
-
   private TenantService tenantService;
 
   @Autowired
@@ -44,10 +41,15 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
     try {
       String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getOidConfigUrl());
       if (!issuer.equals(request.getDecodedToken().getIssuer()))
-        throw new ValidationException(VALIDATION_FAILURE_MESSAGE);
+        throw new ValidationException(getFailureMessage());
     } catch (JSONException e) {
       throw new ValidationException(e.getMessage());
     }
+  }
+
+  @Override
+  public String getFailureMessage() {
+    return "Issuer values from OID config and OID token does not match";
   }
 
   /**
