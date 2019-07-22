@@ -1,85 +1,135 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Jun 18, 2019
+ *
+ *******************************************************************************/
 package org.oscm.identity.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.error.IdentityProviderException;
 import org.oscm.identity.oidc.request.AuthorizationRequestManager;
+import org.oscm.identity.oidc.request.LogoutRequestManager;
+import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.oidc.response.validation.AuthTokenValidator;
+import org.oscm.identity.oidc.response.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 public class MainController {
 
-    private Logger logger = LoggerFactory.getLogger(MainController.class);
+  private static final String TOKEN_VALIDATION_FAILED_MESSAGE = "Token validation failed. Reason: ";
+  private static final String TOKEN_VALID_MESSAGE = "Token valid!";
 
-    @Autowired
-    private TenantService tenantService;
+  private TenantService tenantService;
+  private AuthTokenValidator tokenValidator;
 
-    @GetMapping
-    public String homePage() {
-        return "Welcome to the oscm-identity home page";
+  @Autowired
+  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator) {
+    this.tenantService = tenantService;
+    this.tokenValidator = tokenValidator;
+  }
+
+  @GetMapping
+  public String homePage() {
+    return "Welcome to the oscm-identity home page";
+  }
+
+  @GetMapping("/login")
+  public void loginPage(
+      @RequestParam(value = "tenantId", required = false) String tenantId,
+      @RequestParam(value = "state", required = false) String state,
+      HttpServletResponse response) {
+
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String url =
+        AuthorizationRequestManager.buildRequest(configuration.getProvider())
+            .baseUrl(configuration.getAuthUrl())
+            .clientId(configuration.getClientId())
+            .redirectUrl(configuration.getIdTokenRedirectUrl())
+            .scope("openid")
+            .responseType("id_token")
+            .responseMode("form_post")
+            // TODO: create nonce which should be validated for id_token
+            .nonce("test-nonce")
+            .state(state)
+            .buildUrl();
+
+    try {
+      response.sendRedirect(url);
+    } catch (IOException exc) {
+      throw new IdentityProviderException("Problem with contacting identity provider", exc);
+    }
+  }
+
+  @PostMapping("/id_token")
+  public void idTokenCallback(
+      @RequestParam(value = "id_token", required = false) String idToken,
+      @RequestParam(value = "state", required = false) String state,
+      @RequestParam(value = "error", required = false) String error,
+      @RequestParam(value = "error_description", required = false) String errorDescription,
+      HttpServletResponse response)
+      throws IOException, ValidationException {
+
+    if (error != null) {
+      throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    @GetMapping("/login")
-    public void loginPage(@RequestParam(value = "tenantId", required = false) String tenantId, HttpServletRequest request,
-                          HttpServletResponse response) {
+    TokenValidationResult validationResult =
+        tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
 
-
-        TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-        String url = AuthorizationRequestManager.buildRequest(configuration.getProvider())
-                .baseUrl(configuration.getAuthUrl())
-                .clientId(configuration.getClientId())
-                .redirectUrl(configuration.getIdTokenRedirectUrl())
-                .scope("openid")
-                .responseType("id_token")
-                .responseMode("form_post")
-                //TODO: create nonce which should be validated for id_token
-                .nonce("test-nonce")
-                .buildUrl();
-
-        try {
-            response.sendRedirect(url);
-        } catch (IOException exc) {
-            throw new IdentityProviderException("Problem with contacting identity provider", exc);
-        }
+    if (validationResult.isValid()) {
+      response.sendRedirect(state + "?id_token=" + idToken);
+    } else {
+      throw new ValidationException(
+          TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
     }
+  }
 
-    @PostMapping("/token")
-    public ModelAndView idTokenCallback(@RequestParam(value = "id_token", required = false) String idToken,
-                                        @RequestParam(value = "error", required = false) String error,
-                                        @RequestParam(value = "error_description", required = false) String errorDescription) {
+  @GetMapping("/logout")
+  public void logoutPage(
+      @RequestParam(value = "tenantId", required = false) String tenantId,
+      @RequestParam(value = "state", required = false) String state,
+      HttpServletResponse response) {
 
-        if (error != null) {
-            throw new IdentityProviderException(error + ": " + errorDescription);
-        }
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String url =
+        LogoutRequestManager.buildRequest(configuration.getProvider())
+            .baseUrl(configuration.getLogoutUrl())
+            .redirectUrl(state)
+            .buildUrl();
 
-        //TODO: validate the token and when it it successful send redirection back to oscm to put proper user into session context
-        //TODO: cleanup this method - this is now only done for initial understanding id_token
-
-        logger.info("Received id_token:" + idToken);
-        DecodedJWT decodedToken = JWT.decode(idToken);
-
-        ModelAndView view = new ModelAndView();
-        view.addObject("idToken", idToken);
-        view.addObject("expirationDate", decodedToken.getExpiresAt());
-        view.addObject("name", decodedToken.getClaim("name").asString());
-        view.addObject("uniqueName", decodedToken.getClaim("unique_name").asString());
-        view.setViewName("idtoken");
-
-        return view;
+    try {
+      response.sendRedirect(url);
+    } catch (IOException exc) {
+      throw new IdentityProviderException("Problem with contacting identity provider", exc);
     }
+  }
+  
+  /**
+   * Token validation endpoint
+   *
+   * @param request validation request wrapper
+   * @return HTTP Response
+   */
+  @PostMapping("/verify_token")
+  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request) {
+    TokenValidationResult validationResult = tokenValidator.validate(request);
 
+    if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
+    else
+      return ResponseEntity.status(406)
+          .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
+  }
 }

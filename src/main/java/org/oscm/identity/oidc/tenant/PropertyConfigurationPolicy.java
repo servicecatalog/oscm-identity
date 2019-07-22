@@ -39,6 +39,8 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
     configuration.setAuthUrl(properties.getProperty("oidc.authUrl"));
     configuration.setClientId(properties.getProperty("oidc.clientId"));
     configuration.setIdTokenRedirectUrl(properties.getProperty("oidc.idTokenRedirectUrl"));
+    configuration.setOidConfigUrl(properties.getProperty("oidc.openidConfigurationUrl"));
+    configuration.setLogoutUrl((properties.getProperty("oidc.logoutUrl")));
 
     return configuration;
   }
