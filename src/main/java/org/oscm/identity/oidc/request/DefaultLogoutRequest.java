@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Jul 22, 2019
+ *
+ *******************************************************************************/
+
 package org.oscm.identity.oidc.request;
 
 public class DefaultLogoutRequest extends LogoutRequest {

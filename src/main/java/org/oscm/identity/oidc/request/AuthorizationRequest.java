@@ -2,19 +2,20 @@ package org.oscm.identity.oidc.request;
 
 import lombok.Getter;
 
+@Getter
 public abstract class AuthorizationRequest extends OIDCRequest {
 
-  @Getter private String clientId;
+  private String clientId;
 
-  @Getter private String responseType;
+  private String responseType;
 
-  @Getter private String responseMode;
+  private String responseMode;
 
-  @Getter private String scope;
+  private String scope;
 
-  @Getter private String nonce;
+  private String nonce;
 
-  @Getter private String state;
+  private String state;
 
   public AuthorizationRequest baseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
