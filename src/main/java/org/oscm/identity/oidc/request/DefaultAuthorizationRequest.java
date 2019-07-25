@@ -8,14 +8,27 @@
 
 package org.oscm.identity.oidc.request;
 
+import org.oscm.identity.error.IdentityProviderException;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Component
 public class DefaultAuthorizationRequest extends AuthorizationRequest {
 
   @Override
-  public String buildUrl() {
+  public void execute(HttpServletResponse response) {
 
+    String url = this.buildUrl();
+    try {
+      response.sendRedirect(url);
+    } catch (IOException exc) {
+      throw new IdentityProviderException("Problem with contacting identity provider", exc);
+    }
+  }
+
+  public String buildUrl() {
     return new StringBuilder(getBaseUrl())
         .append("?")
         .append("client_id=" + getClientId())

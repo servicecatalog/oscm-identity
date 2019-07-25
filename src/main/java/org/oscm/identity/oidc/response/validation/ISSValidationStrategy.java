@@ -1,12 +1,11 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: July 19, 2019
+ *  Creation Date: Jul 19, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
+
 package org.oscm.identity.oidc.response.validation;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +62,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
    * @throws JSONException
    */
   private String getIssuerFromRemoteConfig(String oidConfigUrl) throws JSONException {
+
     String responseJSON = restTemplate.getForObject(oidConfigUrl, String.class);
     return new JSONObject(responseJSON).get("issuer").toString();
   }
