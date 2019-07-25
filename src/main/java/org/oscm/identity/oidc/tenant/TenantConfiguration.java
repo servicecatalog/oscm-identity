@@ -16,8 +16,10 @@ public class TenantConfiguration {
   private String provider;
   private String tenantId;
   private String clientId;
+  private String clientSecret;
   private String authUrl;
   private String logoutUrl;
+  private String tokenUrl;
   private String idTokenRedirectUrl;
   private String oidConfigUrl;
 }

@@ -19,7 +19,9 @@ public class DefaultLogoutRequestTest {
     String baseUrl = "http://baseUrl";
     String redirectUrl = "http://redirectUrl";
 
-    LogoutRequest request = new DefaultLogoutRequest().baseUrl(baseUrl).redirectUrl(redirectUrl);
+    LogoutRequest request = new DefaultLogoutRequest();
+    request.setBaseUrl(baseUrl);
+    request.setRedirectUrl(redirectUrl);
 
     // when
     String url = request.buildUrl();

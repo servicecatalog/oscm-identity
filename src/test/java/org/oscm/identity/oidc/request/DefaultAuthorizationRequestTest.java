@@ -26,15 +26,15 @@ public class DefaultAuthorizationRequestTest {
     String nonce = "some-nonce";
 
     AuthorizationRequest request =
-        new DefaultAuthorizationRequest()
-            .baseUrl(baseUrl)
-            .redirectUrl(redirectUrl)
-            .clientId(clientId)
-            .responseType(responseType)
-            .responseMode(responseMode)
-            .scope(scope)
-            .nonce(nonce);
+        new DefaultAuthorizationRequest();
 
+    request.setBaseUrl(baseUrl);
+    request.setRedirectUrl(redirectUrl);
+    request.setClientId(clientId);
+    request.setResponseType(responseType);
+    request.setResponseMode(responseMode);
+    request.setScope(scope);
+    request.setNonce(nonce);
     // when
     String url = request.buildUrl();
 
