@@ -20,6 +20,7 @@ public class TenantConfiguration {
   private String authUrl;
   private String logoutUrl;
   private String tokenUrl;
-  private String idTokenRedirectUrl;
-  private String oidConfigUrl;
+  private String redirectUrl;
+  private String configurationUrl;
+  private String usersEndpoint;
 }

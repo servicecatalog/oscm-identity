@@ -15,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
 import org.oscm.identity.oidc.request.*;
-import org.oscm.identity.oidc.response.UserInfoResponse;
 import org.oscm.identity.oidc.response.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.response.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
@@ -64,7 +63,7 @@ public class MainController {
         RequestHandler.getRequestManager(configuration.getProvider()).initAuthorizationRequest();
     request.setBaseUrl(configuration.getAuthUrl());
     request.setClientId(configuration.getClientId());
-    request.setRedirectUrl(configuration.getIdTokenRedirectUrl());
+    request.setRedirectUrl(configuration.getRedirectUrl());
     request.setScope("openid offline_access https://graph.microsoft.com/user.read.all");
     request.setResponseType("code id_token");
     request.setResponseMode("form_post");
@@ -77,29 +76,31 @@ public class MainController {
 
   @PostMapping("/id_token")
   public ModelAndView tokenCallback(
+      @RequestParam(value = "id_token", required = false) String idToken,
       @RequestParam(value = "code", required = false) String code,
       @RequestParam(value = "state", required = false) String state,
       @RequestParam(value = "error", required = false) String error,
       @RequestParam(value = "error_description", required = false) String errorDescription,
       HttpServletResponse response)
-          throws IOException, ValidationException, JSONException {
+      throws IOException, ValidationException, JSONException {
 
     if (error != null) {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    log.info("Code:"+code);
-    //TODO: get tenant out of state
+    log.debug("Authorization code retrieved:" + code);
+    // TODO: get tenant out of state param
     String tenantId = null;
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
-    TokenRequest tokenRequest = RequestHandler.getRequestManager(configuration.getProvider()).initTokenRequest();
+    TokenRequest tokenRequest =
+        RequestHandler.getRequestManager(configuration.getProvider()).initTokenRequest();
     tokenRequest.setBaseUrl(configuration.getTokenUrl());
     tokenRequest.setClientId(configuration.getClientId());
     tokenRequest.setClientSecret(configuration.getClientSecret());
     tokenRequest.setCode(code);
     tokenRequest.setGrantType("authorization_code");
-    tokenRequest.setRedirectUrl(configuration.getIdTokenRedirectUrl());
+    tokenRequest.setRedirectUrl(configuration.getRedirectUrl());
 
     ResponseEntity<String> entity = tokenRequest.execute();
 
@@ -111,21 +112,20 @@ public class MainController {
     TokenValidationResult validationResult =
         tokenValidator.validate(TokenValidationRequest.of().token(accessToken).build());
 
-    log.info("TOKEN VALID:" + validationResult.isValid());
-    log.info("Token received:" + accessToken);
+    log.debug("Access token received:" + accessToken);
+    log.debug("Refresh token received:" + refreshToken);
+
     // response.sendRedirect(state + "?id_token=" + idToken);
 
     ModelAndView view = new ModelAndView();
 
-    if (accessToken != null) {
-      DecodedJWT decodedToken = JWT.decode(accessToken);
-      view.addObject("accessToken", accessToken);
-      view.addObject("refreshToken", refreshToken);
-      view.addObject("expirationDate", decodedToken.getExpiresAt());
-      view.addObject("name", decodedToken.getClaim("name").asString());
-      view.addObject("uniqueName", decodedToken.getClaim("unique_name").asString());
-    }
-
+    DecodedJWT decodedToken = JWT.decode(accessToken);
+    view.addObject("idToken", idToken);
+    view.addObject("accessToken", accessToken);
+    view.addObject("refreshToken", refreshToken);
+    view.addObject("expirationDate", decodedToken.getExpiresAt());
+    view.addObject("name", decodedToken.getClaim("name").asString());
+    view.addObject("uniqueName", decodedToken.getClaim("unique_name").asString());
     view.addObject("code", code);
     view.setViewName("idtoken");
 
@@ -165,17 +165,5 @@ public class MainController {
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
           .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
   }
-
-  @GetMapping("/users/{userId}")
-  public ResponseEntity<UserInfoResponse> getUser(
-      @PathVariable String userId,
-      @RequestParam(value = "tenantId", required = false) String tenantId,
-      @RequestParam(value = "token") String token) {
-
-    UserInfoResponse userInfo = new UserInfoResponse();
-
-    return ResponseEntity.ok(userInfo);
-  }
-
 
 }

@@ -7,4 +7,6 @@ public interface RequestManager {
   LogoutRequest initLogoutRequest();
 
   TokenRequest initTokenRequest();
+
+  UserRequest initGetUserRequest();
 }
