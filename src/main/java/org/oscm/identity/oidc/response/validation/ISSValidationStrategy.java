@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.oidc.request.proxy.ProxyHandler;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,12 @@ import java.util.Optional;
 public class ISSValidationStrategy implements TokenValidationStrategy {
 
   private TenantService tenantService;
+  private ProxyHandler proxyHandler;
 
   @Autowired
-  public ISSValidationStrategy(TenantService tenantService) {
+  public ISSValidationStrategy(TenantService tenantService, ProxyHandler proxyHandler) {
     this.tenantService = tenantService;
+    this.proxyHandler = proxyHandler;
   }
 
   @Override
@@ -64,11 +67,19 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
    */
   private String getIssuerFromRemoteConfig(String oidConfigUrl) throws JSONException {
 
-    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("abgproxya.abg.fsc.net", 82));
-    factory.setProxy(proxy);
+    RestTemplate restTemplate = new RestTemplate();
 
-    String responseJSON = new RestTemplate(factory).getForObject(oidConfigUrl, String.class);
+    if (Boolean.valueOf(proxyHandler.isRequired())) {
+      SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+      Proxy proxy =
+          new Proxy(
+              Proxy.Type.HTTP,
+              new InetSocketAddress(proxyHandler.getHost(), proxyHandler.getPort()));
+      factory.setProxy(proxy);
+      restTemplate.setRequestFactory(factory);
+    }
+
+    String responseJSON = restTemplate.getForObject(oidConfigUrl, String.class);
     return new JSONObject(responseJSON).get("issuer").toString();
   }
 }
