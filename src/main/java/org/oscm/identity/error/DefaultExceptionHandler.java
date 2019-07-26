@@ -33,19 +33,20 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(HttpClientErrorException.class)
-  public ModelAndView handleClientError(HttpClientErrorException ex) throws IOException {
+  public ResponseEntity<ErrorResponse> handleClientError(HttpClientErrorException ex) throws IOException {
 
     log.error(ex.getMessage(), ex);
     String jsonResponse = ex.getResponseBodyAsString();
 
     ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> errorResponse = mapper.readValue(jsonResponse, Map.class);
+    Map<String, Object> response = mapper.readValue(jsonResponse, Map.class);
+    Map<String, Object> error = (Map<String, Object>) response.get("error");
 
-    ModelAndView view = new ModelAndView();
-    view.addObject("errorMessage", errorResponse.get("error_description"));
-    view.setViewName("error");
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setError(error.get("code").toString());
+    errorResponse.setErrorDescription(error.get("message").toString());
 
-    return view;
+    return new ResponseEntity<>(errorResponse, ex.getStatusCode());
   }
 
   @Override

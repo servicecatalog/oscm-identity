@@ -10,7 +10,6 @@
 package org.oscm.identity.oidc.response.validation;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;

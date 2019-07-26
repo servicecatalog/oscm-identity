@@ -16,4 +16,9 @@ public class DefaultRequestManager implements RequestManager {
   public TokenRequest initTokenRequest() {
     return new DefaultTokenRequest();
   }
+
+  @Override
+  public UserRequest initGetUserRequest() {
+    return new DefaultGetUserRequest();
+  }
 }

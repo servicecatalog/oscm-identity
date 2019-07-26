@@ -2,46 +2,39 @@
  *
  *  Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 25, 2019
+ *  Creation Date: Jul 26, 2019
  *
  *******************************************************************************/
-
 package org.oscm.identity.oidc.request;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.oscm.identity.oidc.request.proxy.ProxyHandler;
 import org.oscm.identity.service.BeanUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
-/** Implementation of token request related to default identity provider */
-public class DefaultTokenRequest extends TokenRequest {
+public class DefaultGetUserRequest extends UserRequest {
+
+  @Getter @Setter private String select;
 
   ProxyHandler proxyHandler = BeanUtil.getBean(ProxyHandler.class);
 
   @Override
-  public ResponseEntity<String> execute() {
+  public ResponseEntity execute() {
+    RestTemplate restTemplate = new RestTemplate();
 
     HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    headers.setBearerAuth(getToken());
 
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("client_id", getClientId());
-    map.add("client_secret", getClientSecret());
-    map.add("grant_type", getGrantType());
-    map.add("redirect_uri", getRedirectUrl());
-    map.add("code", getCode());
-
-    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity entity = new HttpEntity(headers);
 
     if (proxyHandler.isRequired()) {
       SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -53,9 +46,11 @@ public class DefaultTokenRequest extends TokenRequest {
       restTemplate.setRequestFactory(factory);
     }
 
-    ResponseEntity<String> response =
-        restTemplate.postForEntity(getBaseUrl(), request, String.class);
+    String url = getBaseUrl() + "/" + getUserId() + "?$select=" + getSelect();
 
-    return response;
+    ResponseEntity<String> responseEntity =
+        restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+    return responseEntity;
   }
 }

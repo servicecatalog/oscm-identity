@@ -45,7 +45,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
     try {
-      String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getOidConfigUrl());
+      String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getConfigurationUrl());
       if (!issuer.equals(request.getDecodedToken().getIssuer()))
         throw new ValidationException(getFailureMessage());
     } catch (JSONException e) {
