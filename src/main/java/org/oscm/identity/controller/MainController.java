@@ -1,6 +1,5 @@
 package org.oscm.identity.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.error.IdentityProviderException;
 import org.oscm.identity.oidc.request.AuthorizationRequestManager;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
-@Slf4j
 public class MainController {
 
   private static final String TOKEN_VALIDATION_FAILED_MESSAGE = "Token validation failed. Reason: ";
@@ -78,8 +76,8 @@ public class MainController {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    TokenValidationResult validationResult = tokenValidator.validate(
-            TokenValidationRequest.of().token(idToken).build());
+    TokenValidationResult validationResult =
+        tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
 
     if (validationResult.isValid()) {
       response.sendRedirect(state + "?id_token=" + idToken);
@@ -93,12 +91,10 @@ public class MainController {
    * Token validation endpoint
    *
    * @param request validation request wrapper
-   *
    * @return HTTP Response
    */
   @PostMapping("/verify_token")
-  public ResponseEntity verifyToken(
-      @RequestBody TokenValidationRequest request) {
+  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request) {
     TokenValidationResult validationResult = tokenValidator.validate(request);
 
     if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
