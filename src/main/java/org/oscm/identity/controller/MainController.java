@@ -8,8 +8,6 @@
 
 package org.oscm.identity.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -64,8 +61,8 @@ public class MainController {
     request.setBaseUrl(configuration.getAuthUrl());
     request.setClientId(configuration.getClientId());
     request.setRedirectUrl(configuration.getRedirectUrl());
-    request.setScope("openid offline_access https://graph.microsoft.com/user.read.all");
-    request.setResponseType("code id_token");
+    request.setScope(configuration.getAuthUrlScope());
+    request.setResponseType("id_token code");
     request.setResponseMode("form_post");
     // TODO: create nonce which should be validated for id_token
     request.setNonce("test-nonce");
@@ -74,8 +71,8 @@ public class MainController {
     request.execute(response);
   }
 
-  @PostMapping("/id_token")
-  public ModelAndView tokenCallback(
+  @PostMapping("/callback")
+  public void callback(
       @RequestParam(value = "id_token", required = false) String idToken,
       @RequestParam(value = "code", required = false) String code,
       @RequestParam(value = "state", required = false) String state,
@@ -105,35 +102,29 @@ public class MainController {
     ResponseEntity<String> entity = tokenRequest.execute();
 
     JSONObject jsonResponse = new JSONObject(entity.getBody());
-
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
-
-    TokenValidationResult validationResult =
-        tokenValidator.validate(TokenValidationRequest.of().token(accessToken).build());
 
     log.debug("Access token received:" + accessToken);
     log.debug("Refresh token received:" + refreshToken);
 
-    // response.sendRedirect(state + "?id_token=" + idToken);
+    TokenValidationResult validationResult =
+        tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
 
-    ModelAndView view = new ModelAndView();
+    if (validationResult.isValid()) {
+      String url =
+          new StringBuilder(state)
+              .append("?id_token=" + idToken)
+              .append("&access_token=" + accessToken)
+              .append("&refresh_token=" + refreshToken)
+              .toString();
 
-    DecodedJWT decodedToken = JWT.decode(accessToken);
-    view.addObject("idToken", idToken);
-    view.addObject("accessToken", accessToken);
-    view.addObject("refreshToken", refreshToken);
-    view.addObject("expirationDate", decodedToken.getExpiresAt());
-    view.addObject("name", decodedToken.getClaim("name").asString());
-    view.addObject("uniqueName", decodedToken.getClaim("unique_name").asString());
-    view.addObject("code", code);
-    view.setViewName("idtoken");
-
-    return view;
-    /*} else {
+      log.debug("Redirecting to " + url);
+      response.sendRedirect(url);
+    } else {
       throw new ValidationException(
           TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
-    }*/
+    }
   }
 
   @GetMapping("/logout")
@@ -165,5 +156,4 @@ public class MainController {
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
           .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
   }
-
 }
