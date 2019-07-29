@@ -21,8 +21,12 @@ public class AlgorithmValidationStrategy implements TokenValidationStrategy {
   private static final String VALIDATION_FAILURE_MESSAGE =
       "Signing algorithm type does not match the expected one";
 
-  @Value("${auth.signing.algorithm.type}")
   private String expectedAlgorithmType;
+
+  public AlgorithmValidationStrategy(
+      @Value("${auth.signing.algorithm.type}") String expectedAlgorithmType) {
+    this.expectedAlgorithmType = expectedAlgorithmType;
+  }
 
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
