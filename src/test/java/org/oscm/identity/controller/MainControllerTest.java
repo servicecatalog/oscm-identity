@@ -52,7 +52,7 @@ public class MainControllerTest {
   @SneakyThrows
   public void shouldRedirect_whenGetToLogin_givenNoErrors() {
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setProvider("provider");
+    configuration.setProvider("default");
     configuration.setAuthUrl("authUrl");
     configuration.setClientId("clientId");
     configuration.setIdTokenRedirectUrl("redirectUrl");
@@ -70,7 +70,7 @@ public class MainControllerTest {
   @SneakyThrows
   public void shouldReturnError_whenGetToLogin_givenAnIOError() {
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setProvider("provider");
+    configuration.setProvider("default");
     configuration.setAuthUrl("authUrl");
     configuration.setClientId("clientId");
     configuration.setIdTokenRedirectUrl("redirectUrl");
@@ -139,6 +139,36 @@ public class MainControllerTest {
 
     ResponseEntity response = controller.verifyToken(any());
 
-    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
+    assertThat(response)
+        .extracting(ResponseEntity::getStatusCode)
+        .isEqualTo(HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldSucceed_whenGetToLogout_givenNoErrors() {
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setLogoutUrl("logoutUrl");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    doNothing().when(response).sendRedirect(any());
+
+    assertThatCode(() -> controller.logoutPage("tenantId", "state", response))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnError_whenGetToLogout_givenIOException() {
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setLogoutUrl("logoutUrl");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    doThrow(new IOException()).when(response).sendRedirect(any());
+
+    assertThatExceptionOfType(IdentityProviderException.class)
+        .isThrownBy(() -> controller.logoutPage("tenantId", "state", response));
   }
 }
