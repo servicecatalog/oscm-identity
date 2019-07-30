@@ -18,7 +18,6 @@ oidc.clientId=oscm-identity must be register in external identity provider, this
 oidc.authUrl=url which your external identity provider uses for authenticating users
 oidc.idTokenRedirectUrl=url which is used for id_token callbcak, must be register in your external identity provider list of URL responses
 oidc.logoutUrl=url which your external identity provider uses for logging-out users
-oidc.idTokenRedirectUrl=url which is used for id_token callback, must be register in your external identity provider list of URL responses
 ```
 3. Start the application using `java -jar` command
 
