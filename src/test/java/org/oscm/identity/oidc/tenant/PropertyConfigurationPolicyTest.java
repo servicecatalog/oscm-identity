@@ -31,7 +31,6 @@ public class PropertyConfigurationPolicyTest {
   @ParameterizedTest
   @ValueSource(strings = {"default", "test"})
   public void shouldLoadTenant_givenTenantOf(String tenantId) throws FileNotFoundException {
-    // TODO: Update other tenant property files after pull from master
     InputStream stream =
         Thread.currentThread()
             .getContextClassLoader()
@@ -49,6 +48,9 @@ public class PropertyConfigurationPolicyTest {
     assertThat(configuration)
         .extracting(TenantConfiguration::getAuthUrl)
         .isEqualTo(tenantId + "AuthUrl");
+    assertThat(configuration)
+        .extracting(TenantConfiguration::getLogoutUrl)
+        .isEqualTo(tenantId + "LogoutUrl");
   }
 
   @Test
