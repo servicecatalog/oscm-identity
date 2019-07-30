@@ -1,3 +1,12 @@
+/**
+ * *****************************************************************************
+ *
+ * <p>Copyright FUJITSU LIMITED 2019
+ *
+ * <p>Creation Date: June 19, 2019
+ *
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import org.oscm.identity.error.IdentityProviderException;
@@ -8,6 +17,7 @@ import org.oscm.identity.oidc.response.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,7 +109,7 @@ public class MainController {
 
     if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
     else
-      return ResponseEntity.status(406)
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
           .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
   }
 }
