@@ -18,8 +18,12 @@ import javax.xml.bind.ValidationException;
 @Component
 public class AlgorithmValidationStrategy implements TokenValidationStrategy {
 
-  @Value("${auth.signing.algorithm.type}")
-  private String expectedAlgorithmType;
+private String expectedAlgorithmType;
+
+public AlgorithmValidationStrategy(
+    @Value("${auth.signing.algorithm.type}") String expectedAlgorithmType) {
+  this.expectedAlgorithmType = expectedAlgorithmType;
+}
 
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {

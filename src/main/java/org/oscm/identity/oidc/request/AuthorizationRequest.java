@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jun 18, 2019
+ * <p>Creation Date: Jun 18, 2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.oidc.request;
 
 import lombok.Getter;
@@ -26,11 +28,6 @@ public abstract class AuthorizationRequest extends OIDCRequest {
 
   public AuthorizationRequest baseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
-    return this;
-  }
-
-  public AuthorizationRequest redirectUrl(String redirectUrl) {
-    this.redirectUrl = redirectUrl;
     return this;
   }
 
@@ -63,4 +60,11 @@ public abstract class AuthorizationRequest extends OIDCRequest {
     this.state = state;
     return this;
   }
+
+  public AuthorizationRequest redirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
+    return this;
+  }
+
+  public abstract String buildUrl();
 }

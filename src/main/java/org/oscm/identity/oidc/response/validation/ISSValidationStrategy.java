@@ -27,10 +27,13 @@ import java.util.Optional;
 public class ISSValidationStrategy implements TokenValidationStrategy {
 
   private TenantService tenantService;
+  private RestTemplate restTemplate;
 
   @Autowired
-  public ISSValidationStrategy(TenantService tenantService) {
+  public ISSValidationStrategy(TenantService tenantService,
+          RestTemplate restTemplate) {
     this.tenantService = tenantService;
+    this.restTemplate = restTemplate;
   }
 
   @Override
@@ -60,7 +63,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
    * @throws JSONException
    */
   private String getIssuerFromRemoteConfig(String oidConfigUrl) throws JSONException {
-    String responseJSON = new RestTemplate().getForObject(oidConfigUrl, String.class);
+    String responseJSON = restTemplate.getForObject(oidConfigUrl, String.class);
     return new JSONObject(responseJSON).get("issuer").toString();
   }
 }

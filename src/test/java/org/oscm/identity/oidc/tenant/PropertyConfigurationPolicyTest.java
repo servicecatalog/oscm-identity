@@ -10,35 +10,31 @@
 package org.oscm.identity.oidc.tenant;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.TenantConfigurationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class PropertyConfigurationPolicyTest {
 
-  @Spy private PropertyConfigurationPolicy configurationPolicy;
+  @Autowired private PropertyConfigurationPolicy configurationPolicy;
+  @Autowired private TenantPropertyFileRetriever propertyFileRetriever;
 
   @ParameterizedTest
   @ValueSource(strings = {"default", "test"})
   public void shouldLoadTenant_givenTenantOf(String tenantId) throws FileNotFoundException {
-
     InputStream stream =
         Thread.currentThread()
             .getContextClassLoader()
             .getResourceAsStream("tenant-" + tenantId + ".properties");
-    doReturn(stream).when(configurationPolicy).getFileInputSteam(anyString());
 
     TenantConfiguration configuration = configurationPolicy.loadTenant(tenantId);
 
@@ -52,6 +48,9 @@ public class PropertyConfigurationPolicyTest {
     assertThat(configuration)
         .extracting(TenantConfiguration::getAuthUrl)
         .isEqualTo(tenantId + "AuthUrl");
+    assertThat(configuration)
+        .extracting(TenantConfiguration::getLogoutUrl)
+        .isEqualTo(tenantId + "LogoutUrl");
   }
 
   @Test

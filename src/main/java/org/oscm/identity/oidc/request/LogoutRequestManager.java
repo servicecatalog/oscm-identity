@@ -5,7 +5,6 @@
  *  Creation Date: Jul 22, 2019
  *
  *******************************************************************************/
-
 package org.oscm.identity.oidc.request;
 
 import org.oscm.identity.error.IdentityProviderException;

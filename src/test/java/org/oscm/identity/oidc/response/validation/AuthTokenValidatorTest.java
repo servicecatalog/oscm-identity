@@ -9,26 +9,33 @@
  */
 package org.oscm.identity.oidc.response.validation;
 
-import org.junit.jupiter.api.Disabled;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class AuthTokenValidatorTest {
 
-  @Autowired private AuthTokenValidator validator;
+  @Mock private ISSValidationStrategy issValidationStrategy;
+  @Mock private AudienceValidationStrategy audienceValidationStrategy;
+  @Mock private AlgorithmValidationStrategy algorithmValidationStrategy;
+  @Mock private ExpirationTimeValidationStrategy expirationTimeValidationStrategy;
+  @Mock private NonceValidationStrategy nonceValidationStrategy;
+  @InjectMocks private AuthTokenValidator validator;
 
   @Test
-  @Disabled("Fix this test - tenant config could not be loaded. "
-          + "Will be fixed in scope of oscm-identity#6")
+  @SneakyThrows
   public void shouldConfirmTokenValidity_givenValidToken() {
+    doNothing().when(issValidationStrategy).execute(any());
+
     String validToken =
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9"
             + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gR"
