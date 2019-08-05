@@ -8,24 +8,22 @@
 
 package org.oscm.identity.oidc.request;
 
-import org.oscm.identity.oidc.request.proxy.ProxyHandler;
-import org.oscm.identity.service.BeanUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-
 /** Implementation of token request related to default identity provider */
 public class DefaultTokenRequest extends TokenRequest {
 
-  ProxyHandler proxyHandler = BeanUtil.getBean(ProxyHandler.class);
+  private RestTemplate restTemplate;
+
+  public DefaultTokenRequest(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
   @Override
   public ResponseEntity<String> execute() {
@@ -41,17 +39,6 @@ public class DefaultTokenRequest extends TokenRequest {
     map.add("code", getCode());
 
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-    RestTemplate restTemplate = new RestTemplate();
-
-    if (proxyHandler.isRequired()) {
-      SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-      Proxy proxy =
-          new Proxy(
-              Proxy.Type.HTTP,
-              new InetSocketAddress(proxyHandler.getHost(), proxyHandler.getPort()));
-      factory.setProxy(proxy);
-      restTemplate.setRequestFactory(factory);
-    }
 
     ResponseEntity<String> response =
         restTemplate.postForEntity(getBaseUrl(), request, String.class);

@@ -12,17 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
-import org.oscm.identity.oidc.request.proxy.ProxyHandler;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.xml.bind.ValidationException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.Optional;
 
 @Slf4j
@@ -31,14 +27,11 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
 
   private TenantService tenantService;
   private RestTemplate restTemplate;
-  private ProxyHandler proxyHandler;
 
   @Autowired
-  public ISSValidationStrategy(
-      TenantService tenantService, RestTemplate restTemplate, ProxyHandler proxyHandler) {
+  public ISSValidationStrategy(TenantService tenantService, RestTemplate restTemplate) {
     this.tenantService = tenantService;
     this.restTemplate = restTemplate;
-    this.proxyHandler = proxyHandler;
   }
 
   @Override
@@ -68,16 +61,6 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
    * @throws JSONException
    */
   private String getIssuerFromRemoteConfig(String oidConfigUrl) throws JSONException {
-
-    if (Boolean.valueOf(proxyHandler.isRequired())) {
-      SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-      Proxy proxy =
-          new Proxy(
-              Proxy.Type.HTTP,
-              new InetSocketAddress(proxyHandler.getHost(), proxyHandler.getPort()));
-      factory.setProxy(proxy);
-      restTemplate.setRequestFactory(factory);
-    }
 
     String responseJSON = restTemplate.getForObject(oidConfigUrl, String.class);
     return new JSONObject(responseJSON).get("issuer").toString();

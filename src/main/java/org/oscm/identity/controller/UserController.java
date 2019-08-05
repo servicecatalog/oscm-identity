@@ -33,10 +33,12 @@ import java.util.Optional;
 public class UserController {
 
   private TenantService tenantService;
+  private RequestHandler requestHandler;
 
   @Autowired
-  public UserController(TenantService tenantService) {
+  public UserController(TenantService tenantService, RequestHandler requestHandler) {
     this.tenantService = tenantService;
+    this.requestHandler = requestHandler;
   }
 
   /**
@@ -58,14 +60,15 @@ public class UserController {
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     UserRequest request =
-        RequestHandler.getRequestManager(configuration.getProvider()).initGetUserRequest();
+        requestHandler.getRequestManager(configuration.getProvider()).initGetUserRequest();
     request.setBaseUrl(configuration.getUsersEndpoint());
-    request.setUserId(userId);
     request.setToken(token);
 
     if (request instanceof DefaultGetUserRequest) {
-      ((DefaultGetUserRequest) request)
-          .setSelect("givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+
+      DefaultGetUserRequest defaultRequest = (DefaultGetUserRequest) request;
+      defaultRequest.setUserId(userId);
+      defaultRequest.setSelect("givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
     }
 
     ResponseEntity<String> response = request.execute();

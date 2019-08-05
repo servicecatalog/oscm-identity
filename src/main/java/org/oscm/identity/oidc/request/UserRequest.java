@@ -13,6 +13,5 @@ import lombok.Data;
 public abstract class UserRequest implements OIDCReturnRequest {
 
   private String baseUrl;
-  private String userId;
   private String token;
 }

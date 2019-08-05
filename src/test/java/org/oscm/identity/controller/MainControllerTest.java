@@ -1,12 +1,11 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: July 22, 2019
+ *  Creation Date: Jul 22, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import lombok.SneakyThrows;
@@ -16,12 +15,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
+import org.oscm.identity.oidc.request.DefaultRequestManager;
+import org.oscm.identity.oidc.request.RequestHandler;
+import org.oscm.identity.oidc.request.RequestManager;
+import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.response.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.response.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -39,12 +43,15 @@ public class MainControllerTest {
   @Mock private TenantService tenantService;
   @Mock private AuthTokenValidator tokenValidator;
   @Mock private HttpServletResponse response;
+  @Mock private RequestHandler requestHandler;
+  @Mock private RequestManager requestManager;
+  @Mock private TokenRequest tokenRequest;
+
   @InjectMocks private MainController controller;
 
   @Test
   public void shouldSucceed_whenGetToDefault() {
     String result = controller.homePage();
-
     assertThat(result).isNotBlank();
   }
 
@@ -55,8 +62,11 @@ public class MainControllerTest {
     configuration.setProvider("default");
     configuration.setAuthUrl("authUrl");
     configuration.setClientId("clientId");
-    configuration.setIdTokenRedirectUrl("redirectUrl");
+    configuration.setRedirectUrl("redirectUrl");
 
+    DefaultRequestManager requestManager = new DefaultRequestManager(new RestTemplate());
+
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     doNothing().when(response).sendRedirect(any());
 
@@ -73,9 +83,11 @@ public class MainControllerTest {
     configuration.setProvider("default");
     configuration.setAuthUrl("authUrl");
     configuration.setClientId("clientId");
-    configuration.setIdTokenRedirectUrl("redirectUrl");
+    configuration.setRedirectUrl("redirectUrl");
+    RequestManager requestManager = new DefaultRequestManager(new RestTemplate());
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
     doThrow(new IOException()).when(response).sendRedirect(anyString());
 
     assertThatExceptionOfType(IdentityProviderException.class)
@@ -87,12 +99,19 @@ public class MainControllerTest {
   @Test
   @SneakyThrows
   public void shouldRedirectToHomeWithToken_whenPostToIdToken_givenNoErrors() {
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
     TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
+    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(tokenValidator.validate(any())).thenReturn(validationResult);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(entity);
     doNothing().when(response).sendRedirect(any());
 
-    assertThatCode(() -> controller.idTokenCallback("idToken", "state", null, null, response))
+    assertThatCode(() -> controller.callback("idToken", "code", "state", null, null, response))
         .doesNotThrowAnyException();
 
     verify(tokenValidator, times(1)).validate(any());
@@ -104,7 +123,7 @@ public class MainControllerTest {
   public void shouldReturnError_whenPostToIdToken_givenAPassedInError() {
     assertThatExceptionOfType(IdentityProviderException.class)
         .isThrownBy(
-            () -> controller.idTokenCallback("idToken", "state", "someError", null, response));
+            () -> controller.callback("idToken", "code", "state", "someError", null, response));
     verifyZeroInteractions(tokenValidator);
     verify(response, never()).sendRedirect(any());
   }
@@ -113,10 +132,20 @@ public class MainControllerTest {
   public void shouldReturnError_whenPostToIdToken_givenValidationError() {
     TokenValidationResult validationResult =
         TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+
+    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(entity);
     when(tokenValidator.validate(any())).thenReturn(validationResult);
 
     assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> controller.idTokenCallback("idToken", "state", null, null, response));
+        .isThrownBy(() -> controller.callback("idToken", "code", "state", null, null, response));
 
     verify(tokenValidator, times(1)).validate(any());
     verifyZeroInteractions(response);
@@ -151,6 +180,9 @@ public class MainControllerTest {
     configuration.setProvider("default");
     configuration.setLogoutUrl("logoutUrl");
 
+    DefaultRequestManager requestManager = new DefaultRequestManager(new RestTemplate());
+
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     doNothing().when(response).sendRedirect(any());
 
@@ -165,6 +197,9 @@ public class MainControllerTest {
     configuration.setProvider("default");
     configuration.setLogoutUrl("logoutUrl");
 
+    DefaultRequestManager requestManager = new DefaultRequestManager(new RestTemplate());
+
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     doThrow(new IOException()).when(response).sendRedirect(any());
 

@@ -10,11 +10,23 @@ package org.oscm.identity.oidc.request;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+@ExtendWith(MockitoExtension.class)
 public class RequestHandlerTest {
+
+  @Mock
+  private RestTemplate restTemplate;
+
+  @InjectMocks
+  private RequestHandler requestHandler;
 
   @Test
   public void testGetRequestManager_defaultProviderSet_DefaultRequestHandlerIsReturned() {
@@ -23,7 +35,7 @@ public class RequestHandlerTest {
     String provider = "default";
 
     // when
-    RequestManager manager = RequestHandler.getRequestManager(provider);
+    RequestManager manager = requestHandler.getRequestManager(provider);
 
     // then
     Assertions.assertThat(manager).isInstanceOf(DefaultRequestManager.class);
@@ -36,7 +48,7 @@ public class RequestHandlerTest {
     String provider = "simple_provider";
 
     // when
-    Throwable thrown = catchThrowable(() -> RequestHandler.getRequestManager(provider));
+    Throwable thrown = catchThrowable(() -> requestHandler.getRequestManager(provider));
 
     // then
     Assertions.assertThat(thrown).isInstanceOf(IdentityProviderException.class);

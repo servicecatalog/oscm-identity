@@ -20,6 +20,7 @@
         <lombok.version>1.18.8</lombok.version>
         <guava.version>28.0-jre</guava.version>
         <auth0.version>3.8.1</auth0.version>
+        <httpclient.version>4.5.9</httpclient.version>
         <jupiter.version>5.3.2</jupiter.version>
         <mockito.version>2.23.4</mockito.version>
         <jacoco.version>0.8.2</jacoco.version>
@@ -57,7 +58,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.9</version>
+            <version>${httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

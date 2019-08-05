@@ -36,11 +36,13 @@ public class MainController {
 
   private TenantService tenantService;
   private AuthTokenValidator tokenValidator;
+  private RequestHandler requestHandler;
 
   @Autowired
-  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator) {
+  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator, RequestHandler requestHandler) {
     this.tenantService = tenantService;
     this.tokenValidator = tokenValidator;
+    this.requestHandler = requestHandler;
   }
 
   @GetMapping
@@ -57,7 +59,7 @@ public class MainController {
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     AuthorizationRequest request =
-        RequestHandler.getRequestManager(configuration.getProvider()).initAuthorizationRequest();
+        requestHandler.getRequestManager(configuration.getProvider()).initAuthorizationRequest();
     request.setBaseUrl(configuration.getAuthUrl());
     request.setClientId(configuration.getClientId());
     request.setRedirectUrl(configuration.getRedirectUrl());
@@ -67,7 +69,6 @@ public class MainController {
     // TODO: create nonce which should be validated for id_token
     request.setNonce("test-nonce");
     request.setState(state);
-
     request.execute(response);
   }
 
@@ -85,13 +86,13 @@ public class MainController {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    log.debug("Authorization code retrieved:" + code);
+    log.info("Authorization code retrieved:" + code);
     // TODO: get tenant out of state param
     String tenantId = null;
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     TokenRequest tokenRequest =
-        RequestHandler.getRequestManager(configuration.getProvider()).initTokenRequest();
+        requestHandler.getRequestManager(configuration.getProvider()).initTokenRequest();
     tokenRequest.setBaseUrl(configuration.getTokenUrl());
     tokenRequest.setClientId(configuration.getClientId());
     tokenRequest.setClientSecret(configuration.getClientSecret());
@@ -105,8 +106,8 @@ public class MainController {
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
 
-    log.debug("Access token received:" + accessToken);
-    log.debug("Refresh token received:" + refreshToken);
+    log.info("Access token received:" + accessToken);
+    log.info("Refresh token received:" + refreshToken);
 
     TokenValidationResult validationResult =
         tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
@@ -119,7 +120,7 @@ public class MainController {
               .append("&refresh_token=" + refreshToken)
               .toString();
 
-      log.debug("Redirecting to " + url);
+      log.info("Redirecting to " + url);
       response.sendRedirect(url);
     } else {
       throw new ValidationException(
@@ -136,8 +137,9 @@ public class MainController {
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     LogoutRequest request =
-        RequestHandler.getRequestManager(configuration.getProvider()).initLogoutRequest();
-
+        requestHandler.getRequestManager(configuration.getProvider()).initLogoutRequest();
+    request.setBaseUrl(configuration.getLogoutUrl());
+    request.setRedirectUrl(state);
     request.execute(response);
   }
 

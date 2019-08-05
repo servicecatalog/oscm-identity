@@ -1,6 +1,14 @@
 package org.oscm.identity.oidc.request;
 
+import org.springframework.web.client.RestTemplate;
+
 public class DefaultRequestManager implements RequestManager {
+
+  private RestTemplate restTemplate;
+
+  public DefaultRequestManager(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
   @Override
   public AuthorizationRequest initAuthorizationRequest() {
@@ -14,11 +22,11 @@ public class DefaultRequestManager implements RequestManager {
 
   @Override
   public TokenRequest initTokenRequest() {
-    return new DefaultTokenRequest();
+    return new DefaultTokenRequest(this.restTemplate);
   }
 
   @Override
   public UserRequest initGetUserRequest() {
-    return new DefaultGetUserRequest();
+    return new DefaultGetUserRequest(this.restTemplate);
   }
 }
