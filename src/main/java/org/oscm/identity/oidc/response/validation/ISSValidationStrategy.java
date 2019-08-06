@@ -1,12 +1,11 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: July 19, 2019
+ *  Creation Date: Jul 19, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
+
 package org.oscm.identity.oidc.response.validation;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +29,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
   private RestTemplate restTemplate;
 
   @Autowired
-  public ISSValidationStrategy(TenantService tenantService,
-          RestTemplate restTemplate) {
+  public ISSValidationStrategy(TenantService tenantService, RestTemplate restTemplate) {
     this.tenantService = tenantService;
     this.restTemplate = restTemplate;
   }
@@ -42,7 +40,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
     try {
-      String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getOidConfigUrl());
+      String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getConfigurationUrl());
       if (!issuer.equals(request.getDecodedToken().getIssuer()))
         throw new ValidationException(getFailureMessage());
     } catch (JSONException e) {
@@ -63,6 +61,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
    * @throws JSONException
    */
   private String getIssuerFromRemoteConfig(String oidConfigUrl) throws JSONException {
+
     String responseJSON = restTemplate.getForObject(oidConfigUrl, String.class);
     return new JSONObject(responseJSON).get("issuer").toString();
   }

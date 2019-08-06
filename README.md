@@ -15,9 +15,14 @@ To build the application
 ```properties
 oidc.provider=external identity provider's name
 oidc.clientId=oscm-identity must be register in external identity provider, this is the id of such registered application
-oidc.authUrl=url which your external identity provider uses for authenticating users
-oidc.idTokenRedirectUrl=url which is used for id_token callbcak, must be register in your external identity provider list of URL responses
-oidc.logoutUrl=url which your external identity provider uses for logging-out users
+oidc.clientSecret=secret key of the registered oscm-identity application
+oidc.authUrl=url which is used for authenticating users
+oidc.authUrlScope=scope of the authorization request
+oidc.logoutUrl=url which is used for logging out users
+oidc.tokenUrl=url which is used for retrieving the access token
+oidc.redirectUrl=url which is used for token callback, must be register in your external identity provider list of URL responses
+oidc.configurationUrl=url which delivers all necessary identity provider related informations
+oidc.usersEndpoint=url which is used for accessing users resource
 ```
 3. Start the application using `java -jar` command
 

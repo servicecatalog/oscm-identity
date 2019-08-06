@@ -48,7 +48,7 @@ public class ISSValidationStrategyTest {
     jsonMap.put("issuer", issuerValue);
 
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setOidConfigUrl("oidConfigUrl");
+    configuration.setConfigurationUrl("oidConfigUrl");
 
     when(service.loadTenant(any())).thenReturn(configuration);
     when(restTemplate.getForObject(anyString(), any()))
@@ -71,7 +71,7 @@ public class ISSValidationStrategyTest {
     jsonMap.put("issuer", "validIssuer");
 
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setOidConfigUrl("http://url.com");
+    configuration.setConfigurationUrl("http://url.com");
 
     when(service.loadTenant(any())).thenReturn(configuration);
     when(restTemplate.getForObject(anyString(), any()))

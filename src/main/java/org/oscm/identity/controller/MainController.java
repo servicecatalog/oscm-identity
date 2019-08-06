@@ -1,25 +1,25 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: June 19, 2019
+ *  Creation Date: Jun 19, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
-import org.oscm.identity.oidc.request.AuthorizationRequestManager;
-import org.oscm.identity.oidc.request.LogoutRequestManager;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.response.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.response.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +37,13 @@ public class MainController {
 
   private TenantService tenantService;
   private AuthTokenValidator tokenValidator;
+  private RequestHandler requestHandler;
 
   @Autowired
-  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator) {
+  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator, RequestHandler requestHandler) {
     this.tenantService = tenantService;
     this.tokenValidator = tokenValidator;
+    this.requestHandler = requestHandler;
   }
 
   @GetMapping
@@ -56,44 +58,71 @@ public class MainController {
       HttpServletResponse response) {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-    String url =
-        AuthorizationRequestManager.buildRequest(configuration.getProvider())
-            .baseUrl(configuration.getAuthUrl())
-            .clientId(configuration.getClientId())
-            .redirectUrl(configuration.getIdTokenRedirectUrl())
-            .scope("openid")
-            .responseType("id_token")
-            .responseMode("form_post")
-            // TODO: create nonce which should be validated for id_token
-            .nonce("test-nonce")
-            .state(state)
-            .buildUrl();
 
-    try {
-      response.sendRedirect(url);
-    } catch (IOException exc) {
-      throw new IdentityProviderException("Problem with contacting identity provider", exc);
-    }
+    AuthorizationRequest request =
+        requestHandler.getRequestManager(configuration.getProvider()).initAuthorizationRequest();
+    request.setBaseUrl(configuration.getAuthUrl());
+    request.setClientId(configuration.getClientId());
+    request.setRedirectUrl(configuration.getRedirectUrl());
+    request.setScope(configuration.getAuthUrlScope());
+    request.setResponseType("id_token code");
+    request.setResponseMode("form_post");
+    // TODO: create nonce which should be validated for id_token
+    request.setNonce("test-nonce");
+    request.setState(state);
+    request.execute(response);
   }
 
-  @PostMapping("/id_token")
-  public void idTokenCallback(
+  @PostMapping("/callback")
+  public void callback(
       @RequestParam(value = "id_token", required = false) String idToken,
+      @RequestParam(value = "code", required = false) String code,
       @RequestParam(value = "state", required = false) String state,
       @RequestParam(value = "error", required = false) String error,
       @RequestParam(value = "error_description", required = false) String errorDescription,
       HttpServletResponse response)
-      throws IOException, ValidationException {
+      throws IOException, ValidationException, JSONException {
 
     if (error != null) {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
+    log.info("Authorization code retrieved:" + code);
+    // TODO: get tenant out of state param
+    String tenantId = null;
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+
+    TokenRequest tokenRequest =
+        requestHandler.getRequestManager(configuration.getProvider()).initTokenRequest();
+    tokenRequest.setBaseUrl(configuration.getTokenUrl());
+    tokenRequest.setClientId(configuration.getClientId());
+    tokenRequest.setClientSecret(configuration.getClientSecret());
+    tokenRequest.setCode(code);
+    tokenRequest.setGrantType("authorization_code");
+    tokenRequest.setRedirectUrl(configuration.getRedirectUrl());
+
+    ResponseEntity<String> entity = tokenRequest.execute();
+
+    JSONObject jsonResponse = new JSONObject(entity.getBody());
+    String accessToken = jsonResponse.get("access_token").toString();
+    String refreshToken = jsonResponse.get("refresh_token").toString();
+
+    log.info("Access token received:" + accessToken);
+    log.info("Refresh token received:" + refreshToken);
+
     TokenValidationResult validationResult =
         tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
 
     if (validationResult.isValid()) {
-      response.sendRedirect(state + "?id_token=" + idToken);
+      String url =
+          new StringBuilder(state)
+              .append("?id_token=" + idToken)
+              .append("&access_token=" + accessToken)
+              .append("&refresh_token=" + refreshToken)
+              .toString();
+
+      log.info("Redirecting to " + url);
+      response.sendRedirect(url);
     } else {
       throw new ValidationException(
           TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
@@ -107,27 +136,22 @@ public class MainController {
       HttpServletResponse response) {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-    String url =
-        LogoutRequestManager.buildRequest(configuration.getProvider())
-            .baseUrl(configuration.getLogoutUrl())
-            .redirectUrl(state)
-            .buildUrl();
 
-    try {
-      response.sendRedirect(url);
-    } catch (IOException exc) {
-      throw new IdentityProviderException("Problem with contacting identity provider", exc);
-    }
+    LogoutRequest request =
+        requestHandler.getRequestManager(configuration.getProvider()).initLogoutRequest();
+    request.setBaseUrl(configuration.getLogoutUrl());
+    request.setRedirectUrl(state);
+    request.execute(response);
   }
-  
+
   /**
    * Token validation endpoint
    *
    * @param request validation request wrapper
    * @return HTTP Response
    */
-  @PostMapping("/verify_token")
-  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request) {
+  @PostMapping(value = "/verify_token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public ResponseEntity verifyToken(TokenValidationRequest request) {
     TokenValidationResult validationResult = tokenValidator.validate(request);
 
     if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);

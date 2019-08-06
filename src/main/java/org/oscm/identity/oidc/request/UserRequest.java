@@ -2,20 +2,16 @@
  *
  *  Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 22, 2019
+ *  Creation Date: Jul 26, 2019
  *
  *******************************************************************************/
-
 package org.oscm.identity.oidc.request;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-public abstract class OIDCRequest {
+@Data
+public abstract class UserRequest implements OIDCReturnRequest {
 
-  protected String baseUrl;
-
-  protected String redirectUrl;
-
-  public abstract String buildUrl();
+  private String baseUrl;
+  private String token;
 }
