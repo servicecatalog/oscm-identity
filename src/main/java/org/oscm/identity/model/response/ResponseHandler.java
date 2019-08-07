@@ -1,8 +1,8 @@
-package org.oscm.identity.oidc.response;
+package org.oscm.identity.model.response;
 
 import org.oscm.identity.error.IdentityProviderException;
-import org.oscm.identity.oidc.response.mapper.DefaultResponseMapper;
-import org.oscm.identity.oidc.response.mapper.ResponseMapper;
+import org.oscm.identity.model.response.mapper.DefaultResponseMapper;
+import org.oscm.identity.model.response.mapper.ResponseMapper;
 
 public class ResponseHandler {
 

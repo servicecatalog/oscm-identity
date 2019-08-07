@@ -6,11 +6,11 @@
  *
  *******************************************************************************/
 
-package org.oscm.identity.oidc.response.mapper;
+package org.oscm.identity.model.response.mapper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.oidc.response.UserInfoResponse;
+import org.oscm.identity.model.response.UserInfoResponse;
 
 /** Interface for mapping json responses to objects used in response entities */
 public interface ResponseMapper {

@@ -7,10 +7,10 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.response.validation;
+package org.oscm.identity.model.request.validation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.model.request.TokenValidationRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;

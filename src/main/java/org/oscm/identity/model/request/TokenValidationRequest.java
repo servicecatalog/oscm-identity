@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.request;
+package org.oscm.identity.model.request;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.Builder;

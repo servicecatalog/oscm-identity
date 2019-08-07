@@ -1,4 +1,4 @@
-package org.oscm.identity.oidc.response;
+package org.oscm.identity.model.response;
 
 import lombok.Builder;
 import lombok.Data;

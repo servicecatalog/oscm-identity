@@ -13,7 +13,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.model.request.validation.ExpirationTimeValidationStrategy;
+import org.oscm.identity.model.request.validation.TokenValidationStrategy;
 
 import javax.xml.bind.ValidationException;
 import java.sql.Date;

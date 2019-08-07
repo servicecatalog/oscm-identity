@@ -2,7 +2,7 @@ package org.oscm.identity.error;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.oscm.identity.oidc.response.ErrorResponse;
+import org.oscm.identity.model.response.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
