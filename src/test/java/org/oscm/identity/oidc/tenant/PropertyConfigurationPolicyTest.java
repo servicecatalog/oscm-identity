@@ -46,11 +46,29 @@ public class PropertyConfigurationPolicyTest {
         .extracting(TenantConfiguration::getClientId)
         .isEqualTo(tenantId + "ClientId");
     assertThat(configuration)
+            .extracting(TenantConfiguration::getClientSecret)
+            .isEqualTo(tenantId + "ClientSecret");
+    assertThat(configuration)
         .extracting(TenantConfiguration::getAuthUrl)
         .isEqualTo(tenantId + "AuthUrl");
     assertThat(configuration)
+            .extracting(TenantConfiguration::getAuthUrlScope)
+            .isEqualTo(tenantId + "AuthUrlScope");
+    assertThat(configuration)
         .extracting(TenantConfiguration::getLogoutUrl)
         .isEqualTo(tenantId + "LogoutUrl");
+    assertThat(configuration)
+            .extracting(TenantConfiguration::getTokenUrl)
+            .isEqualTo(tenantId + "TokenUrl");
+    assertThat(configuration)
+            .extracting(TenantConfiguration::getRedirectUrl)
+            .isEqualTo(tenantId + "RedirectUrl");
+    assertThat(configuration)
+            .extracting(TenantConfiguration::getConfigurationUrl)
+            .isEqualTo(tenantId + "ConfigurationUrl");
+    assertThat(configuration)
+            .extracting(TenantConfiguration::getUsersEndpoint)
+            .isEqualTo(tenantId + "UsersEndpoint");
   }
 
   @Test
