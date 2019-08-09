@@ -39,8 +39,8 @@ public class ExpirationTimeValidationStrategyTest {
         JWT.create()
             .withExpiresAt(Date.from(LocalDateTime.now().plusYears(2).toInstant(ZoneOffset.UTC)))
             .sign(Algorithm.none());
-    request = TokenValidationRequest.of().token(token).build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).accessToken(token).build();
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
   }
@@ -51,8 +51,8 @@ public class ExpirationTimeValidationStrategyTest {
         JWT.create()
             .withExpiresAt(Date.from(LocalDateTime.now().minusYears(2).toInstant(ZoneOffset.UTC)))
             .sign(Algorithm.none());
-    request = TokenValidationRequest.of().token(token).build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).build();
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> strategy.execute(request));

@@ -42,8 +42,8 @@ public class AudienceValidationStrategyTest {
     String token = JWT.create().withAudience("clientId").sign(Algorithm.none());
     when(service.loadTenant(any())).thenReturn(configuration);
 
-    request = TokenValidationRequest.of().token(token).build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).build();
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
   }
@@ -55,8 +55,9 @@ public class AudienceValidationStrategyTest {
     String token = JWT.create().withAudience("clientId").sign(Algorithm.none());
     when(service.loadTenant(any())).thenReturn(configuration);
 
-    request = TokenValidationRequest.of().token(token).build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).build();
+    request = AuthTokenValidator.decodeTokens(request);
+
 
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> strategy.execute(request));

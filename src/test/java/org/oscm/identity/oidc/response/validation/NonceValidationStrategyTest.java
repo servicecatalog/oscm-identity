@@ -33,8 +33,8 @@ public class NonceValidationStrategyTest {
   @Test
   public void shouldValidateRequest() {
     String token = JWT.create().withClaim("nonce", "testNonce").sign(Algorithm.none());
-    request = TokenValidationRequest.of().token(token).nonce("testNonce").build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).nonce("testNonce").build();
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
   }
@@ -42,8 +42,8 @@ public class NonceValidationStrategyTest {
   @Test
   public void shouldNotValidateRequest() {
     String token = JWT.create().withClaim("nonce", "testNonce").sign(Algorithm.none());
-    request = TokenValidationRequest.of().token(token).nonce("nonMatchingNonce").build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = TokenValidationRequest.of().idToken(token).nonce("nonMatchingNonce").build();
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> strategy.execute(request));

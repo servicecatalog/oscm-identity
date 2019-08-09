@@ -30,12 +30,15 @@ public class AudienceValidationStrategy implements TokenValidationStrategy {
     this.tenantService = tenantService;
   }
 
+  // FIXME: Determine, from where audience for acccessToken validation should be taken
+  // FIXME: Let's try not to add new tenant property for it as it is not so straightforward
+  // FIXME: to configure
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     TenantConfiguration tenantConfiguration =
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
-    if (!request.getDecodedToken().getAudience().contains(tenantConfiguration.getClientId()))
+    if (!request.getDecodedIdToken().getAudience().contains(tenantConfiguration.getClientId()))
       throw new ValidationException(getFailureMessage());
   }
 

@@ -52,7 +52,7 @@ public class AuthTokenValidatorTest {
 
     TokenValidationRequest request =
         TokenValidationRequest.of()
-            .token(validToken)
+            .idToken(validToken)
             .nonce("testNonce")
             .tenantId("default")
             .build();
@@ -68,7 +68,7 @@ public class AuthTokenValidatorTest {
     String invalidToken = "somedatathatarenotvalidforthistest";
     TokenValidationRequest request =
         TokenValidationRequest.of()
-            .token(invalidToken)
+            .idToken(invalidToken)
             .nonce("testNonce")
             .tenantId("default")
             .build();

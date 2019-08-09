@@ -17,7 +17,7 @@ import javax.xml.bind.ValidationException;
 public interface TokenValidationStrategy {
 
   /**
-   * Runs validation for provided decoded OID token
+   * Runs validation for provided decoded OID idToken
    *
    * @param request validation request body
    * @throws ValidationException

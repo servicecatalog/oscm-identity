@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jun 19, 2019
+ * <p>Creation Date: Jun 19, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -40,7 +44,10 @@ public class MainController {
   private RequestHandler requestHandler;
 
   @Autowired
-  public MainController(TenantService tenantService, AuthTokenValidator tokenValidator, RequestHandler requestHandler) {
+  public MainController(
+      TenantService tenantService,
+      AuthTokenValidator tokenValidator,
+      RequestHandler requestHandler) {
     this.tenantService = tenantService;
     this.tokenValidator = tokenValidator;
     this.requestHandler = requestHandler;
@@ -107,11 +114,12 @@ public class MainController {
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
 
-    log.info("Access token received:" + accessToken);
-    log.info("Refresh token received:" + refreshToken);
+    log.info("Access idToken received:" + accessToken);
+    log.info("Refresh idToken received:" + refreshToken);
 
     TokenValidationResult validationResult =
-        tokenValidator.validate(TokenValidationRequest.of().token(idToken).build());
+        tokenValidator.validate(
+            TokenValidationRequest.of().idToken(idToken).accessToken(accessToken).build());
 
     if (validationResult.isValid()) {
       String url =
