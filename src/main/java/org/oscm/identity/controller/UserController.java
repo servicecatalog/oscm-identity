@@ -54,7 +54,7 @@ public class UserController {
   public ResponseEntity<UserInfoResponse> getUser(
       @PathVariable String userId,
       @RequestParam(value = "tenantId", required = false) String tenantId,
-      @RequestParam(value = "idToken") String token)
+      @RequestParam(value = "token") String token)
       throws JSONException {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));

@@ -1,12 +1,11 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: Jun 19, 2019
+ *  Creation Date: Jun 19, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
@@ -114,8 +113,8 @@ public class MainController {
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
 
-    log.info("Access idToken received:" + accessToken);
-    log.info("Refresh idToken received:" + refreshToken);
+    log.info("Access token received:" + accessToken);
+    log.info("Refresh token received:" + refreshToken);
 
     TokenValidationResult validationResult =
         tokenValidator.validate(
