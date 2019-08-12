@@ -19,8 +19,8 @@ import org.oscm.identity.oidc.request.DefaultRequestManager;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.TokenRequest;
-import org.oscm.identity.model.request.validation.AuthTokenValidator;
-import org.oscm.identity.model.request.validation.TokenValidationResult;
+import org.oscm.identity.oidc.validation.AuthTokenValidator;
+import org.oscm.identity.oidc.validation.TokenValidationResult;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
@@ -129,7 +129,7 @@ public class MainControllerTest {
   }
 
   @Test
-  public void shouldReturnError_whenPostToIdToken_givenValidationError() {
+  public void shouldReturnError_whenPostToIdToken_givenValidationError() throws Exception {
     TokenValidationResult validationResult =
         TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
 

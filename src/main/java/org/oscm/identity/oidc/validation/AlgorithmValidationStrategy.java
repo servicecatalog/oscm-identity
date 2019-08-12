@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.model.request.validation;
+package org.oscm.identity.oidc.validation;
 
 import org.oscm.identity.model.request.TokenValidationRequest;
 import org.springframework.beans.factory.annotation.Value;

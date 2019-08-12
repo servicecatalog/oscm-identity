@@ -6,11 +6,12 @@
  *
  *******************************************************************************/
 
-package org.oscm.identity.model.response.mapper;
+package org.oscm.identity.model.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.response.UserInfoResponse;
+import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.UserInfo;
 
 /** Interface for mapping json responses to objects used in response entities */
 public interface ResponseMapper {
@@ -22,5 +23,14 @@ public interface ResponseMapper {
    * @return object containing user information
    * @throws JSONException
    */
-  UserInfoResponse getUserResponse(JSONObject json) throws JSONException;
+  UserInfo getUserInfo(JSONObject json) throws JSONException;
+
+  /**
+   * Maps json object to object containing user group information
+   *
+   * @param json object to be mapped
+   * @return object containing user group information
+   * @throws JSONException
+   */
+  UserGroup getUserGroup(JSONObject json) throws JSONException;
 }
