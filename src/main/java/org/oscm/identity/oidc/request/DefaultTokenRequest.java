@@ -16,7 +16,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-/** Implementation of token request related to default identity provider */
+/** Implementation of access token request related to default identity provider */
 public class DefaultTokenRequest extends TokenRequest {
 
   private RestTemplate restTemplate;

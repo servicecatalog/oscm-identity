@@ -10,6 +10,8 @@
 package org.oscm.identity.oidc.response.validation;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.oidc.request.TokenValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +49,14 @@ public class AuthTokenValidator {
   }
 
   /**
-   * Validates provided token string againts OID rules
+   * Validates provided idToken string againts OID rules
    *
    * @param request validation request body
    * @return result of the validation
    */
   public TokenValidationResult validate(TokenValidationRequest request) {
     try {
-      request.setDecodedToken(JWT.decode(request.getToken()));
-      this.request = request;
+      this.request = AuthTokenValidator.decodeTokens(request);
 
       doCheckAgainst(issValidationStrategy);
       doCheckAgainst(audienceValidationStrategy);
@@ -75,13 +76,31 @@ public class AuthTokenValidator {
   }
 
   /**
-   * Checks the decoded token against provided validation strategy
+   * Checks the decoded idToken against provided validation strategy
    *
-   * @param validationStrategy Strategy/method of validating the token
+   * @param validationStrategy Strategy/method of validating the idToken
    * @throws ValidationException
    */
   private void doCheckAgainst(TokenValidationStrategy validationStrategy)
-      throws ValidationException {
+          throws ValidationException {
     validationStrategy.execute(request);
+  }
+
+  /**
+   * Decodes tokens inside of the request
+   * @param request Token Validation Request
+   * @return Token Validation Request with decoded tokens
+   * @throws JWTDecodeException
+   */
+  static TokenValidationRequest decodeTokens(TokenValidationRequest request)
+      throws JWTDecodeException {
+    if (!Strings.isNullOrEmpty(request.getIdToken()))
+      request.setDecodedIdToken(JWT.decode(request.getIdToken()));
+    if (!Strings.isNullOrEmpty(request.getAccessToken()))
+      request.setDecodedAccessToken(JWT.decode(request.getAccessToken()));
+    if (!Strings.isNullOrEmpty(request.getRefreshToken()))
+      request.setDecodedRefreshToken(JWT.decode(request.getRefreshToken()));
+
+    return request;
   }
 }

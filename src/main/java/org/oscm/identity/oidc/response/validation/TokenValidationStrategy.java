@@ -13,11 +13,11 @@ import org.oscm.identity.oidc.request.TokenValidationRequest;
 
 import javax.xml.bind.ValidationException;
 
-/** Interface for OID Token Validation Strategies */
+/** Interface for OIDC tokens validation strategies */
 public interface TokenValidationStrategy {
 
   /**
-   * Runs validation for provided decoded OID token
+   * Runs validation for provided decoded OIDC tokens
    *
    * @param request validation request body
    * @throws ValidationException

@@ -18,16 +18,17 @@ import javax.xml.bind.ValidationException;
 @Component
 public class AlgorithmValidationStrategy implements TokenValidationStrategy {
 
-private String expectedAlgorithmType;
+  private String expectedAlgorithmType;
 
-public AlgorithmValidationStrategy(
-    @Value("${auth.signing.algorithm.type}") String expectedAlgorithmType) {
-  this.expectedAlgorithmType = expectedAlgorithmType;
-}
+  public AlgorithmValidationStrategy(
+      @Value("${auth.signing.algorithm.type}") String expectedAlgorithmType) {
+    this.expectedAlgorithmType = expectedAlgorithmType;
+  }
 
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
-    if (!request.getDecodedToken().getAlgorithm().equalsIgnoreCase(expectedAlgorithmType))
+    if (!request.getDecodedIdToken().getAlgorithm().equalsIgnoreCase(expectedAlgorithmType)
+        || !request.getDecodedAccessToken().getAlgorithm().equalsIgnoreCase(expectedAlgorithmType))
       throw new ValidationException(getFailureMessage());
   }
 

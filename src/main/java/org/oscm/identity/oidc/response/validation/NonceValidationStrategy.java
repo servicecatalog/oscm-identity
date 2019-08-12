@@ -22,7 +22,7 @@ public class NonceValidationStrategy implements TokenValidationStrategy {
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     if (request.getNonce() != null) {
-      if (!request.getNonce().equals(request.getDecodedToken().getClaim("nonce").asString()))
+      if (!request.getNonce().equals(request.getDecodedIdToken().getClaim("nonce").asString()))
         throw new ValidationException(getFailureMessage());
     }
   }

@@ -46,7 +46,7 @@ public class UserController {
    *
    * @param userId id of the user
    * @param tenantId id of the tenant defining identity provider
-   * @param token bearer token for accessing identity provider related API
+   * @param token bearer idToken for accessing identity provider related API
    * @return HTTP Response object
    * @throws JSONException
    */

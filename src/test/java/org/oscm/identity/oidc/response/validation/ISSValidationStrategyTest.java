@@ -56,9 +56,9 @@ public class ISSValidationStrategyTest {
 
     request =
         TokenValidationRequest.of()
-            .token(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
+            .idToken(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
             .build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
   }
@@ -79,9 +79,9 @@ public class ISSValidationStrategyTest {
 
     request =
         TokenValidationRequest.of()
-            .token(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
+            .idToken(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
             .build();
-    request.setDecodedToken(JWT.decode(request.getToken()));
+    request = AuthTokenValidator.decodeTokens(request);
 
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> strategy.execute(request));

@@ -39,9 +39,11 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
     TenantConfiguration tenantConfiguration =
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
+    //FIXME: Issuer for access token is the same as in v1 tokens, even though
+    //FIXME: Id token is in version 2 - possible bug?
     try {
       String issuer = getIssuerFromRemoteConfig(tenantConfiguration.getConfigurationUrl());
-      if (!issuer.equals(request.getDecodedToken().getIssuer()))
+      if (!issuer.equals(request.getDecodedIdToken().getIssuer()))
         throw new ValidationException(getFailureMessage());
     } catch (JSONException e) {
       throw new ValidationException(e.getMessage());
@@ -50,7 +52,7 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
 
   @Override
   public String getFailureMessage() {
-    return "Issuer values from OID config and OID token does not match";
+    return "Issuer values from OID config and OID idToken does not match";
   }
 
   /**

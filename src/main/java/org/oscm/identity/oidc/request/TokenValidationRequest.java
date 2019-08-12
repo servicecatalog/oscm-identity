@@ -15,12 +15,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /** Token validation request wrapper */
-@Builder(builderMethodName = "of")
 @Getter
+@Builder(builderMethodName = "of")
 public class TokenValidationRequest {
 
-  private String token;
+  private String idToken;
+  private String accessToken;
+  private String refreshToken;
   private String nonce;
   private String tenantId;
-  @Setter private DecodedJWT decodedToken;
+  @Setter private DecodedJWT decodedIdToken;
+  @Setter private DecodedJWT decodedAccessToken;
+  @Setter private DecodedJWT decodedRefreshToken;
 }

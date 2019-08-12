@@ -25,7 +25,9 @@ public class ExpirationTimeValidationStrategy implements TokenValidationStrategy
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     if (LocalDateTime.now()
-        .isAfter(convertDateToLocalDateTime(request.getDecodedToken().getExpiresAt())))
+            .isAfter(convertDateToLocalDateTime(request.getDecodedIdToken().getExpiresAt()))
+        || LocalDateTime.now()
+            .isAfter(convertDateToLocalDateTime(request.getDecodedAccessToken().getExpiresAt())))
       throw new ValidationException(getFailureMessage());
   }
 
