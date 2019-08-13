@@ -34,6 +34,7 @@ public class DefaultResponseMapper implements ResponseMapper {
   public UserGroup getUserGroup(JSONObject json) throws JSONException {
 
     return UserGroup.of()
+        .id(json.getString("id"))
         .description(json.getString("description"))
         .name(json.getString("displayName"))
         .build();

@@ -16,6 +16,7 @@ import lombok.Data;
 @Builder(builderMethodName = "of")
 public class UserGroup {
 
+  private String id;
   private String name;
   private String description;
 }
