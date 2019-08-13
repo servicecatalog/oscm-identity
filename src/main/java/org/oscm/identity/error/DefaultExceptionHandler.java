@@ -33,7 +33,8 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(HttpClientErrorException.class)
-  public ResponseEntity<ErrorResponse> handleClientError(HttpClientErrorException ex) throws IOException {
+  public ResponseEntity<ErrorResponse> handleClientError(HttpClientErrorException ex)
+      throws IOException {
 
     log.error(ex.getMessage(), ex);
     String jsonResponse = ex.getResponseBodyAsString();
@@ -60,5 +61,18 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     errorResponse.setErrorDescription(ex.getMessage());
 
     return new ResponseEntity<>(errorResponse, status);
+  }
+
+  @ExceptionHandler(InvalidRequestException.class)
+  protected ResponseEntity<ErrorResponse> handleInvalidRequestException(
+      InvalidRequestException ex) {
+
+    log.error(ex.getMessage(), ex);
+
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setError("Invalid request");
+    errorResponse.setErrorDescription(ex.getMessage());
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 }
