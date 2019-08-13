@@ -43,7 +43,7 @@ public class GroupControllerTest {
     // given
     String tenantId = "default";
     String bearerToken = "Bearer token";
-    UserGroup userGroup = UserGroup.of().name("OSCM_org").description("testGroup").build();
+    UserGroup userGroup = UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -52,7 +52,9 @@ public class GroupControllerTest {
     ResponseEntity<String> createdUserGroup =
         ResponseEntity.ok()
             .body(
-                "{'displayName':'"
+                "{'id':'"
+                    + userGroup.getId()
+                    + "', 'displayName':'"
                     + userGroup.getName()
                     + "', 'description':'"
                     + userGroup.getDescription()

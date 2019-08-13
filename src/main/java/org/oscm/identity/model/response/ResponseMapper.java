@@ -13,24 +13,35 @@ import org.json.JSONObject;
 import org.oscm.identity.model.json.UserGroup;
 import org.oscm.identity.model.json.UserInfo;
 
+import java.util.Set;
+
 /** Interface for mapping json responses to objects used in response entities */
 public interface ResponseMapper {
 
   /**
-   * Maps json object to object containing user information
+   * Maps json object to object representing user information
    *
    * @param json object to be mapped
-   * @return object containing user information
+   * @return object representing user information
    * @throws JSONException
    */
   UserInfo getUserInfo(JSONObject json) throws JSONException;
 
   /**
-   * Maps json object to object containing user group information
+   * Maps json object to object representing user group
    *
    * @param json object to be mapped
-   * @return object containing user group information
+   * @return object representing user group
    * @throws JSONException
    */
   UserGroup getUserGroup(JSONObject json) throws JSONException;
+
+  /**
+   * Maps json object to object representing groups which user belongs to
+   *
+   * @param json object to be mapped
+   * @return object representing groups which user belongs to
+   * @throws JSONException
+   */
+  Set<UserGroup> getGroupsUserBelongsTo(JSONObject json) throws JSONException;
 }
