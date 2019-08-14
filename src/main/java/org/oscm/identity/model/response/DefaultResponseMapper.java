@@ -23,6 +23,7 @@ public class DefaultResponseMapper implements ResponseMapper {
   public UserInfo getUserInfo(JSONObject json) throws JSONException {
 
     return UserInfo.of()
+        .userId(json.getString("userPrincipalName"))
         .firstName(json.getString("givenName"))
         .lastName(json.getString("surname"))
         .email(json.getString("mail"))

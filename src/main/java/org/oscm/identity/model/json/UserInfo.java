@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull;
 @Builder(builderMethodName = "of")
 public class UserInfo {
 
-  @NotNull @NotBlank private String id;
+  @NotNull @NotBlank private String userId;
   private String firstName;
   private String lastName;
   private String email;

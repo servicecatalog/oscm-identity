@@ -44,19 +44,20 @@ public class UserController {
   /**
    * Represents the endpoint for getting user information from identity provider
    *
-   * @param userId id of the user
-   * @param tenantId id of the tenant defining identity provider
-   * @param token bearer idToken for accessing identity provider related API
-   * @return HTTP Response object
+   * @param userId userId of the user
+   * @param tenantId userId of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response object containing json representing the user
    * @throws JSONException
    */
-  @GetMapping("/users/{userId}")
+  @GetMapping("/tenants/{tenantId}/users/{userId}")
   public ResponseEntity<UserInfo> getUser(
+      @PathVariable String tenantId,
       @PathVariable String userId,
-      @RequestParam(value = "tenantId", required = false) String tenantId,
-      @RequestParam(value = "token") String token)
+      @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
 
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
 
@@ -68,7 +69,7 @@ public class UserController {
       DefaultGetUserRequest defaultRequest = (DefaultGetUserRequest) request;
       defaultRequest.setUserId(userId);
       defaultRequest.setSelect(
-          "givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
     }
 
     ResponseEntity<String> response = request.execute();
@@ -80,6 +81,15 @@ public class UserController {
     return ResponseEntity.ok(userInfo);
   }
 
+  /**
+   * Represents the endpoint for getting groups which given user belongs to
+   *
+   * @param userId userId of the user
+   * @param tenantId userId of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json array of groups which user belongs to
+   * @throws JSONException
+   */
   @GetMapping("/tenants/{tenantId}/users/{userId}/groups")
   public ResponseEntity<Set<UserGroup>> getGroupsUserBelongsTo(
       @PathVariable String tenantId,

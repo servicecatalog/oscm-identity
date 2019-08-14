@@ -50,7 +50,7 @@ public class GroupController {
    * @param tenantId id of the tenant defining identity provider
    * @param bearerToken token included in authorization header
    * @param userGroupRequest body of the request
-   * @return json representation of created user group
+   * @return http response with json representation of created user group
    * @throws JSONException
    */
   @PostMapping("/tenants/{tenantId}/groups")
@@ -103,11 +103,11 @@ public class GroupController {
       throws JSONException {
 
     ResponseEntity<Set<UserGroup>> groups =
-        userController.getGroupsUserBelongsTo(tenantId, userInfo.getId(), bearerToken);
+        userController.getGroupsUserBelongsTo(tenantId, userInfo.getUserId(), bearerToken);
 
     if (groups.getBody().size() > 0) {
       throw new InvalidRequestException(
-          "User " + userInfo.getId() + " is already member of one of the groups");
+          "User " + userInfo.getUserId() + " is already member of one of the groups");
     }
 
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
@@ -121,7 +121,7 @@ public class GroupController {
 
     if (groupRequest instanceof DefaultAddGroupMemberRequest) {
       DefaultAddGroupMemberRequest request = (DefaultAddGroupMemberRequest) groupRequest;
-      request.setUserId(userInfo.getId());
+      request.setUserId(userInfo.getUserId());
       request.setGroupId(groupId);
     }
 
