@@ -2,21 +2,19 @@
  *
  *  Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 9, 2019
+ *  Creation Date: Aug 14, 2019
  *
  *******************************************************************************/
-
 package org.oscm.identity.model.json;
 
 import lombok.Builder;
 import lombok.Data;
 
-/** Simple object representing json with user group */
+/** Simple object representing json with error information */
 @Data
 @Builder(builderMethodName = "of")
-public class UserGroup {
+public class ErrorResponse {
 
-  private String id;
-  private String name;
-  private String description;
+  private String error;
+  private String errorDescription;
 }
