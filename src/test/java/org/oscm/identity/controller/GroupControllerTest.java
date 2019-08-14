@@ -60,7 +60,7 @@ public class GroupControllerTest {
     ResponseEntity<String> createdUserGroup =
         ResponseEntity.ok()
             .body(
-                "{'userId':'"
+                "{'id':'"
                     + userGroup.getId()
                     + "', 'displayName':'"
                     + userGroup.getName()
