@@ -1,8 +1,16 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Jun 18, 2019
+ *
+ *******************************************************************************/
 package org.oscm.identity.error;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.oscm.identity.model.response.ErrorResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.oscm.identity.model.json.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +20,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.io.IOException;
-import java.util.Map;
 
 @ControllerAdvice
 @Slf4j
@@ -34,18 +39,19 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(HttpClientErrorException.class)
   public ResponseEntity<ErrorResponse> handleClientError(HttpClientErrorException ex)
-      throws IOException {
+      throws JSONException {
 
     log.error(ex.getMessage(), ex);
     String jsonResponse = ex.getResponseBodyAsString();
 
-    ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> response = mapper.readValue(jsonResponse, Map.class);
-    Map<String, Object> error = (Map<String, Object>) response.get("error");
+    JSONObject json = new JSONObject(jsonResponse);
+    JSONObject jsonError = json.getJSONObject("error");
 
-    ErrorResponse errorResponse = new ErrorResponse();
-    errorResponse.setError(error.get("code").toString());
-    errorResponse.setErrorDescription(error.get("message").toString());
+    ErrorResponse errorResponse =
+        ErrorResponse.of()
+            .error(jsonError.getString("code"))
+            .errorDescription(jsonError.getString("message"))
+            .build();
 
     return new ResponseEntity<>(errorResponse, ex.getStatusCode());
   }
@@ -56,9 +62,11 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     log.error(ex.getMessage(), ex);
 
-    ErrorResponse errorResponse = new ErrorResponse();
-    errorResponse.setError(status.getReasonPhrase());
-    errorResponse.setErrorDescription(ex.getMessage());
+    ErrorResponse errorResponse =
+        ErrorResponse.of()
+            .error(status.getReasonPhrase())
+            .errorDescription(ex.getMessage())
+            .build();
 
     return new ResponseEntity<>(errorResponse, status);
   }
@@ -69,9 +77,8 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     log.error(ex.getMessage(), ex);
 
-    ErrorResponse errorResponse = new ErrorResponse();
-    errorResponse.setError("Invalid request");
-    errorResponse.setErrorDescription(ex.getMessage());
+    ErrorResponse errorResponse =
+        ErrorResponse.of().error("Invalid request").errorDescription(ex.getMessage()).build();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
