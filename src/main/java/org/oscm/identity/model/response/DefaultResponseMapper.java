@@ -6,18 +6,19 @@
  *
  *******************************************************************************/
 
-package org.oscm.identity.oidc.response.mapper;
+package org.oscm.identity.model.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.oidc.response.UserInfoResponse;
+import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.UserInfo;
 
 public class DefaultResponseMapper implements ResponseMapper {
 
   @Override
-  public UserInfoResponse getUserResponse(JSONObject json) throws JSONException {
+  public UserInfo getUserInfo(JSONObject json) throws JSONException {
 
-    return UserInfoResponse.of()
+    return UserInfo.of()
         .firstName(json.getString("givenName"))
         .lastName(json.getString("surname"))
         .email(json.getString("mail"))
@@ -26,6 +27,15 @@ public class DefaultResponseMapper implements ResponseMapper {
         .city(json.getString("city"))
         .address(json.getString("streetAddress"))
         .postalCode(json.getString("postalCode"))
+        .build();
+  }
+
+  @Override
+  public UserGroup getUserGroup(JSONObject json) throws JSONException {
+
+    return UserGroup.of()
+        .description(json.getString("description"))
+        .name(json.getString("displayName"))
         .build();
   }
 }

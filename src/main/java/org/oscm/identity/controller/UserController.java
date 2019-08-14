@@ -13,9 +13,9 @@ import org.json.JSONObject;
 import org.oscm.identity.oidc.request.DefaultGetUserRequest;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.UserRequest;
-import org.oscm.identity.oidc.response.ResponseHandler;
-import org.oscm.identity.oidc.response.UserInfoResponse;
-import org.oscm.identity.oidc.response.mapper.ResponseMapper;
+import org.oscm.identity.model.response.ResponseHandler;
+import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class UserController {
   }
 
   /**
-   * Retrieves user information from identity provider
+   * Represents the endpoint for getting user information from identity provider
    *
    * @param userId id of the user
    * @param tenantId id of the tenant defining identity provider
@@ -51,32 +51,32 @@ public class UserController {
    * @throws JSONException
    */
   @GetMapping("/users/{userId}")
-  public ResponseEntity<UserInfoResponse> getUser(
+  public ResponseEntity<UserInfo> getUser(
       @PathVariable String userId,
       @RequestParam(value = "tenantId", required = false) String tenantId,
       @RequestParam(value = "token") String token)
       throws JSONException {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
 
-    UserRequest request =
-        requestHandler.getRequestManager(configuration.getProvider()).initGetUserRequest();
+    UserRequest request = requestHandler.getRequestManager(provider).initGetUserRequest();
     request.setBaseUrl(configuration.getUsersEndpoint());
     request.setToken(token);
 
     if (request instanceof DefaultGetUserRequest) {
-
       DefaultGetUserRequest defaultRequest = (DefaultGetUserRequest) request;
       defaultRequest.setUserId(userId);
-      defaultRequest.setSelect("givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+      defaultRequest.setSelect(
+          "givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
     }
 
     ResponseEntity<String> response = request.execute();
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
-    ResponseMapper mapper = ResponseHandler.getResponseMapper(configuration.getProvider());
-    UserInfoResponse userInfoResponse = mapper.getUserResponse(jsonResponse);
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    UserInfo userInfo = mapper.getUserInfo(jsonResponse);
 
-    return ResponseEntity.ok(userInfoResponse);
+    return ResponseEntity.ok(userInfo);
   }
 }

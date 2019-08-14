@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.response.validation;
+package org.oscm.identity.oidc.validation;
 
 import lombok.Builder;
 import lombok.Value;

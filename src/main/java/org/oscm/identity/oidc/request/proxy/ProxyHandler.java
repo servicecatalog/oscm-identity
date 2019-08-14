@@ -9,6 +9,7 @@ package org.oscm.identity.oidc.request.proxy;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /** Simple handler class for getting the proxy related settings form application.properties. */

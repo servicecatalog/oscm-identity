@@ -8,9 +8,10 @@
 
 package org.oscm.identity.oidc.request;
 
+import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
 
-/** Interface representing request to identity provider which returns HTTP response */
+/** Interface representing http request to identity provider which returns http response */
 public interface OIDCReturnRequest {
 
   /**
@@ -18,5 +19,5 @@ public interface OIDCReturnRequest {
    *
    * @return HTTP response
    */
-  ResponseEntity execute();
+  ResponseEntity execute() throws JSONException;
 }

@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.response.validation;
+package org.oscm.identity.oidc.validation;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -16,7 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.oidc.validation.AudienceValidationStrategy;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 

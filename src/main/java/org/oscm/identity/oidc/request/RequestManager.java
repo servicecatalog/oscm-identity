@@ -9,4 +9,6 @@ public interface RequestManager {
   TokenRequest initTokenRequest();
 
   UserRequest initGetUserRequest();
+
+  GroupRequest initCreateGroupRequest();
 }

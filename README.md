@@ -23,6 +23,7 @@ oidc.tokenUrl=url which is used for retrieving the access token
 oidc.redirectUrl=url which is used for token callback, must be register in your external identity provider list of URL responses
 oidc.configurationUrl=url which delivers all necessary identity provider related informations
 oidc.usersEndpoint=url which is used for accessing users resource
+oidc.groupsEndpoint=url which is used for accessing groups resource
 ```
 3. Start the application using `java -jar` command
 

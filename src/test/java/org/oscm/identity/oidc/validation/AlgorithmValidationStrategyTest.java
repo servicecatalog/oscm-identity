@@ -7,13 +7,15 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.response.validation;
+package org.oscm.identity.oidc.validation;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.oidc.validation.AlgorithmValidationStrategy;
+import org.oscm.identity.oidc.validation.TokenValidationStrategy;
 
 import javax.xml.bind.ValidationException;
 import java.sql.Date;

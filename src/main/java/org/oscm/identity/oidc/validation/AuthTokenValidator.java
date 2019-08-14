@@ -7,13 +7,13 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.response.validation;
+package org.oscm.identity.oidc.validation;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.oscm.identity.oidc.request.TokenValidationRequest;
+import org.oscm.identity.model.request.TokenValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

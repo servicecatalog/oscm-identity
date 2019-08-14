@@ -18,9 +18,7 @@ import org.springframework.web.client.RestTemplate;
 public class DefaultGetUserRequest extends UserRequest {
 
   @Getter @Setter private String userId;
-
   @Getter @Setter private String select;
-
   private RestTemplate restTemplate;
 
   public DefaultGetUserRequest(RestTemplate restTemplate) {

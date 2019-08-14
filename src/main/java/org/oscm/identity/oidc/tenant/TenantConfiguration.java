@@ -24,4 +24,5 @@ public class TenantConfiguration {
   private String redirectUrl;
   private String configurationUrl;
   private String usersEndpoint;
+  private String groupsEndpoint;
 }

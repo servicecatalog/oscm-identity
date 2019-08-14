@@ -44,4 +44,15 @@ public class RequestHandler {
     }
     return requestManager;
   }
+
+  /**
+   * Retrieves the token value from authorization header containing bearer token.
+   *
+   * @param bearerToken header's bearer token
+   * @return token value
+   */
+  public String getTokenOutOfAuthHeader(String bearerToken) {
+    String token = bearerToken.replaceFirst("Bearer ", "").trim();
+    return token;
+  }
 }
