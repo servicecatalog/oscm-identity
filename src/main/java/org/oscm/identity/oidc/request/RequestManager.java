@@ -27,4 +27,6 @@ public interface RequestManager {
   GroupRequest initCreateGroupRequest();
 
   GroupRequest initAddGroupMemberRequest();
+
+  GroupRequest initGetGroupMembersRequest();
 }

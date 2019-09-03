@@ -128,4 +128,36 @@ public class GroupController {
     groupRequest.execute();
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/tenants/{tenantId}/groups/{groupId}/members")
+  public ResponseEntity getMembers(
+      @PathVariable String tenantId,
+      @PathVariable String groupId,
+      @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
+
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest groupRequest =
+        requestHandler.getRequestManager(provider).initGetGroupMembersRequest();
+    groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    groupRequest.setToken(token);
+
+    if (groupRequest instanceof DefaultGetGroupMembersRequest) {
+      DefaultGetGroupMembersRequest request = (DefaultGetGroupMembersRequest) groupRequest;
+      request.setGroupId(groupId);
+      request.setSelect(
+          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+    }
+
+    ResponseEntity<String> response = groupRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    Set<UserInfo> users = mapper.getGroupMembers(jsonResponse);
+
+    return ResponseEntity.ok(users);
+  }
 }

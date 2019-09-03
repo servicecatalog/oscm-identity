@@ -52,4 +52,9 @@ public class DefaultRequestManager implements RequestManager {
   public GroupRequest initAddGroupMemberRequest() {
     return new DefaultAddGroupMemberRequest(this.restTemplate);
   }
+
+  @Override
+  public GroupRequest initGetGroupMembersRequest() {
+    return new DefaultGetGroupMembersRequest(this.restTemplate);
+  }
 }

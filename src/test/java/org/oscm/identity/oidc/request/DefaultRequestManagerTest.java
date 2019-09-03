@@ -92,4 +92,14 @@ public class DefaultRequestManagerTest {
     // then
     Assertions.assertThat(request).isInstanceOf(DefaultAddGroupMemberRequest.class);
   }
+
+  @Test
+  public void testInitGetGroupMembersRequest_invoked_DefaultGetGroupMembersRequestIsReturned() {
+
+    // when
+    GroupRequest request = requestManager.initGetGroupMembersRequest();
+
+    // then
+    Assertions.assertThat(request).isInstanceOf(DefaultGetGroupMembersRequest.class);
+  }
 }

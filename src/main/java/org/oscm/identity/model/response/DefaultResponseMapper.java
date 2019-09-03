@@ -60,4 +60,21 @@ public class DefaultResponseMapper implements ResponseMapper {
     }
     return userGroups;
   }
+
+  @Override
+  public Set<UserInfo> getGroupMembers(JSONObject json) throws JSONException {
+
+    JSONArray jsonArray = json.getJSONArray("value");
+    Set<UserInfo> users = new HashSet<>();
+
+    for (int i = 0; i < jsonArray.length(); i++) {
+      JSONObject jsonObject = jsonArray.getJSONObject(i);
+      String dataType = jsonObject.getString("@odata.type");
+      if ("#microsoft.graph.user".equals(dataType)) {
+        users.add(getUserInfo(jsonObject));
+      }
+    }
+
+    return users;
+  }
 }

@@ -5,6 +5,7 @@
  *  Creation Date: Aug 12, 2019
  *
  *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import org.junit.jupiter.api.Test;
@@ -128,5 +129,74 @@ public class GroupControllerTest {
     // when and then
     assertThatExceptionOfType(InvalidRequestException.class)
         .isThrownBy(() -> controller.addMember(tenantId, groupId, bearerToken, user));
+  }
+
+  @Test
+  public void testGetMembers_validInputSent_properResponseIsReturned() throws Exception {
+
+    // given
+    String tenantId = "default";
+    String bearerToken = "Bearer token";
+    String groupId = "groupId";
+
+    UserInfo userInfo = givenUserInfo();
+    HashSet<UserInfo> users = new HashSet<>();
+    users.add(userInfo);
+
+    ResponseEntity<String> retrievedUsers =
+        ResponseEntity.ok(
+            "{'value':[{'@odata.type': '#microsoft.graph.user','userPrincipalName':'"
+                + userInfo.getUserId()
+                + "', 'givenName':'"
+                + userInfo.getFirstName()
+                + "','surname':'"
+                + userInfo.getLastName()
+                + "','mail':'"
+                + userInfo.getEmail()
+                + "','country':'"
+                + userInfo.getCountry()
+                + "','city':'"
+                + userInfo.getCity()
+                + "','streetAddress':'"
+                + userInfo.getAddress()
+                + "','businessPhones':'"
+                + userInfo.getPhone()
+                + "','postalCode':'"
+                + userInfo.getPostalCode()
+                + "'}]}");
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setUsersEndpoint("usersEndpoint");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupMembersRequest()).thenReturn(groupRequest);
+    when(groupRequest.execute()).thenReturn(retrievedUsers);
+
+    // when
+    ResponseEntity<UserInfo> response = controller.getMembers(tenantId, groupId, bearerToken);
+
+    // then
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(users);
+  }
+
+  private UserInfo givenUserInfo() {
+
+    UserInfo userInfo =
+        UserInfo.of()
+            .userId("someUser")
+            .firstName("name")
+            .lastName("lastName")
+            .address("address")
+            .phone("phone")
+            .city("city")
+            .country("country")
+            .postalCode("code")
+            .email("email")
+            .build();
+
+    return userInfo;
   }
 }
