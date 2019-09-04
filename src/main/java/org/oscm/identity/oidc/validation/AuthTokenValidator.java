@@ -98,8 +98,6 @@ public class AuthTokenValidator {
       request.setDecodedIdToken(JWT.decode(request.getIdToken()));
     if (!Strings.isNullOrEmpty(request.getAccessToken()))
       request.setDecodedAccessToken(JWT.decode(request.getAccessToken()));
-    if (!Strings.isNullOrEmpty(request.getRefreshToken()))
-      request.setDecodedRefreshToken(JWT.decode(request.getRefreshToken()));
 
     return request;
   }

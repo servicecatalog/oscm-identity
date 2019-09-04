@@ -20,6 +20,8 @@ public interface RequestManager {
 
   TokenRequest initTokenRequest();
 
+  RefreshRequest initRefreshRequest();
+
   UserRequest initGetUserRequest();
 
   UserRequest initGetUserGroupsRequest();
