@@ -167,7 +167,7 @@ public class GroupControllerTest {
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
-    configuration.setUsersEndpoint("usersEndpoint");
+    configuration.setGroupsEndpoint("groupsEndpoint");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
@@ -180,6 +180,44 @@ public class GroupControllerTest {
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(users);
+  }
+
+  @Test
+  public void testGetGroups_validInputSent_properResponseIsReturned() throws Exception {
+
+    // given
+    String tenantId = "default";
+    String bearerToken = "Bearer token";
+
+    UserGroup userGroup = UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    HashSet<UserGroup> groups = new HashSet<>();
+    groups.add(userGroup);
+
+    ResponseEntity<String> retrievedGroups =
+        ResponseEntity.ok(
+            "{'value':[{'id':'"
+                + userGroup.getId()
+                + "', 'displayName':'"
+                + userGroup.getName()
+                + "','description':'"
+                + userGroup.getDescription()
+                + "'}]}");
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setGroupsEndpoint("groupsEndpoint");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupsRequest()).thenReturn(groupRequest);
+    when(groupRequest.execute()).thenReturn(retrievedGroups);
+
+    // when
+    ResponseEntity<UserGroup> response = controller.getGroups(tenantId, bearerToken);
+
+    // then
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
   private UserInfo givenUserInfo() {

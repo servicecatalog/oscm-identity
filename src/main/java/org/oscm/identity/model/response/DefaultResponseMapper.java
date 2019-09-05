@@ -77,4 +77,17 @@ public class DefaultResponseMapper implements ResponseMapper {
 
     return users;
   }
+
+  @Override
+  public Set<UserGroup> getGroups(JSONObject json) throws JSONException {
+
+    JSONArray jsonArray = json.getJSONArray("value");
+    Set<UserGroup> userGroups = new HashSet<>();
+
+    for (int i = 0; i < jsonArray.length(); i++) {
+      JSONObject jsonObject = jsonArray.getJSONObject(i);
+      userGroups.add(getUserGroup(jsonObject));
+    }
+    return userGroups;
+  }
 }

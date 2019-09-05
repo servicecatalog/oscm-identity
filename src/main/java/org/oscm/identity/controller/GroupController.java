@@ -160,4 +160,29 @@ public class GroupController {
 
     return ResponseEntity.ok(users);
   }
+
+  @GetMapping("/tenants/{tenantId}/groups")
+  public ResponseEntity getGroups(
+          @PathVariable String tenantId,
+          @RequestHeader(value = "Authorization") String bearerToken)
+          throws JSONException {
+
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest groupRequest =
+            requestHandler.getRequestManager(provider).initGetGroupsRequest();
+    groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    groupRequest.setToken(token);
+
+    ResponseEntity<String> response = groupRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    Set<UserGroup> groups = mapper.getGroups(jsonResponse);
+
+    return ResponseEntity.ok(groups);
+  }
+
 }

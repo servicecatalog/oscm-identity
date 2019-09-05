@@ -53,4 +53,13 @@ public interface ResponseMapper {
    * @throws JSONException
    */
   Set<UserInfo> getGroupMembers(JSONObject json) throws JSONException;
+
+  /**
+   * Maps json object to object representing groups
+   *
+   * @param json object to be mapped
+   * @return object representing groups
+   * @throws JSONException
+   */
+  Set<UserGroup> getGroups(JSONObject json) throws JSONException;
 }
