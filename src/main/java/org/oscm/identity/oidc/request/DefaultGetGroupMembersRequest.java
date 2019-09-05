@@ -16,6 +16,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Object representing http request to default identity provider for retrieving members for given
+ * group
+ */
 public class DefaultGetGroupMembersRequest extends GroupRequest {
 
   @Getter @Setter private String groupId;

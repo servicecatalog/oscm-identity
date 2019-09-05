@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+/** Object representing http request to default identity provider for retrieving groups */
 public class DefaultGetGroupsRequest extends GroupRequest {
 
   private RestTemplate restTemplate;
