@@ -129,6 +129,13 @@ public class GroupController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * @param tenantId id of the tenant defining identity provider
+   * @param groupId id of the group existing in identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json representation of retrieved group members
+   * @throws JSONException
+   */
   @GetMapping("/tenants/{tenantId}/groups/{groupId}/members")
   public ResponseEntity getMembers(
       @PathVariable String tenantId,
@@ -161,18 +168,22 @@ public class GroupController {
     return ResponseEntity.ok(users);
   }
 
+  /**
+   * @param tenantId id of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json representation of retrieved groups
+   * @throws JSONException
+   */
   @GetMapping("/tenants/{tenantId}/groups")
   public ResponseEntity getGroups(
-          @PathVariable String tenantId,
-          @RequestHeader(value = "Authorization") String bearerToken)
-          throws JSONException {
+      @PathVariable String tenantId, @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
 
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
 
-    GroupRequest groupRequest =
-            requestHandler.getRequestManager(provider).initGetGroupsRequest();
+    GroupRequest groupRequest = requestHandler.getRequestManager(provider).initGetGroupsRequest();
     groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
     groupRequest.setToken(token);
 
@@ -184,5 +195,4 @@ public class GroupController {
 
     return ResponseEntity.ok(groups);
   }
-
 }
