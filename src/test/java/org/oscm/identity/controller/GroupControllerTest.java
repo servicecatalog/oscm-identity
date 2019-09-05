@@ -45,6 +45,8 @@ public class GroupControllerTest {
 
   @InjectMocks private GroupController controller;
 
+  private static String APOSTROPHE = "'";
+
   @Test
   public void testCreateGroup_validInputSent_properResponseIsReturned() throws Exception {
 
@@ -143,27 +145,31 @@ public class GroupControllerTest {
     HashSet<UserInfo> users = new HashSet<>();
     users.add(userInfo);
 
-    ResponseEntity<String> retrievedUsers =
-        ResponseEntity.ok(
-            "{'value':[{'@odata.type': '#microsoft.graph.user','userPrincipalName':'"
-                + userInfo.getUserId()
-                + "', 'givenName':'"
-                + userInfo.getFirstName()
-                + "','surname':'"
-                + userInfo.getLastName()
-                + "','mail':'"
-                + userInfo.getEmail()
-                + "','country':'"
-                + userInfo.getCountry()
-                + "','city':'"
-                + userInfo.getCity()
-                + "','streetAddress':'"
-                + userInfo.getAddress()
-                + "','businessPhones':'"
-                + userInfo.getPhone()
-                + "','postalCode':'"
-                + userInfo.getPostalCode()
-                + "'}]}");
+    String retrievedJson =
+        new StringBuilder("{'value':[{")
+            .append("'@odata.type': '#microsoft.graph.user'")
+            .append(",'userPrincipalName':")
+            .append(APOSTROPHE + userInfo.getUserId() + APOSTROPHE)
+            .append(",'givenName':")
+            .append(APOSTROPHE + userInfo.getFirstName() + APOSTROPHE)
+            .append(",'surname':")
+            .append(APOSTROPHE + userInfo.getLastName() + APOSTROPHE)
+            .append(",'mail':")
+            .append(APOSTROPHE + userInfo.getEmail() + APOSTROPHE)
+            .append(",'country':")
+            .append(APOSTROPHE + userInfo.getCountry() + APOSTROPHE)
+            .append(",'city':")
+            .append(APOSTROPHE + userInfo.getCity() + APOSTROPHE)
+            .append(",'streetAddress':")
+            .append(APOSTROPHE + userInfo.getAddress() + APOSTROPHE)
+            .append(",'businessPhones':")
+            .append(APOSTROPHE + userInfo.getPhone() + APOSTROPHE)
+            .append(",'postalCode':")
+            .append(APOSTROPHE + userInfo.getPostalCode() + APOSTROPHE)
+            .append("}]}")
+            .toString();
+
+    ResponseEntity<String> retrievedUsers = ResponseEntity.ok(retrievedJson);
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -193,15 +199,18 @@ public class GroupControllerTest {
     HashSet<UserGroup> groups = new HashSet<>();
     groups.add(userGroup);
 
-    ResponseEntity<String> retrievedGroups =
-        ResponseEntity.ok(
-            "{'value':[{'id':'"
-                + userGroup.getId()
-                + "', 'displayName':'"
-                + userGroup.getName()
-                + "','description':'"
-                + userGroup.getDescription()
-                + "'}]}");
+    String retrievedJson =
+        new StringBuilder("{'value':[{")
+            .append("'id':")
+            .append(APOSTROPHE + userGroup.getId() + APOSTROPHE)
+            .append(",'displayName':")
+            .append(APOSTROPHE + userGroup.getName() + APOSTROPHE)
+            .append(",'description':")
+            .append(APOSTROPHE + userGroup.getDescription() + APOSTROPHE)
+            .append("}]}")
+            .toString();
+
+    ResponseEntity<String> retrievedGroups = ResponseEntity.ok(retrievedJson);
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
