@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -81,59 +78,6 @@ public class MainController {
     request.execute(response);
   }
 
-  @GetMapping("/refresh")
-  public String refresh(
-      @RequestParam(value = "tenantId", required = false) String tenantId,
-      @RequestParam(value = "id_token", required = false) String idToken,
-      @RequestParam(value = "state", required = false) String state,
-      @RequestParam(value = "scope", required = false) String scope,
-      @RequestParam(value = "refresh_token", required = false) String refreshToken,
-      @RequestParam(value = "grant_type", required = false) String grantType,
-      HttpServletResponse response)
-      throws JSONException, ValidationException, IOException {
-
-    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-
-    RefreshRequest refreshRequest =
-        requestHandler.getRequestManager(configuration.getProvider()).initRefreshRequest();
-    refreshRequest.setClientId(configuration.getClientId());
-    refreshRequest.setRedirectUrl(configuration.getRedirectUrl());
-    refreshRequest.setClientSecret(configuration.getClientSecret());
-    refreshRequest.setBaseUrl(configuration.getTokenUrl());
-    refreshRequest.setScope(scope);
-    refreshRequest.setRefreshToken(refreshToken);
-    refreshRequest.setGrantType(grantType);
-
-    ResponseEntity entity = refreshRequest.execute();
-
-    JSONObject jsonResponse = new JSONObject((String) entity.getBody());
-    String newAccessToken = jsonResponse.get("access_token").toString();
-    String newRefreshToken = jsonResponse.get("refresh_token").toString();
-
-    log.info("Access token received:" + newAccessToken);
-    log.info("Refresh token received:" + newRefreshToken);
-
-    TokenValidationResult validationResult =
-        tokenValidator.validate(
-            TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());
-
-    if (validationResult.isValid()) {
-      String url =
-              new StringBuilder(state)
-                      .append("?id_token=" + idToken)
-                      .append("&access_token=" + newAccessToken)
-                      .append("&refresh_token=" + newRefreshToken)
-                      .toString();
-
-      log.info("Redirecting to " + url);
-      return url;
-//      response.sendRedirect(url);
-    } else {
-      throw new ValidationException(
-          TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
-    }
-  }
-
   @PostMapping("/callback")
   public void callback(
       @RequestParam(value = "id_token", required = false) String idToken,
@@ -168,8 +112,8 @@ public class MainController {
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
 
-    log.info("Access token received:" + accessToken);
-    log.info("Refresh token received:" + refreshToken);
+    log.info("Access token received: " + accessToken);
+    log.info("Refresh token received: " + refreshToken);
 
     TokenValidationResult validationResult =
         tokenValidator.validate(
@@ -177,17 +121,66 @@ public class MainController {
 
     if (validationResult.isValid()) {
       String url =
-              new StringBuilder(state)
-                      .append("?id_token=" + idToken)
-                      .append("&access_token=" + accessToken)
-                      .append("&refresh_token=" + refreshToken)
-                      .toString();
+          new StringBuilder(state)
+              .append("?id_token=" + idToken)
+              .append("&access_token=" + accessToken)
+              .append("&refresh_token=" + refreshToken)
+              .toString();
 
       log.info("Redirecting to " + url);
       response.sendRedirect(url);
     } else {
       throw new ValidationException(
           TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
+    }
+  }
+
+  @PostMapping("/refresh")
+  public void refresh(@RequestBody RefreshBody refreshBody, HttpServletResponse response)
+          throws JSONException, ValidationException, IOException {
+
+    TenantConfiguration configuration =
+            tenantService.loadTenant(Optional.ofNullable(refreshBody.getTenantId()));
+
+    RefreshRequest refreshRequest =
+            requestHandler.getRequestManager(configuration.getProvider()).initRefreshRequest();
+    refreshRequest.setBaseUrl(configuration.getTokenUrl());
+    refreshRequest.setScope(configuration.getAuthUrlScope());
+    refreshRequest.setRedirectUrl(configuration.getRedirectUrl());
+    refreshRequest.setClientId(configuration.getClientId());
+    refreshRequest.setClientSecret(configuration.getClientSecret());
+
+    refreshRequest.setRefreshToken(refreshBody.getRefreshToken());
+    refreshRequest.setGrantType(refreshBody.getGrantType());
+
+    ResponseEntity entity = refreshRequest.execute();
+
+    JSONObject jsonResponse = new JSONObject((String) entity.getBody());
+    String idToken = jsonResponse.get("id_token").toString();
+    String newAccessToken = jsonResponse.get("access_token").toString();
+    String newRefreshToken = jsonResponse.get("refresh_token").toString();
+
+    log.info("New access token received: " + newAccessToken);
+    log.info("New refresh token received: " + newRefreshToken);
+
+    log.warn("Should validate now");
+    TokenValidationResult validationResult =
+            tokenValidator.validate(
+                    TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());
+
+    if (validationResult.isValid()) {
+      String url =
+              new StringBuilder(refreshBody.getState())
+                      .append("?id_token=" + idToken)
+                      .append("&access_token=" + newAccessToken)
+                      .append("&refresh_token=" + newRefreshToken)
+                      .toString();
+
+      log.info("Redirecting to " + url);
+      response.sendRedirect(url);
+    } else {
+      throw new ValidationException(
+              TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
     }
   }
 

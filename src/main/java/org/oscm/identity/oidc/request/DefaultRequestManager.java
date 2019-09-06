@@ -35,7 +35,7 @@ public class DefaultRequestManager implements RequestManager {
 
   @Override
   public RefreshRequest initRefreshRequest() {
-    return new RefreshTokenRequest(this.restTemplate);
+    return new DefaultRefreshRequest(this.restTemplate);
   }
 
   @Override

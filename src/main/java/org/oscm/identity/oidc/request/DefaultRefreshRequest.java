@@ -17,11 +17,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-public class RefreshTokenRequest extends RefreshRequest {
+public class DefaultRefreshRequest extends RefreshRequest {
 
   private RestTemplate restTemplate;
 
-  public RefreshTokenRequest(RestTemplate restTemplate) {
+  public DefaultRefreshRequest(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 

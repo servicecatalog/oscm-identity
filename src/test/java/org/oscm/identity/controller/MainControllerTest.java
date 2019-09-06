@@ -206,4 +206,67 @@ public class MainControllerTest {
     assertThatExceptionOfType(IdentityProviderException.class)
         .isThrownBy(() -> controller.logoutPage("tenantId", "state", response));
   }
+
+
+
+
+
+
+
+
+
+  @Test
+  @SneakyThrows
+  public void shouldRedirectToHomeWithToken_whenPostToIdToken_givenNoErrors() {
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
+    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(tokenValidator.validate(any())).thenReturn(validationResult);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(entity);
+    doNothing().when(response).sendRedirect(any());
+
+    assertThatCode(() -> controller.callback("idToken", "code", "state", null, null, response))
+            .doesNotThrowAnyException();
+
+    verify(tokenValidator, times(1)).validate(any());
+    verify(response, times(1)).sendRedirect(any());
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnError_whenPostToIdToken_givenAPassedInError() {
+    assertThatExceptionOfType(IdentityProviderException.class)
+            .isThrownBy(
+                    () -> controller.callback("idToken", "code", "state", "someError", null, response));
+    verifyZeroInteractions(tokenValidator);
+    verify(response, never()).sendRedirect(any());
+  }
+
+  @Test
+  public void shouldReturnError_whenPostToIdToken_givenValidationError() throws Exception {
+    TokenValidationResult validationResult =
+            TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+
+    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(entity);
+    when(tokenValidator.validate(any())).thenReturn(validationResult);
+
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> controller.callback("idToken", "code", "state", null, null, response));
+
+    verify(tokenValidator, times(1)).validate(any());
+    verifyZeroInteractions(response);
+  }
 }
