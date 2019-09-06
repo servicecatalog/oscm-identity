@@ -137,13 +137,19 @@ public class MainController {
 
   @PostMapping("/refresh")
   public void refresh(@RequestBody RefreshBody refreshBody, HttpServletResponse response)
-          throws JSONException, ValidationException, IOException {
+      throws JSONException, ValidationException, IOException {
+
+    if (refreshBody.getRefreshToken() == null
+        || refreshBody.getGrantType() == null
+        || refreshBody.getState() == null) {
+      throw new ValidationException("Request body is missing required parameters!");
+    }
 
     TenantConfiguration configuration =
-            tenantService.loadTenant(Optional.ofNullable(refreshBody.getTenantId()));
+        tenantService.loadTenant(Optional.ofNullable(refreshBody.getTenantId()));
 
     RefreshRequest refreshRequest =
-            requestHandler.getRequestManager(configuration.getProvider()).initRefreshRequest();
+        requestHandler.getRequestManager(configuration.getProvider()).initRefreshRequest();
     refreshRequest.setBaseUrl(configuration.getTokenUrl());
     refreshRequest.setScope(configuration.getAuthUrlScope());
     refreshRequest.setRedirectUrl(configuration.getRedirectUrl());
@@ -165,22 +171,22 @@ public class MainController {
 
     log.warn("Should validate now");
     TokenValidationResult validationResult =
-            tokenValidator.validate(
-                    TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());
+        tokenValidator.validate(
+            TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());
 
     if (validationResult.isValid()) {
       String url =
-              new StringBuilder(refreshBody.getState())
-                      .append("?id_token=" + idToken)
-                      .append("&access_token=" + newAccessToken)
-                      .append("&refresh_token=" + newRefreshToken)
-                      .toString();
+          new StringBuilder(refreshBody.getState())
+              .append("?id_token=" + idToken)
+              .append("&access_token=" + newAccessToken)
+              .append("&refresh_token=" + newRefreshToken)
+              .toString();
 
       log.info("Redirecting to " + url);
       response.sendRedirect(url);
     } else {
       throw new ValidationException(
-              TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
+          TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
     }
   }
 

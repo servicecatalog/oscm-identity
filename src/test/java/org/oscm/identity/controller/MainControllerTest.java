@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 22, 2019
+ * <p>Creation Date: Jul 22, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import lombok.SneakyThrows;
@@ -15,13 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
-import org.oscm.identity.oidc.request.DefaultRequestManager;
-import org.oscm.identity.oidc.request.RequestHandler;
-import org.oscm.identity.oidc.request.RequestManager;
-import org.oscm.identity.oidc.request.TokenRequest;
+import org.oscm.identity.oidc.request.*;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.validation.TokenValidationResult;
-import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +44,7 @@ public class MainControllerTest {
   @Mock private RequestHandler requestHandler;
   @Mock private RequestManager requestManager;
   @Mock private TokenRequest tokenRequest;
+  @Mock private RefreshRequest refreshRequest;
 
   @InjectMocks private MainController controller;
 
@@ -102,7 +101,8 @@ public class MainControllerTest {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
     TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
-    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+    ResponseEntity<String> entity =
+        ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(tokenValidator.validate(any())).thenReturn(validationResult);
@@ -136,7 +136,8 @@ public class MainControllerTest {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
 
-    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+    ResponseEntity<String> entity =
+        ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
@@ -207,31 +208,25 @@ public class MainControllerTest {
         .isThrownBy(() -> controller.logoutPage("tenantId", "state", response));
   }
 
-
-
-
-
-
-
-
-
   @Test
   @SneakyThrows
-  public void shouldRedirectToHomeWithToken_whenPostToIdToken_givenNoErrors() {
+  public void shouldRedirectToHomeWithToken_whenPostToRefreshToken_givenNoErrors() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
     TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
-    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+    ResponseEntity<String> entity =
+        ResponseEntity.ok()
+            .body(
+                "{'id_token':'idToken', 'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(tokenValidator.validate(any())).thenReturn(validationResult);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
-    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
-    when(tokenRequest.execute()).thenReturn(entity);
+    when(requestManager.initRefreshRequest()).thenReturn(refreshRequest);
+    when(refreshRequest.execute()).thenReturn(entity);
     doNothing().when(response).sendRedirect(any());
-
-    assertThatCode(() -> controller.callback("idToken", "code", "state", null, null, response))
-            .doesNotThrowAnyException();
+    assertThatCode(() -> controller.refresh(createRefreshBody(), response))
+        .doesNotThrowAnyException();
 
     verify(tokenValidator, times(1)).validate(any());
     verify(response, times(1)).sendRedirect(any());
@@ -239,34 +234,47 @@ public class MainControllerTest {
 
   @Test
   @SneakyThrows
-  public void shouldReturnError_whenPostToIdToken_givenAPassedInError() {
-    assertThatExceptionOfType(IdentityProviderException.class)
-            .isThrownBy(
-                    () -> controller.callback("idToken", "code", "state", "someError", null, response));
+  public void shouldReturnError_whenPostToRefreshToken_missingRequiredParameters() {
+    assertThatExceptionOfType(ValidationException.class)
+        .isThrownBy(() -> controller.refresh(new RefreshBody(), response));
     verifyZeroInteractions(tokenValidator);
     verify(response, never()).sendRedirect(any());
   }
 
   @Test
-  public void shouldReturnError_whenPostToIdToken_givenValidationError() throws Exception {
+  public void shouldReturnError_whenPostToRefreshToken_givenValidationError() throws Exception {
     TokenValidationResult validationResult =
-            TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
+        TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
+    configuration.setTokenUrl("tokenUrl");
+    configuration.setAuthUrlScope("scope");
 
-    ResponseEntity<String> entity = ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
+    ResponseEntity<String> entity =
+        ResponseEntity.ok()
+            .body(
+                "{'id_token':'idToken', 'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
-    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
-    when(tokenRequest.execute()).thenReturn(entity);
+    when(requestManager.initRefreshRequest()).thenReturn(refreshRequest);
+    when(refreshRequest.execute()).thenReturn(entity);
     when(tokenValidator.validate(any())).thenReturn(validationResult);
 
     assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> controller.callback("idToken", "code", "state", null, null, response));
+        .isThrownBy(() -> controller.refresh(createRefreshBody(), response));
 
     verify(tokenValidator, times(1)).validate(any());
     verifyZeroInteractions(response);
+  }
+
+  @SneakyThrows
+  private RefreshBody createRefreshBody() {
+    RefreshBody refreshBody = new RefreshBody();
+    refreshBody.setState("null");
+    refreshBody.setRefreshToken("ABC123");
+    refreshBody.setGrantType("refresh_token");
+    return refreshBody;
   }
 }
