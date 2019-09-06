@@ -169,7 +169,6 @@ public class MainController {
     log.info("New access token received: " + newAccessToken);
     log.info("New refresh token received: " + newRefreshToken);
 
-    log.warn("Should validate now");
     TokenValidationResult validationResult =
         tokenValidator.validate(
             TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());

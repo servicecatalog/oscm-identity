@@ -2,7 +2,7 @@
  *
  *  Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 14, 2019
+ *  Creation Date: Sep 3, 2019
  *
  *******************************************************************************/
 
@@ -17,27 +17,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Object representing http request to default identity provider for retrieving groups which given
- * user belongs to
+ * Object representing http request to default identity provider for retrieving members for given
+ * group
  */
-public class DefaultGetUserGroupsRequest extends UserRequest {
+public class DefaultGetGroupMembersRequest extends GroupRequest {
 
-  @Getter @Setter private String userId;
+  @Getter @Setter private String groupId;
+  @Getter @Setter private String select;
 
   private RestTemplate restTemplate;
 
-  public DefaultGetUserGroupsRequest(RestTemplate restTemplate) {
+  public DefaultGetGroupMembersRequest(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 
   @Override
-  public ResponseEntity execute(){
+  public ResponseEntity execute() {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(getToken());
     HttpEntity entity = new HttpEntity(headers);
 
-    String url = getBaseUrl() + "/" + getUserId() + "/memberOf";
+    String url = getBaseUrl() + "/" + getGroupId() + "/members?$select=" + getSelect();
 
     ResponseEntity<String> responseEntity =
         restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
