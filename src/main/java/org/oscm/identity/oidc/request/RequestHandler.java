@@ -8,6 +8,7 @@
 
 package org.oscm.identity.oidc.request;
 
+import org.apache.logging.log4j.util.Strings;
 import org.oscm.identity.error.IdentityProviderException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,5 +55,52 @@ public class RequestHandler {
   public String getTokenOutOfAuthHeader(String bearerToken) {
     String token = bearerToken.replaceFirst("Bearer ", "").trim();
     return token;
+  }
+
+  /**
+   * Appends state parameter with tenant information
+   *
+   * @param state state representing url to which identity service should go back after successful login
+   * @param tenantId id of tenant
+   * @return modified state parameter
+   */
+  public String appendStateWithTenantId(String state, String tenantId) {
+
+    if (!Strings.isBlank(tenantId)) {
+      state = new StringBuilder(state).append("?tenantId=").append(tenantId).toString();
+    }
+    return state;
+  }
+
+  /**
+   * Retrieves tenant information of of the passed state parameter
+   *
+   * @param state state representing url to which identity service should go back after successful login
+   * @return id of tenant or null if state does not contain it
+   */
+  public String getTenantIdFromState(String state) {
+
+    int tenantParam = state.indexOf("tenantId=");
+
+    if (tenantParam > 0) {
+      return state.substring(tenantParam).split("=")[1];
+    }
+    return null;
+  }
+
+  /**
+   * Cleans the state parameter so that it doe not contain tenant information
+   *
+   * @param state state representing url to which identity service should go back after successful login
+   * @return modified state parameter
+   */
+  public String getStateWithoutTenant(String state) {
+
+    int tenantParam = state.indexOf("tenantId=");
+
+    if (tenantParam > 0) {
+      state = state.substring(0, tenantParam - 1);
+    }
+    return state;
   }
 }
