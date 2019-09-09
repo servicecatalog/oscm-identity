@@ -233,15 +233,6 @@ public class MainControllerTest {
   }
 
   @Test
-  @SneakyThrows
-  public void shouldReturnError_whenPostToRefreshToken_missingRequiredParameters() {
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> controller.refresh(new RefreshBody(), response));
-    verifyZeroInteractions(tokenValidator);
-    verify(response, never()).sendRedirect(any());
-  }
-
-  @Test
   public void shouldReturnError_whenPostToRefreshToken_givenValidationError() throws Exception {
     TokenValidationResult validationResult =
         TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();

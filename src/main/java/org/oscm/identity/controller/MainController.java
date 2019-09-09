@@ -139,12 +139,6 @@ public class MainController {
   public void refresh(@RequestBody RefreshBody refreshBody, HttpServletResponse response)
       throws JSONException, ValidationException, IOException {
 
-    if (refreshBody.getRefreshToken() == null
-        || refreshBody.getGrantType() == null
-        || refreshBody.getState() == null) {
-      throw new ValidationException("Request body is missing required parameters!");
-    }
-
     TenantConfiguration configuration =
         tenantService.loadTenant(Optional.ofNullable(refreshBody.getTenantId()));
 

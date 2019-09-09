@@ -17,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+/** Object representing the http request to identity provider for refreshing access token */
 public class DefaultRefreshRequest extends RefreshRequest {
 
   private RestTemplate restTemplate;
