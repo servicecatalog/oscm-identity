@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.model.request.TokenValidationRequest;
@@ -17,8 +17,9 @@ import javax.xml.bind.ValidationException;
 
 @Slf4j
 @Component
-public class NonceValidationStrategy implements TokenValidationStrategy {
+public class IdTokenNonceValidationStrategy extends TokenValidationStrategy {
 
+  //FIXME: Nonce is not properly implemented yet
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
     if (request.getNonce() != null) {
@@ -29,6 +30,6 @@ public class NonceValidationStrategy implements TokenValidationStrategy {
 
   @Override
   public String getFailureMessage() {
-    return "Nonce provided in a request does not match the one from OID Token";
+    return "Nonce provided in a request does not match the one from ID` Token";
   }
 }

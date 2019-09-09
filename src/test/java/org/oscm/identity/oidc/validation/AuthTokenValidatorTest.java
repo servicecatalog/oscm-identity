@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.oidc.validation.strategy.*;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,18 +25,18 @@ import static org.mockito.Mockito.doNothing;
 @ExtendWith(MockitoExtension.class)
 public class AuthTokenValidatorTest {
 
-  @Mock private ISSValidationStrategy issValidationStrategy;
-  @Mock private AudienceValidationStrategy audienceValidationStrategy;
-  @Mock private AlgorithmValidationStrategy algorithmValidationStrategy;
-  @Mock private ExpirationTimeValidationStrategy expirationTimeValidationStrategy;
-  @Mock private NonceValidationStrategy nonceValidationStrategy;
+  @Mock private AccessTokenAlgorithmValidationStrategy accessTokenAlgorithmValidationStrategy;
+  @Mock private AccessTokenExpirationTimeValidationStrategy accessTokenExpirationTimeValidationStrategy;
+  @Mock private IdTokenAlgorithmValidationStrategy idTokenAlgorithmValidationStrategy;
+  @Mock private IdTokenAudienceValidationStrategy idTokenAudienceValidationStrategy;
+  @Mock private IdTokenExpirationTimeValidationStrategy idTokenExpirationTimeValidationStrategy;
+  @Mock private IdTokenISSValidationStrategy idTokenIssValidationStrategy;
+  @Mock private IdTokenNonceValidationStrategy idTokenNonceValidationStrategy;
   @InjectMocks private AuthTokenValidator validator;
 
   @Test
   @SneakyThrows
   public void shouldConfirmTokenValidity_givenValidToken() {
-    doNothing().when(issValidationStrategy).execute(any());
-
     String validToken =
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9"
             + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gR"

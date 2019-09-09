@@ -7,9 +7,8 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
-import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.model.request.TokenValidationRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
@@ -19,14 +18,13 @@ import org.springframework.stereotype.Component;
 import javax.xml.bind.ValidationException;
 import java.util.Optional;
 
-@Slf4j
 @Component
-public class AudienceValidationStrategy implements TokenValidationStrategy {
+public class IdTokenAudienceValidationStrategy extends TokenValidationStrategy {
 
   private TenantService tenantService;
 
   @Autowired
-  public AudienceValidationStrategy(TenantService tenantService) {
+  public IdTokenAudienceValidationStrategy(TenantService tenantService) {
     this.tenantService = tenantService;
   }
 
@@ -38,12 +36,17 @@ public class AudienceValidationStrategy implements TokenValidationStrategy {
     TenantConfiguration tenantConfiguration =
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
+    if(request.getDecodedIdToken() == null) {
+      logIDTokenNotFound(this);
+      return;
+    }
+
     if (!request.getDecodedIdToken().getAudience().contains(tenantConfiguration.getClientId()))
       throw new ValidationException(getFailureMessage());
   }
 
   @Override
   public String getFailureMessage() {
-    return "Token's audience does not contain client ID from current tenant configuration";
+    return "Id token's audience does not contain client ID from current tenant configuration";
   }
 }

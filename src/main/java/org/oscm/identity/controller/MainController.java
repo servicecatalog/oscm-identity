@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -159,7 +156,7 @@ public class MainController {
    * @return HTTP Response
    */
   @PostMapping(value = "/verify_token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ResponseEntity verifyToken(TokenValidationRequest request) {
+  public ResponseEntity verifyToken(@RequestBody TokenV`alidationRequest request) {
     TokenValidationResult validationResult = tokenValidator.validate(request);
 
     if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);

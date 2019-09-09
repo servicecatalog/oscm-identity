@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -18,7 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.validation.ISSValidationStrategy;
+import org.oscm.identity.oidc.validation.AuthTokenValidator;
+import org.oscm.identity.oidc.validation.strategy.IdTokenISSValidationStrategy;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.web.client.RestTemplate;
@@ -28,17 +29,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.assertj.core.api.Java6Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ISSValidationStrategyTest {
+public class IdTokenISSValidationStrategyTest {
 
   @Mock private RestTemplate restTemplate;
   @Mock private TenantService service;
-  @InjectMocks private ISSValidationStrategy strategy;
+  @InjectMocks private IdTokenISSValidationStrategy strategy;
   private TokenValidationRequest request;
 
   @Test
@@ -86,5 +88,14 @@ public class ISSValidationStrategyTest {
 
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> strategy.execute(request));
+  }
+
+  @Test
+  public void shouldNotValidateRequest_givenNoToken() {
+    try {
+      strategy.execute(TokenValidationRequest.of().build());
+    } catch (ValidationException e) {
+      fail(e.getMessage());
+    }
   }
 }
