@@ -34,6 +34,11 @@ public class DefaultRequestManager implements RequestManager {
   }
 
   @Override
+  public RefreshRequest initRefreshRequest() {
+    return new DefaultRefreshRequest(this.restTemplate);
+  }
+
+  @Override
   public UserRequest initGetUserRequest() {
     return new DefaultGetUserRequest(this.restTemplate);
   }
@@ -51,5 +56,15 @@ public class DefaultRequestManager implements RequestManager {
   @Override
   public GroupRequest initAddGroupMemberRequest() {
     return new DefaultAddGroupMemberRequest(this.restTemplate);
+  }
+
+  @Override
+  public GroupRequest initGetGroupMembersRequest() {
+    return new DefaultGetGroupMembersRequest(this.restTemplate);
+  }
+
+  @Override
+  public GroupRequest initGetGroupsRequest() {
+    return new DefaultGetGroupsRequest(this.restTemplate);
   }
 }
