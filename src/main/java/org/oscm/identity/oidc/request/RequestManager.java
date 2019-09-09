@@ -39,6 +39,14 @@ public interface RequestManager {
   TokenRequest initTokenRequest();
 
   /**
+   * Creates refresh request representing http request for acquiring new access token using
+   * refresh token
+   *
+   * @return refresh request
+   */
+  RefreshRequest initRefreshRequest();
+
+  /**
    * Creates user request representing http request for retrieving user information from specific
    * identity provider
    *
