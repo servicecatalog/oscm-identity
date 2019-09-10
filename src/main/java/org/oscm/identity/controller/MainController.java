@@ -10,6 +10,7 @@
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
@@ -74,7 +75,7 @@ public class MainController {
     request.setResponseMode("form_post");
     // TODO: create nonce which should be validated for id_token
     request.setNonce("test-nonce");
-    request.setState(state);
+    request.setState(requestHandler.appendStateWithTenantId(state, tenantId));
     request.execute(response);
   }
 
@@ -93,8 +94,8 @@ public class MainController {
     }
 
     log.info("Authorization code retrieved:" + code);
-    // TODO: get tenant out of state param
-    String tenantId = null;
+
+    String tenantId = requestHandler.getTenantIdFromState(state);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     TokenRequest tokenRequest =
@@ -121,7 +122,7 @@ public class MainController {
 
     if (validationResult.isValid()) {
       String url =
-          new StringBuilder(state)
+          new StringBuilder(requestHandler.getStateWithoutTenant(state))
               .append("?id_token=" + idToken)
               .append("&access_token=" + accessToken)
               .append("&refresh_token=" + refreshToken)

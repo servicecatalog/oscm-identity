@@ -108,6 +108,7 @@ public class MainControllerTest {
     when(tokenValidator.validate(any())).thenReturn(validationResult);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
     when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(requestHandler.getStateWithoutTenant(anyString())).thenReturn("state");
     when(tokenRequest.execute()).thenReturn(entity);
     doNothing().when(response).sendRedirect(any());
 
