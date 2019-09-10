@@ -56,9 +56,6 @@ public class AuthTokenValidator {
    * @param request validation request body
    * @return result of the validation
    */
-  // TODO: Fix the tests
-  // TODO: Check if one on another token is not set, nullpointer will be thrown
-  // TODO: Javadocs
   public TokenValidationResult validate(TokenValidationRequest request) {
     try {
       this.request = AuthTokenValidator.decodeTokens(request);
