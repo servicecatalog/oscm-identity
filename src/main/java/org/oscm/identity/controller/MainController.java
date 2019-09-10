@@ -204,7 +204,7 @@ public class MainController {
    * @param request validation request wrapper
    * @return HTTP Response
    */
-  @PostMapping(value = "/verify_token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @PostMapping(value = "/verify_token")
   public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request) {
     TokenValidationResult validationResult = tokenValidator.validate(request);
 
