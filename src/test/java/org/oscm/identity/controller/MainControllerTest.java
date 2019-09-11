@@ -10,12 +10,15 @@
 package org.oscm.identity.controller;
 
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
+import org.oscm.identity.model.json.AccessTokenRequest;
+import org.oscm.identity.model.json.AccessTokenResponse;
 import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.validation.AuthTokenValidator;
@@ -261,6 +264,7 @@ public class MainControllerTest {
     verifyZeroInteractions(response);
   }
 
+
   @SneakyThrows
   private RefreshBody createRefreshBody() {
     RefreshBody refreshBody = new RefreshBody();
@@ -268,5 +272,40 @@ public class MainControllerTest {
     refreshBody.setRefreshToken("ABC123");
     refreshBody.setGrantType("refresh_token");
     return refreshBody;
+  }
+
+  @Test
+  @SneakyThrows
+  public void testGetAccessToken_validRequestSend_properResponseIsReturned() {
+
+    // given
+    String tenantId = "default";
+
+    AccessTokenRequest accessTokenrequest =
+        AccessTokenRequest.of()
+            .clientId("clientId")
+            .clientSecret("clientSecret")
+            .scope("scope")
+            .build();
+
+    String accessToken = "someAccessToken";
+    AccessTokenResponse tokenResponse = AccessTokenResponse.of().accessToken(accessToken).build();
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+
+    ResponseEntity<String> retrievedToken = ResponseEntity.ok("{'access_token':'"+accessToken+"'}");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(retrievedToken);
+
+    // when
+    ResponseEntity response = controller.getAccessToken(tenantId, accessTokenrequest);
+
+    // then
+    Assertions.assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    Assertions.assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(tokenResponse);
   }
 }
