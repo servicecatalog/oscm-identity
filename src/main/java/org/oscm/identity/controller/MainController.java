@@ -1,12 +1,10 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  *
- * <p>Copyright FUJITSU LIMITED 2019
+ *  Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: Jun 19, 2019
+ *  Creation Date: Jun 19, 2019
  *
- * <p>*****************************************************************************
- */
+ *******************************************************************************/
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +12,11 @@ import org.apache.logging.log4j.util.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
+import org.oscm.identity.model.json.AccessTokenRequest;
+import org.oscm.identity.model.json.AccessTokenResponse;
 import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.model.response.ResponseHandler;
+import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.validation.AuthTokenValidator;
@@ -213,5 +215,38 @@ public class MainController {
     else
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
           .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
+  }
+
+  /**
+   * Represents the endpoint for retrieving the access token from external identity provider
+   * according to client credentials grant flow
+   *
+   * @param tenantId id of the tenant defining identity provider
+   * @param accessTokenRequest json body of the request
+   * @return http response object containing json representing the access token
+   * @throws JSONException
+   */
+  @PostMapping("tenants/{tenantId}/token")
+  public ResponseEntity getAccessToken(
+      @PathVariable String tenantId, @RequestBody AccessTokenRequest accessTokenRequest)
+      throws JSONException {
+
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    TokenRequest tokenRequest = requestHandler.getRequestManager(provider).initTokenRequest();
+    tokenRequest.setBaseUrl(configuration.getTokenUrl());
+    tokenRequest.setClientId(accessTokenRequest.getClientId());
+    tokenRequest.setClientSecret(accessTokenRequest.getClientSecret());
+    tokenRequest.setScope(accessTokenRequest.getScope());
+    tokenRequest.setGrantType("client_credentials");
+
+    ResponseEntity<String> response = tokenRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    AccessTokenResponse accessTokenResponse = mapper.getAccessToken(jsonResponse);
+
+    return ResponseEntity.ok(accessTokenResponse);
   }
 }

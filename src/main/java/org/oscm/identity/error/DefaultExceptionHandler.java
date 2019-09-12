@@ -45,15 +45,26 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     String jsonResponse = ex.getResponseBodyAsString();
 
     JSONObject json = new JSONObject(jsonResponse);
-    JSONObject jsonError = json.getJSONObject("error");
+    ErrorResponse response;
 
-    ErrorResponse errorResponse =
-        ErrorResponse.of()
-            .error(jsonError.getString("code"))
-            .errorDescription(jsonError.getString("message"))
-            .build();
+    try {
+      JSONObject jsonError = json.getJSONObject("error");
 
-    return new ResponseEntity<>(errorResponse, ex.getStatusCode());
+      response =
+          ErrorResponse.of()
+              .error(jsonError.getString("code"))
+              .errorDescription(jsonError.getString("message"))
+              .build();
+    } catch (Exception e) {
+
+      response =
+          ErrorResponse.of()
+              .error(json.getString("error"))
+              .errorDescription(json.getString("error_description"))
+              .build();
+    }
+
+    return new ResponseEntity<>(response, ex.getStatusCode());
   }
 
   @Override

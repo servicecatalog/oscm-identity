@@ -20,4 +20,5 @@ public abstract class TokenRequest implements OIDCReturnRequest {
   private String code;
   private String redirectUrl;
   private String grantType;
+  private String scope;
 }
