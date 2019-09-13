@@ -73,8 +73,7 @@ public class MainController {
     request.setScope(configuration.getAuthUrlScope());
     request.setResponseType("id_token code");
     request.setResponseMode("form_post");
-    // TODO: create nonce which should be validated for id_token
-    request.setNonce("test-nonce");
+    request.setNonce(configuration.getNonce());
     request.setState(requestHandler.appendStateWithTenantId(state, tenantId));
     request.execute(response);
   }

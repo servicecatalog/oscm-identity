@@ -80,6 +80,11 @@ public class AuthTokenValidator {
   private void doCheckAgainst(List<TokenValidationStrategy> validationStrategies)
       throws ValidationException {
     for (TokenValidationStrategy strategy : validationStrategies) {
+      //FIXME: instead of passing whole request, let's pass TokenDetails object
+      //FIXME:(encoded token (which will be decoded with use of method from TokenValiator abstraction)
+      //FIXME along with all the data needed ex. nonce).
+      //FIXME:That way, decoded tokens can be removed from the validation request,
+      //FIXME:and we would have one type of token per request
       strategy.execute(request);
     }
   }
