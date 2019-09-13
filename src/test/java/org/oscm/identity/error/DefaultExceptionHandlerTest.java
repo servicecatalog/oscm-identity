@@ -32,6 +32,25 @@ public class DefaultExceptionHandlerTest {
   }
 
   @Test
+  public void testHandleDefaultException_ExceptionIsThrown_properResponseIsReturned() {
+
+    // given
+    String message = "null pointer exception";
+    NullPointerException exception = new NullPointerException(message);
+
+    // when
+    ResponseEntity<ErrorResponse> response = handler.handleDefaultException(exception);
+
+    // then
+    ErrorResponse errorResponse =
+            ErrorResponse.of().error("Internal error").errorDescription(exception.getMessage()).build();
+    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(status);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
+  }
+
+  @Test
   public void testHandleClientError_HttpClientErrorExceptionThrown_properResponseIsReturned()
       throws Exception {
 
@@ -73,10 +92,10 @@ public class DefaultExceptionHandlerTest {
 
     // then
     ErrorResponse errorResponse =
-        ErrorResponse.of()
-            .error("Invalid request")
-            .errorDescription(exception.getMessage())
-            .build();
+            ErrorResponse.of()
+                    .error("Invalid request")
+                    .errorDescription(exception.getMessage())
+                    .build();
 
     assertThat(response)
         .extracting(ResponseEntity::getStatusCode)
