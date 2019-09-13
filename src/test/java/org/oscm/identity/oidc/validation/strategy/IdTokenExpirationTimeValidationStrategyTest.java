@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.oscm.identity.model.request.TokenValidationRequest;
@@ -38,6 +39,7 @@ public class IdTokenExpirationTimeValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldValidateRequest() {
     String token =
         JWT.create()
@@ -50,6 +52,7 @@ public class IdTokenExpirationTimeValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotValidateRequest() {
     String token =
         JWT.create()

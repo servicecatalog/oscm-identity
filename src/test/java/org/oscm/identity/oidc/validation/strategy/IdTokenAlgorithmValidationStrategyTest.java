@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.oscm.identity.model.request.TokenValidationRequest;
@@ -36,6 +37,7 @@ public class IdTokenAlgorithmValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldValidateRequest() {
     String rsaToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIx"
             + "MjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiw"
@@ -60,6 +62,7 @@ public class IdTokenAlgorithmValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotValidateRequest() {
     String token = JWT.create().sign(Algorithm.none());
     request = TokenValidationRequest.of().idToken(token).build();

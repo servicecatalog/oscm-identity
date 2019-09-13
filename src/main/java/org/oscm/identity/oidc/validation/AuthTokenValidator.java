@@ -54,22 +54,11 @@ public class AuthTokenValidator {
    * Validates provided idToken string againts OID rules
    *
    * @param request validation request body
-   * @return result of the validation
    */
-  public TokenValidationResult validate(TokenValidationRequest request) {
-    try {
-      this.request = AuthTokenValidator.decodeTokens(request);
-      doCheckAgainst(validationStrategies);
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-      return TokenValidationResult.of()
-          .isValid(false)
-          .validationFailureReason(e.getMessage())
-          .build();
-    }
-
+  public void validate(TokenValidationRequest request) throws ValidationException {
+    this.request = AuthTokenValidator.decodeTokens(request);
+    doCheckAgainst(validationStrategies);
     log.info(TOKEN_VALIDATED_MESSAGE);
-    return TokenValidationResult.of().isValid(true).build();
   }
 
   /**
@@ -80,11 +69,11 @@ public class AuthTokenValidator {
   private void doCheckAgainst(List<TokenValidationStrategy> validationStrategies)
       throws ValidationException {
     for (TokenValidationStrategy strategy : validationStrategies) {
-      //FIXME: instead of passing whole request, let's pass TokenDetails object
-      //FIXME:(encoded token (which will be decoded with use of method from TokenValiator abstraction)
-      //FIXME along with all the data needed ex. nonce).
-      //FIXME:That way, decoded tokens can be removed from the validation request,
-      //FIXME:and we would have one type of token per request
+      // FIXME: instead of passing whole request, let's pass TokenDetails object
+      // FIXME:(encoded token (which will be decoded with use of method from TokenValidator abstraction)
+      // FIXME along with all the data needed ex. nonce).
+      // FIXME:That way, decoded tokens can be removed from the validation request,
+      // FIXME:and we would have one type of token per request
       strategy.execute(request);
     }
   }
@@ -96,13 +85,16 @@ public class AuthTokenValidator {
    * @return Token Validation Request with decoded tokens
    * @throws JWTDecodeException
    */
-  public static TokenValidationRequest decodeTokens(
-          TokenValidationRequest request)
-      throws JWTDecodeException {
-    if (!Strings.isNullOrEmpty(request.getIdToken()))
-      request.setDecodedIdToken(JWT.decode(request.getIdToken()));
-    if (!Strings.isNullOrEmpty(request.getAccessToken()))
-      request.setDecodedAccessToken(JWT.decode(request.getAccessToken()));
+  public static TokenValidationRequest decodeTokens(TokenValidationRequest request)
+      throws ValidationException {
+    try {
+      if (!Strings.isNullOrEmpty(request.getIdToken()))
+        request.setDecodedIdToken(JWT.decode(request.getIdToken()));
+      if (!Strings.isNullOrEmpty(request.getAccessToken()))
+        request.setDecodedAccessToken(JWT.decode(request.getAccessToken()));
+    } catch (JWTDecodeException e) {
+      throw new ValidationException(e.getMessage(), e);
+    }
     return request;
   }
 }

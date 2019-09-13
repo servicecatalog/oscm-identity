@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +40,7 @@ public class IdTokenAudienceValidationStrategyTest {
   private TokenValidationRequest request;
 
   @Test
+  @SneakyThrows
   public void shouldValidateRequest() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setClientId("clientId");
@@ -52,6 +54,7 @@ public class IdTokenAudienceValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotValidateRequest() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setClientId("nonValidValue");

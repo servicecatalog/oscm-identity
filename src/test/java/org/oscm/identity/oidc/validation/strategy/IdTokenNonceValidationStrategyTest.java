@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,7 @@ public class IdTokenNonceValidationStrategyTest {
   private TokenValidationRequest request;
 
   @Test
+  @SneakyThrows
   public void shouldValidateRequest() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setNonce("testNonce");
@@ -54,6 +56,7 @@ public class IdTokenNonceValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotValidateRequest() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setNonce("someOtherNonce");

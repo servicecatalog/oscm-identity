@@ -35,7 +35,7 @@ public class IdTokenNonceValidationStrategy extends TokenValidationStrategy {
 
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
-      //FIXME: This call will be removed in scope of oscm-identity#38
+      //FIXME: This call will be moved to parent class in scope of oscm-identity#38
       TenantConfiguration tenantConfiguration =
               tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 

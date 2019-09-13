@@ -18,7 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.request.TokenValidationRequest;
 import org.oscm.identity.oidc.validation.strategy.*;
 
+import javax.xml.bind.ValidationException;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
@@ -57,13 +61,13 @@ public class AuthTokenValidatorTest {
             .tenantId("default")
             .build();
 
-    TokenValidationResult result = validator.validate(request);
+    validator.validate(request);
 
-    assertThat(result).extracting(TokenValidationResult::isValid).isEqualTo(true);
-    assertThat(result.getValidationFailureReason()).isBlank();
+    assertThatCode(() -> validator.validate(request)).doesNotThrowAnyException();
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotConfirmTokenValidity_givenValidToken() {
     String invalidToken = "somedatathatarenotvalidforthistest";
     TokenValidationRequest request =
@@ -71,9 +75,7 @@ public class AuthTokenValidatorTest {
             .idToken(invalidToken)
             .tenantId("default")
             .build();
-    TokenValidationResult result = validator.validate(request);
 
-    assertThat(result).extracting(TokenValidationResult::isValid).isEqualTo(false);
-    assertThat(result.getValidationFailureReason()).isNotEmpty();
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> validator.validate(request));
   }
 }

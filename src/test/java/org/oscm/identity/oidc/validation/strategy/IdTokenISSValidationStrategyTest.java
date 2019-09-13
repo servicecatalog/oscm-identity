@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,7 @@ public class IdTokenISSValidationStrategyTest {
   private TokenValidationRequest request;
 
   @Test
+  @SneakyThrows
   public void shouldValidateRequest() {
     String issuerValue = "testIssuer";
 
@@ -67,6 +69,7 @@ public class IdTokenISSValidationStrategyTest {
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotValidateRequest() {
     String issuerValue = "someinvalidvalue";
 
