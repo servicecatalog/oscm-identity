@@ -8,7 +8,6 @@
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
@@ -23,8 +22,6 @@ import org.oscm.identity.oidc.validation.AuthTokenValidator;
 import org.oscm.identity.oidc.validation.TokenValidationResult;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,8 +72,7 @@ public class MainController {
     request.setScope(configuration.getAuthUrlScope());
     request.setResponseType("id_token code");
     request.setResponseMode("form_post");
-    // TODO: create nonce which should be validated for id_token
-    request.setNonce("test-nonce");
+    request.setNonce(configuration.getNonce());
     request.setState(requestHandler.appendStateWithTenantId(state, tenantId));
     request.execute(response);
   }
@@ -118,26 +114,18 @@ public class MainController {
     log.info("Access token received: " + accessToken);
     log.info("Refresh token received: " + refreshToken);
 
-    TokenValidationResult validationResult =
-        tokenValidator.validate(
-            TokenValidationRequest.of().idToken(idToken).accessToken(accessToken).build());
+    String url =
+        new StringBuilder(requestHandler.getStateWithoutTenant(state))
+            .append("?id_token=" + idToken)
+            .append("&access_token=" + accessToken)
+            .append("&refresh_token=" + refreshToken)
+            .toString();
 
-    if (validationResult.isValid()) {
-      String url =
-          new StringBuilder(requestHandler.getStateWithoutTenant(state))
-              .append("?id_token=" + idToken)
-              .append("&access_token=" + accessToken)
-              .append("&refresh_token=" + refreshToken)
-              .toString();
-
-      log.info("Redirecting to " + url);
-      response.sendRedirect(url);
-    } else {
-      throw new ValidationException(
-          TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
-    }
+    log.info("Redirecting to " + url);
+    response.sendRedirect(url);
   }
 
+  //FIXME: Refresh functionality need refactoring
   @PostMapping("/refresh")
   public void refresh(@RequestBody RefreshBody refreshBody, HttpServletResponse response)
       throws JSONException, ValidationException, IOException {
@@ -166,11 +154,6 @@ public class MainController {
     log.info("New access token received: " + newAccessToken);
     log.info("New refresh token received: " + newRefreshToken);
 
-    TokenValidationResult validationResult =
-        tokenValidator.validate(
-            TokenValidationRequest.of().idToken(idToken).accessToken(newAccessToken).build());
-
-    if (validationResult.isValid()) {
       String url =
           new StringBuilder(refreshBody.getState())
               .append("?id_token=" + idToken)
@@ -180,10 +163,6 @@ public class MainController {
 
       log.info("Redirecting to " + url);
       response.sendRedirect(url);
-    } else {
-      throw new ValidationException(
-          TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
-    }
   }
 
   @GetMapping("/logout")
@@ -207,14 +186,11 @@ public class MainController {
    * @param request validation request wrapper
    * @return HTTP Response
    */
-  @PostMapping(value = "/verify_token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public ResponseEntity verifyToken(TokenValidationRequest request) {
-    TokenValidationResult validationResult = tokenValidator.validate(request);
-
-    if (validationResult.isValid()) return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
-    else
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-          .body(TOKEN_VALIDATION_FAILED_MESSAGE + validationResult.getValidationFailureReason());
+  @PostMapping(value = "/verify_token")
+  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request)
+      throws ValidationException {
+    tokenValidator.validate(request);
+    return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
   }
 
   /**

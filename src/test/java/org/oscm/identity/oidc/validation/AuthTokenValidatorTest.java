@@ -16,26 +16,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.oidc.validation.strategy.*;
 
+import javax.xml.bind.ValidationException;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthTokenValidatorTest {
 
-  @Mock private ISSValidationStrategy issValidationStrategy;
-  @Mock private AudienceValidationStrategy audienceValidationStrategy;
-  @Mock private AlgorithmValidationStrategy algorithmValidationStrategy;
-  @Mock private ExpirationTimeValidationStrategy expirationTimeValidationStrategy;
-  @Mock private NonceValidationStrategy nonceValidationStrategy;
+  @Mock private AccessTokenAlgorithmValidationStrategy accessTokenAlgorithmValidationStrategy;
+  @Mock private AccessTokenExpirationTimeValidationStrategy accessTokenExpirationTimeValidationStrategy;
+  @Mock private IdTokenAlgorithmValidationStrategy idTokenAlgorithmValidationStrategy;
+  @Mock private IdTokenAudienceValidationStrategy idTokenAudienceValidationStrategy;
+  @Mock private IdTokenExpirationTimeValidationStrategy idTokenExpirationTimeValidationStrategy;
+  @Mock private IdTokenISSValidationStrategy idTokenIssValidationStrategy;
+  @Mock private IdTokenNonceValidationStrategy idTokenNonceValidationStrategy;
   @InjectMocks private AuthTokenValidator validator;
 
   @Test
   @SneakyThrows
   public void shouldConfirmTokenValidity_givenValidToken() {
-    doNothing().when(issValidationStrategy).execute(any());
-
     String validToken =
         "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9"
             + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gR"
@@ -53,28 +58,24 @@ public class AuthTokenValidatorTest {
     TokenValidationRequest request =
         TokenValidationRequest.of()
             .idToken(validToken)
-            .nonce("testNonce")
             .tenantId("default")
             .build();
 
-    TokenValidationResult result = validator.validate(request);
+    validator.validate(request);
 
-    assertThat(result).extracting(TokenValidationResult::isValid).isEqualTo(true);
-    assertThat(result.getValidationFailureReason()).isBlank();
+    assertThatCode(() -> validator.validate(request)).doesNotThrowAnyException();
   }
 
   @Test
+  @SneakyThrows
   public void shouldNotConfirmTokenValidity_givenValidToken() {
     String invalidToken = "somedatathatarenotvalidforthistest";
     TokenValidationRequest request =
         TokenValidationRequest.of()
             .idToken(invalidToken)
-            .nonce("testNonce")
             .tenantId("default")
             .build();
-    TokenValidationResult result = validator.validate(request);
 
-    assertThat(result).extracting(TokenValidationResult::isValid).isEqualTo(false);
-    assertThat(result.getValidationFailureReason()).isNotEmpty();
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> validator.validate(request));
   }
 }

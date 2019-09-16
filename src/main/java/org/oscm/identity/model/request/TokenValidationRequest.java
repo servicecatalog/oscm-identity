@@ -21,7 +21,6 @@ public class TokenValidationRequest {
 
   private String idToken;
   private String accessToken;
-  private String nonce;
   private String tenantId;
   @Setter private DecodedJWT decodedIdToken;
   @Setter private DecodedJWT decodedAccessToken;

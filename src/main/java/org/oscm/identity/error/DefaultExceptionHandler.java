@@ -20,6 +20,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.xml.bind.ValidationException;
+
 @ControllerAdvice
 @Slf4j
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
@@ -92,5 +94,19 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse.of().error("Invalid request").errorDescription(ex.getMessage()).build();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  //FIXME: Create IdTokenValidation Exception and AccessTokenValidationException
+  //FIXME: If possible keep single handler for all of them
+  //FIXME: These will be also used in the strategies
+  @ExceptionHandler(ValidationException.class)
+  protected ResponseEntity<Object> handleValidationException(ValidationException ex) {
+    log.error(ex.getMessage(), ex);
+
+    //FIXME: After splitting the validators content for 'error' should be something
+    //FIXME: like "Access token validation failed
+    ErrorResponse errorResponse = ErrorResponse.of().error("Token validation failed").errorDescription(ex.getMessage()).build();
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
   }
 }

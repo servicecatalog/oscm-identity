@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.model.request.TokenValidationRequest;
@@ -20,20 +20,23 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class ExpirationTimeValidationStrategy implements TokenValidationStrategy {
+public class IdTokenExpirationTimeValidationStrategy extends TokenValidationStrategy {
 
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
+    if (request.getDecodedIdToken() == null) {
+      logIDTokenNotFound(this);
+      return;
+    }
+
     if (LocalDateTime.now()
-            .isAfter(convertDateToLocalDateTime(request.getDecodedIdToken().getExpiresAt()))
-        || LocalDateTime.now()
-            .isAfter(convertDateToLocalDateTime(request.getDecodedAccessToken().getExpiresAt())))
+        .isAfter(convertDateToLocalDateTime(request.getDecodedIdToken().getExpiresAt())))
       throw new ValidationException(getFailureMessage());
   }
 
   @Override
   public String getFailureMessage() {
-    return "Token has expired";
+    return "Id token has expired";
   }
 
   /**

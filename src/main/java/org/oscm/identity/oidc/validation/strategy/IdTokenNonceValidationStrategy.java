@@ -3,11 +3,11 @@
  *
  * <p>Copyright FUJITSU LIMITED 2019
  *
- * <p>Creation Date: July 18, 2019
+ * <p>Creation Date: July 19, 2019
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.model.request.TokenValidationRequest;
@@ -21,29 +21,30 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class AudienceValidationStrategy implements TokenValidationStrategy {
+public class IdTokenNonceValidationStrategy extends TokenValidationStrategy {
+
+  private final String NONCE_CLAIM_NAME = "nonce";
 
   private TenantService tenantService;
 
   @Autowired
-  public AudienceValidationStrategy(TenantService tenantService) {
+  public IdTokenNonceValidationStrategy(
+          TenantService tenantService) {
     this.tenantService = tenantService;
   }
 
-  // FIXME: Determine, from where audience for acccessToken validation should be taken
-  // FIXME: Let's try not to add new tenant property for it as it is not so straightforward
-  // FIXME: to configure
   @Override
   public void execute(TokenValidationRequest request) throws ValidationException {
-    TenantConfiguration tenantConfiguration =
-        tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
+      //FIXME: This call will be moved to parent class in scope of oscm-identity#38
+      TenantConfiguration tenantConfiguration =
+              tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
-    if (!request.getDecodedIdToken().getAudience().contains(tenantConfiguration.getClientId()))
-      throw new ValidationException(getFailureMessage());
+      if (!tenantConfiguration.getNonce().equals(request.getDecodedIdToken().getClaim(NONCE_CLAIM_NAME).asString()))
+        throw new ValidationException(getFailureMessage());
   }
 
   @Override
   public String getFailureMessage() {
-    return "Token's audience does not contain client ID from current tenant configuration";
+    return "Nonce provided in a request does not match the one from ID` Token";
   }
 }

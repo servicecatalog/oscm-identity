@@ -6,7 +6,7 @@
  *
  *******************************************************************************/
 
-package org.oscm.identity.oidc.validation;
+package org.oscm.identity.oidc.validation.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -23,13 +23,13 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class ISSValidationStrategy implements TokenValidationStrategy {
+public class IdTokenISSValidationStrategy extends TokenValidationStrategy {
 
   private TenantService tenantService;
   private RestTemplate restTemplate;
 
   @Autowired
-  public ISSValidationStrategy(TenantService tenantService, RestTemplate restTemplate) {
+  public IdTokenISSValidationStrategy(TenantService tenantService, RestTemplate restTemplate) {
     this.tenantService = tenantService;
     this.restTemplate = restTemplate;
   }
@@ -39,6 +39,10 @@ public class ISSValidationStrategy implements TokenValidationStrategy {
     TenantConfiguration tenantConfiguration =
         tenantService.loadTenant(Optional.ofNullable(request.getTenantId()));
 
+    if(request.getDecodedIdToken() == null) {
+      logIDTokenNotFound(this);
+      return;
+    }
     //FIXME: Issuer for access token is the same as in v1 tokens, even though
     //FIXME: Id token is in version 2 - possible bug?
     try {
