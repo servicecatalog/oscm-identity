@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Sep 16, 2019
+ *
+ *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import lombok.SneakyThrows;

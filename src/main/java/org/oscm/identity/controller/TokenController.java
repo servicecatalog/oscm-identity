@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2019
+ *
+ *  Creation Date: Sep 16, 2019
+ *
+ *******************************************************************************/
+
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +53,14 @@ public class TokenController {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
+    String scope =
+        new StringBuilder(configuration.getUriAppId()).append("/").append(".default").toString();
 
     TokenRequest tokenRequest = requestHandler.getRequestManager(provider).initTokenRequest();
     tokenRequest.setBaseUrl(configuration.getTokenUrl());
     tokenRequest.setClientId(configuration.getClientId());
     tokenRequest.setClientSecret(configuration.getClientSecret());
-    tokenRequest.setScope(configuration.getUriAppId());
+    tokenRequest.setScope(scope);
     tokenRequest.setGrantType("client_credentials");
 
     ResponseEntity<String> response = tokenRequest.execute();
