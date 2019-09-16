@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.xml.bind.ValidationException;
@@ -28,15 +27,16 @@ import javax.xml.bind.ValidationException;
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(Exception.class)
-  public ModelAndView handleDefaultException(Exception ex) {
+  public ResponseEntity<ErrorResponse> handleDefaultException(Exception ex) {
 
     log.error(ex.getMessage(), ex);
+    ErrorResponse response =
+        ErrorResponse.of()
+            .error("Internal error")
+            .errorDescription(ex.getMessage())
+            .build();
 
-    ModelAndView view = new ModelAndView();
-    view.addObject("errorMessage", ex.getMessage());
-    view.setViewName("error");
-
-    return view;
+    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ExceptionHandler(HttpClientErrorException.class)
