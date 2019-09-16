@@ -69,6 +69,9 @@ public class PropertyConfigurationPolicyTest {
     assertThat(configuration)
             .extracting(TenantConfiguration::getUsersEndpoint)
             .isEqualTo(tenantId + "UsersEndpoint");
+    assertThat(configuration)
+            .extracting(TenantConfiguration::getNonce)
+            .isEqualTo(tenantId + "Nonce");
   }
 
   @Test

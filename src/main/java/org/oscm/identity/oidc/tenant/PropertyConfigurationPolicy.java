@@ -43,6 +43,7 @@ public class PropertyConfigurationPolicy implements TenantConfigurationPolicy {
     configuration.setConfigurationUrl(properties.getProperty("oidc.configurationUrl"));
     configuration.setUsersEndpoint(properties.getProperty("oidc.usersEndpoint"));
     configuration.setGroupsEndpoint(properties.getProperty("oidc.groupsEndpoint"));
+    configuration.setNonce(properties.getProperty("oidc.nonce"));
 
     return configuration;
   }
