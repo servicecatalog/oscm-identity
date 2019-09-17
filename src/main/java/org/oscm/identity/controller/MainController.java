@@ -120,44 +120,7 @@ public class MainController {
   }
 
   //FIXME: Refresh functionality need refactoring
-  @PostMapping("/refresh")
-  public void refresh(@RequestBody RefreshBody refreshBody, HttpServletResponse response)
-      throws JSONException, ValidationException, IOException {
 
-    TenantConfiguration configuration =
-        tenantService.loadTenant(Optional.ofNullable(refreshBody.getTenantId()));
-
-    RefreshRequest refreshRequest =
-        requestHandler.getRequestManager(configuration.getProvider()).initRefreshRequest();
-    refreshRequest.setBaseUrl(configuration.getTokenUrl());
-    refreshRequest.setScope(configuration.getAuthUrlScope());
-    refreshRequest.setRedirectUrl(configuration.getRedirectUrl());
-    refreshRequest.setClientId(configuration.getClientId());
-    refreshRequest.setClientSecret(configuration.getClientSecret());
-
-    refreshRequest.setRefreshToken(refreshBody.getRefreshToken());
-    refreshRequest.setGrantType(refreshBody.getGrantType());
-
-    ResponseEntity entity = refreshRequest.execute();
-
-    JSONObject jsonResponse = new JSONObject((String) entity.getBody());
-    String idToken = jsonResponse.get("id_token").toString();
-    String newAccessToken = jsonResponse.get("access_token").toString();
-    String newRefreshToken = jsonResponse.get("refresh_token").toString();
-
-    log.info("New access token received: " + newAccessToken);
-    log.info("New refresh token received: " + newRefreshToken);
-
-      String url =
-          new StringBuilder(refreshBody.getState())
-              .append("?id_token=" + idToken)
-              .append("&access_token=" + newAccessToken)
-              .append("&refresh_token=" + newRefreshToken)
-              .toString();
-
-      log.info("Redirecting to " + url);
-      response.sendRedirect(url);
-  }
 
   @GetMapping("/logout")
   public void logoutPage(

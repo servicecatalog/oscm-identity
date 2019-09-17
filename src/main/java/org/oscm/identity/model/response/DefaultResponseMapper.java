@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.RefreshToken;
 import org.oscm.identity.model.json.UserGroup;
 import org.oscm.identity.model.json.UserInfo;
 
@@ -94,7 +95,14 @@ public class DefaultResponseMapper implements ResponseMapper {
 
   @Override
   public AccessToken getAccessToken(JSONObject json) throws JSONException {
-
     return AccessToken.of().accessToken(json.getString("access_token")).build();
+  }
+
+  @Override
+  public RefreshToken getRefreshToken(JSONObject json) throws JSONException {
+    return RefreshToken.of()
+        .refreshToken(json.getString("refresh_token"))
+        .accessToken(json.getString("access_token"))
+        .build();
   }
 }

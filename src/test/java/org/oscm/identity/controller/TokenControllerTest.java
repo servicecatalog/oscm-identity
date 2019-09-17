@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.RefreshToken;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.TokenRequest;
@@ -43,8 +44,6 @@ public class TokenControllerTest {
   public void testGetAccessToken_validRequestSend_properResponseIsReturned() {
 
     // given
-    String tenantId = "default";
-
     String accessToken = "someAccessToken";
     AccessToken tokenResponse = AccessToken.of().accessToken(accessToken).build();
 
@@ -61,12 +60,46 @@ public class TokenControllerTest {
     when(tokenRequest.execute()).thenReturn(retrievedToken);
 
     // when
-    ResponseEntity response = controller.getAccessToken(tenantId);
+    ResponseEntity response = controller.getAccessToken("default");
 
     // then
     Assertions.assertThat(response)
         .extracting(ResponseEntity::getStatusCode)
         .isEqualTo(HttpStatus.OK);
     Assertions.assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(tokenResponse);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRefreshAccessToken_validRequestSend_properResponseIsReturned() {
+
+    // given
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+
+    String accessToken = "accessToken";
+    String refreshToken = "refreshToken";
+
+    RefreshToken refreshRequest = RefreshToken.of().refreshToken(refreshToken).build();
+    ResponseEntity<String> entity =
+        ResponseEntity.ok(
+            ("{'access_token':'" + accessToken + "', 'refresh_token':'" + refreshToken + "'}"));
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
+    when(tokenRequest.execute()).thenReturn(entity);
+
+    // when
+    ResponseEntity response = controller.refreshAccessToken("default", refreshRequest);
+
+    // then
+    RefreshToken expectedResponse =
+        RefreshToken.of().accessToken(accessToken).refreshToken(refreshToken).build();
+
+    Assertions.assertThat(response)
+        .extracting(ResponseEntity::getStatusCode)
+        .isEqualTo(HttpStatus.OK);
+    Assertions.assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(expectedResponse);
   }
 }
