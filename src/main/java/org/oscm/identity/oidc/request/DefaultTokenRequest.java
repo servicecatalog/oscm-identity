@@ -39,6 +39,7 @@ public class DefaultTokenRequest extends TokenRequest {
     addBodyParam(map, "redirect_uri", getRedirectUrl());
     addBodyParam(map, "code", getCode());
     addBodyParam(map, "scope", getScope());
+    addBodyParam(map, "refresh_token", getRefreshToken());
 
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 

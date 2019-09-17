@@ -46,7 +46,6 @@ public class MainControllerTest {
   @Mock private RequestHandler requestHandler;
   @Mock private RequestManager requestManager;
   @Mock private TokenRequest tokenRequest;
-  @Mock private RefreshRequest refreshRequest;
 
   @InjectMocks private MainController controller;
 
@@ -209,69 +208,5 @@ public class MainControllerTest {
 
     assertThatExceptionOfType(IdentityProviderException.class)
         .isThrownBy(() -> controller.logoutPage("tenantId", "state", response));
-  }
-
-  //FIXME: Fix upon refresh token functionality refactor
-  @Test
-  @SneakyThrows
-  @Disabled("This test should be reimplemented as a part of refresh token refactoring")
-  public void shouldRedirectToHomeWithToken_whenPostToRefreshToken_givenNoErrors() {
-    TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setProvider("default");
-    TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
-    ResponseEntity<String> entity =
-        ResponseEntity.ok()
-            .body(
-                "{'id_token':'idToken', 'access_token':'accessToken', 'refresh_token':'refreshToken'}");
-
-    when(tenantService.loadTenant(any())).thenReturn(configuration);
-    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
-    when(requestManager.initRefreshRequest()).thenReturn(refreshRequest);
-    when(refreshRequest.execute()).thenReturn(entity);
-    doNothing().when(response).sendRedirect(any());
-    assertThatCode(() -> controller.refresh(createRefreshBody(), response))
-        .doesNotThrowAnyException();
-
-    verify(tokenValidator, times(1)).validate(any());
-    verify(response, times(1)).sendRedirect(any());
-  }
-
-  //FIXME: Fix upon refresh token functionality refactor
-  @Test
-  @Disabled("This test should be reimplemented as a part of refresh token refactoring")
-  public void shouldReturnError_whenPostToRefreshToken_givenValidationError() throws Exception {
-    TokenValidationResult validationResult =
-        TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
-
-    TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setProvider("default");
-    configuration.setTokenUrl("tokenUrl");
-    configuration.setAuthUrlScope("scope");
-
-    ResponseEntity<String> entity =
-        ResponseEntity.ok()
-            .body(
-                "{'id_token':'idToken', 'access_token':'accessToken', 'refresh_token':'refreshToken'}");
-
-    when(tenantService.loadTenant(any())).thenReturn(configuration);
-    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
-    when(requestManager.initRefreshRequest()).thenReturn(refreshRequest);
-    when(refreshRequest.execute()).thenReturn(entity);
-
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> controller.refresh(createRefreshBody(), response));
-
-    verify(tokenValidator, times(1)).validate(any());
-    verifyZeroInteractions(response);
-  }
-
-
-  @SneakyThrows
-  private RefreshBody createRefreshBody() {
-    RefreshBody refreshBody = new RefreshBody();
-    refreshBody.setState("null");
-    refreshBody.setRefreshToken("ABC123");
-    refreshBody.setGrantType("refresh_token");
-    return refreshBody;
   }
 }

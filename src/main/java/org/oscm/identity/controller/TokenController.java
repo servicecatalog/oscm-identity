@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.RefreshToken;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.RequestHandler;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -70,5 +72,31 @@ public class TokenController {
     AccessToken accessToken = mapper.getAccessToken(jsonResponse);
 
     return ResponseEntity.ok(accessToken);
+  }
+
+  @PostMapping("/tenants/{tenantId}/token/refresh")
+  public ResponseEntity refreshAccessToken(
+      @PathVariable String tenantId, @RequestBody RefreshToken refreshRequest)
+      throws JSONException {
+
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    TokenRequest refreshTokenRequest =
+        requestHandler.getRequestManager(provider).initTokenRequest();
+    refreshTokenRequest.setBaseUrl(configuration.getTokenUrl());
+    refreshTokenRequest.setScope(configuration.getAuthUrlScope());
+    refreshTokenRequest.setClientId(configuration.getClientId());
+    refreshTokenRequest.setClientSecret(configuration.getClientSecret());
+    refreshTokenRequest.setRefreshToken(refreshRequest.getRefreshToken());
+    refreshTokenRequest.setGrantType("refresh_token");
+
+    ResponseEntity<String> response = refreshTokenRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    RefreshToken refreshResponse = mapper.getRefreshToken(jsonResponse);
+
+    return ResponseEntity.ok(refreshResponse);
   }
 }
