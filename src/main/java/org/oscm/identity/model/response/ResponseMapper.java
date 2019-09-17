@@ -10,7 +10,7 @@ package org.oscm.identity.model.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.json.AccessTokenResponse;
+import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.UserGroup;
 import org.oscm.identity.model.json.UserInfo;
 
@@ -71,5 +71,5 @@ public interface ResponseMapper {
    * @return object representing access token
    * @throws JSONException
    */
-  AccessTokenResponse getAccessToken(JSONObject json) throws JSONException;
+  AccessToken getAccessToken(JSONObject json) throws JSONException;
 }

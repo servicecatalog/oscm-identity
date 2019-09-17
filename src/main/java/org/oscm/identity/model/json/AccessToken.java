@@ -13,7 +13,7 @@ import lombok.Data;
 /** Object representing json with access token response */
 @Data
 @Builder(builderMethodName = "of")
-public class AccessTokenResponse {
+public class AccessToken {
 
   private String accessToken;
 }
