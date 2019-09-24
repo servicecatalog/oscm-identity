@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.commons.TokenType;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.springframework.beans.factory.BeanFactory;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
@@ -34,8 +34,8 @@ public class TokenValidationFlowTest {
   @Test
   @SneakyThrows
   public void shouldReturnIdTokenValidator() {
-    TokenDetails tokenDetails =
-        TokenDetails.of().tokenType(TokenType.ID).token("sometoken").build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of().tokenType(TokenType.ID).token("sometoken").build();
 
     assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
         .doesNotThrowAnyException();
@@ -45,8 +45,8 @@ public class TokenValidationFlowTest {
   @Test
   @SneakyThrows
   public void shouldReturnAccessTokenValidator() {
-    TokenDetails tokenDetails =
-        TokenDetails.of().tokenType(TokenType.ACCESS).token("sometoken").build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of().tokenType(TokenType.ACCESS).token("sometoken").build();
 
     assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
         .doesNotThrowAnyException();
@@ -55,8 +55,8 @@ public class TokenValidationFlowTest {
 
   @Test
   public void shouldThrowAnException_whenUnsupportedTokenValidatorIsRequested() {
-    TokenDetails tokenDetails =
-        TokenDetails.of().tokenType(TokenType.REFRESH).token("sometoken").build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of().tokenType(TokenType.REFRESH).token("sometoken").build();
 
     assertThatExceptionOfType(TokenValidationException.class)
         .isThrownBy(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails));

@@ -7,7 +7,7 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.model.request;
+package org.oscm.identity.model.json;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 /** Token validation request wrapper */
 @Getter
 @Builder(builderMethodName = "of")
-public class TokenDetails {
+public class TokenDetailsDTO {
 
   @NotNull private String token;
   @NotNull private TokenType tokenType;

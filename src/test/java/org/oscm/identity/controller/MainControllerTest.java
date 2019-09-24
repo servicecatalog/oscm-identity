@@ -169,7 +169,7 @@ public class MainControllerTest {
 //        .isThrownBy(
 //            () ->
 //                controller.verifyToken(
-//                    TokenDetails.of().idToken("thisiscetainlyincvalidtoken").build()));
+//                    TokenDetailsDTO.of().idToken("thisiscetainlyincvalidtoken").build()));
   }
 
   @Test

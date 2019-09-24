@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import org.oscm.identity.error.TokenValidationException;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshToken;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.RequestHandler;
@@ -119,7 +119,7 @@ public class TokenController {
    */
   @PostMapping("/tenants/{tenantId}/token/verify")
   public ResponseEntity verifyToken(
-      @PathVariable String tenantId, @RequestBody TokenDetails request)
+      @PathVariable String tenantId, @RequestBody TokenDetailsDTO request)
       throws TokenValidationException {
     validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
     return ResponseEntity.ok(TOKEN_VALID_MESSAGE);

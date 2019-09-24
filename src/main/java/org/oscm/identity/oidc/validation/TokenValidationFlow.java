@@ -10,7 +10,7 @@
 package org.oscm.identity.oidc.validation;
 
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,14 +44,14 @@ public class TokenValidationFlow {
     return this;
   }
   /**
-   * Returns proper TokenValidator implementation, basing on TokenDetails contents
+   * Returns proper TokenValidator implementation, basing on TokenDetailsDTO contents
    *
    * @param tokenDetails wrapper class containing encoded JWT token, its type and all the info
    *     necessary for its validation
    * @return token validator implementation for token that is requested to be validated
    * @throws TokenValidationException
    */
-  public TokenValidator withTokenFrom(TokenDetails tokenDetails) throws TokenValidationException {
+  public TokenValidator withTokenFrom(TokenDetailsDTO tokenDetails) throws TokenValidationException {
     switch (tokenDetails.getTokenType()) {
       case ID:
         return beanFactory.getBean(

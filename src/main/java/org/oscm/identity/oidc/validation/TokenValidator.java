@@ -14,7 +14,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.validation.strategy.TokenValidationStrategy;
 import org.oscm.identity.service.TenantService;
@@ -29,7 +29,7 @@ public abstract class TokenValidator {
   private DecodedJWT decodedToken;
   private TenantConfiguration tenantConfiguration;
 
-  TokenValidator(String tenantId, TokenDetails tokenDetails, TenantService tenantService)
+  TokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
       throws TokenValidationException {
     this.decodedToken = decodeToken(tokenDetails);
     this.tenantConfiguration = tenantService.loadTenant(Optional.of(tenantId));
@@ -45,13 +45,13 @@ public abstract class TokenValidator {
   /**
    * Transforms string token into DecodedJWT
    *
-   * @param tokenDetails token type along with encoded token
+   * @param tokenDetailsDTO token type along with encoded token
    * @return decoded JWT token
    * @throws TokenValidationException
    */
-  private DecodedJWT decodeToken(TokenDetails tokenDetails) throws TokenValidationException {
+  private DecodedJWT decodeToken(TokenDetailsDTO tokenDetailsDTO) throws TokenValidationException {
     try {
-      return JWT.decode(tokenDetails.getToken());
+      return JWT.decode(tokenDetailsDTO.getToken());
     } catch (JWTDecodeException e) {
       log.error(e.getMessage(), e);
       throw new TokenValidationException(e.getMessage(), e);
