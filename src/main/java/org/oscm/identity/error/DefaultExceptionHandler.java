@@ -97,7 +97,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(TokenValidationException.class)
-  protected ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
+  protected ResponseEntity<ErrorResponse> handleTokenValidationException(TokenValidationException ex) {
     log.error(ex.getMessage(), ex);
 
 

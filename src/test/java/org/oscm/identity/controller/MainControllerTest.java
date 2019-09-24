@@ -22,7 +22,6 @@ import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
-import org.oscm.identity.oidc.validation.TokenValidationResult;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -103,7 +102,6 @@ public class MainControllerTest {
   public void shouldRedirectToHomeWithToken_whenPostToIdToken_givenNoErrors() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
-    TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
     ResponseEntity<String> entity =
         ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
@@ -135,8 +133,6 @@ public class MainControllerTest {
   @Test
   @Disabled("This test should be reimplemented as a part of refresh token refactoring")
   public void shouldReturnError_whenPostToIdToken_givenValidationError() throws Exception {
-    TokenValidationResult validationResult =
-        TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");

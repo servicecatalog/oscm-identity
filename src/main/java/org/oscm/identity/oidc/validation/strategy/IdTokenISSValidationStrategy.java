@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdTokenValidationException;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
-import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -22,12 +21,10 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class IdTokenISSValidationStrategy extends TokenValidationStrategy {
 
-  private TenantService tenantService;
   private RestTemplate restTemplate;
 
   @Autowired
-  public IdTokenISSValidationStrategy(TenantService tenantService, RestTemplate restTemplate) {
-    this.tenantService = tenantService;
+  public IdTokenISSValidationStrategy(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 

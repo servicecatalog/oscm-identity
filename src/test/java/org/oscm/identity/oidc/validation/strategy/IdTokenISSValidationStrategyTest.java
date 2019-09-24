@@ -45,12 +45,11 @@ public class IdTokenISSValidationStrategyTest {
     DecodedJWT token =
         JWT.decode(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()));
 
-    Map<String, String> jsonMap = new HashMap<>();
-    jsonMap.put("issuer", issuerValue);
-
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setConfigurationUrl("oidConfigUrl");
 
+    Map<String, String> jsonMap = new HashMap<>();
+    jsonMap.put("issuer", issuerValue);
     when(restTemplate.getForObject(anyString(), any()))
         .thenReturn(new JSONObject(jsonMap).toString());
 

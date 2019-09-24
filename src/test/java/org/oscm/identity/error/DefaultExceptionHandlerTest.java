@@ -102,4 +102,25 @@ public class DefaultExceptionHandlerTest {
         .isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
   }
+
+  @Test
+  public void testHandleTokenValidationException_TokenValidationExceptionThrown_properResponseIsReturned() {
+    //Given
+    TokenValidationException exception = new TokenValidationException("some message");
+
+    //When
+    ResponseEntity<ErrorResponse> response = handler.handleTokenValidationException(exception);
+
+    //Then
+    ErrorResponse errorResponse =
+            ErrorResponse.of()
+                    .error("Token validation failed")
+                    .errorDescription(exception.getMessage())
+                    .build();
+
+    assertThat(response)
+            .extracting(ResponseEntity::getStatusCode)
+            .isEqualTo(HttpStatus.NOT_ACCEPTABLE);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
+  }
 }
