@@ -96,15 +96,11 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
-  //FIXME: Create IdTokenValidation Exception and AccessTokenValidationException
-  //FIXME: If possible keep single handler for all of them
-  //FIXME: These will be also used in the strategies
-  @ExceptionHandler(ValidationException.class)
-  protected ResponseEntity<Object> handleValidationException(ValidationException ex) {
+  @ExceptionHandler(TokenValidationException.class)
+  protected ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
     log.error(ex.getMessage(), ex);
 
-    //FIXME: After splitting the validators content for 'error' should be something
-    //FIXME: like "Access token validation failed
+
     ErrorResponse errorResponse = ErrorResponse.of().error("Token validation failed").errorDescription(ex.getMessage()).build();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);

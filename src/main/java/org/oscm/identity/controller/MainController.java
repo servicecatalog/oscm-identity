@@ -11,14 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.IdentityProviderException;
-import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.request.*;
+import org.oscm.identity.oidc.request.AuthorizationRequest;
+import org.oscm.identity.oidc.request.LogoutRequest;
+import org.oscm.identity.oidc.request.RequestHandler;
+import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
-import org.oscm.identity.oidc.validation.AuthTokenValidator;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
@@ -29,19 +33,14 @@ import java.util.Optional;
 @Slf4j
 public class MainController {
 
-  private static final String TOKEN_VALID_MESSAGE = "Token valid!";
-
   private TenantService tenantService;
-  private AuthTokenValidator tokenValidator;
   private RequestHandler requestHandler;
 
   @Autowired
   public MainController(
       TenantService tenantService,
-      AuthTokenValidator tokenValidator,
       RequestHandler requestHandler) {
     this.tenantService = tenantService;
-    this.tokenValidator = tokenValidator;
     this.requestHandler = requestHandler;
   }
 
@@ -119,15 +118,11 @@ public class MainController {
     response.sendRedirect(url);
   }
 
-  //FIXME: Refresh functionality need refactoring
-
-
   @GetMapping("/logout")
   public void logoutPage(
       @RequestParam(value = "tenantId", required = false) String tenantId,
       @RequestParam(value = "state", required = false) String state,
       HttpServletResponse response) {
-
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
     LogoutRequest request =
@@ -135,18 +130,5 @@ public class MainController {
     request.setBaseUrl(configuration.getLogoutUrl());
     request.setRedirectUrl(state);
     request.execute(response);
-  }
-
-  /**
-   * Token validation endpoint
-   *
-   * @param request validation request wrapper
-   * @return HTTP Response
-   */
-  @PostMapping(value = "/verify_token")
-  public ResponseEntity verifyToken(@RequestBody TokenValidationRequest request)
-      throws ValidationException {
-    tokenValidator.validate(request);
-    return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
   }
 }

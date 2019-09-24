@@ -1,23 +1,27 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Sep 16, 2019
+ * <p>Creation Date: Sep 16, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oscm.identity.error.TokenValidationException;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshToken;
+import org.oscm.identity.model.request.TokenDetails;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
+import org.oscm.identity.oidc.validation.TokenValidationFlow;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +37,19 @@ import java.util.Optional;
 @RestController
 public class TokenController {
 
+  private static final String TOKEN_VALID_MESSAGE = "Token valid!";
+
   private TenantService tenantService;
   private RequestHandler requestHandler;
+  private TokenValidationFlow validationFlow;
 
   @Autowired
-  public TokenController(TenantService tenantService, RequestHandler requestHandler) {
+  public TokenController(TenantService tenantService,
+          RequestHandler requestHandler,
+          TokenValidationFlow validationFlow) {
     this.tenantService = tenantService;
     this.requestHandler = requestHandler;
+    this.validationFlow = validationFlow;
   }
 
   /**
@@ -98,5 +108,20 @@ public class TokenController {
     RefreshToken refreshResponse = mapper.getRefreshToken(jsonResponse);
 
     return ResponseEntity.ok(refreshResponse);
+  }
+
+  /**
+   * Token validation endpoint
+   *
+   * @param tenantId ID of the tenant for which configuration will be loaded
+   * @param request token details wrapper
+   * @return HTTP Response
+   */
+  @PostMapping("/tenants/{tenantId}/token/verify")
+  public ResponseEntity verifyToken(
+      @PathVariable String tenantId, @RequestBody TokenDetails request)
+      throws TokenValidationException {
+    validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
+    return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
   }
 }
