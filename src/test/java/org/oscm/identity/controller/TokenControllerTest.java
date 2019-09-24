@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.json.AccessToken;
-import org.oscm.identity.model.json.RefreshToken;
+import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.request.TokenDetails;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
@@ -88,7 +88,7 @@ public class TokenControllerTest {
     String accessToken = "accessToken";
     String refreshToken = "refreshToken";
 
-    RefreshToken refreshRequest = RefreshToken.of().refreshToken(refreshToken).build();
+    RefreshTokenDTO refreshRequest = RefreshTokenDTO.of().refreshToken(refreshToken).build();
     ResponseEntity<String> entity =
         ResponseEntity.ok(
             ("{'access_token':'" + accessToken + "', 'refresh_token':'" + refreshToken + "'}"));
@@ -102,8 +102,8 @@ public class TokenControllerTest {
     ResponseEntity response = controller.refreshAccessToken("default", refreshRequest);
 
     // then
-    RefreshToken expectedResponse =
-        RefreshToken.of().accessToken(accessToken).refreshToken(refreshToken).build();
+    RefreshTokenDTO expectedResponse =
+        RefreshTokenDTO.of().accessToken(accessToken).refreshToken(refreshToken).build();
 
     Assertions.assertThat(response)
         .extracting(ResponseEntity::getStatusCode)

@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
-import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfo;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
@@ -54,10 +54,10 @@ public class GroupController {
    * @throws JSONException
    */
   @PostMapping("/tenants/{tenantId}/groups")
-  public ResponseEntity<UserGroup> createGroup(
+  public ResponseEntity<UserGroupDTO> createGroup(
       @PathVariable String tenantId,
       @RequestHeader(value = "Authorization") String bearerToken,
-      @RequestBody UserGroup userGroupRequest)
+      @RequestBody UserGroupDTO userGroupRequest)
       throws JSONException {
 
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
@@ -78,7 +78,7 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    UserGroup userGroupResponse = mapper.getUserGroup(jsonResponse);
+    UserGroupDTO userGroupResponse = mapper.getUserGroup(jsonResponse);
 
     return ResponseEntity.status(201).body(userGroupResponse);
   }
@@ -102,7 +102,7 @@ public class GroupController {
       @RequestBody @Valid UserInfo userInfo)
       throws JSONException {
 
-    ResponseEntity<Set<UserGroup>> groups =
+    ResponseEntity<Set<UserGroupDTO>> groups =
         userController.getGroupsUserBelongsTo(tenantId, userInfo.getUserId(), bearerToken);
 
     if (groups.getBody().size() > 0) {
@@ -191,7 +191,7 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    Set<UserGroup> groups = mapper.getGroups(jsonResponse);
+    Set<UserGroupDTO> groups = mapper.getGroups(jsonResponse);
 
     return ResponseEntity.ok(groups);
   }

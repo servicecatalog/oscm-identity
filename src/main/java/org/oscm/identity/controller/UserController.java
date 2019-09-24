@@ -10,7 +10,7 @@ package org.oscm.identity.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfo;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
@@ -91,7 +91,7 @@ public class UserController {
    * @throws JSONException
    */
   @GetMapping("/tenants/{tenantId}/users/{userId}/groups")
-  public ResponseEntity<Set<UserGroup>> getGroupsUserBelongsTo(
+  public ResponseEntity<Set<UserGroupDTO>> getGroupsUserBelongsTo(
       @PathVariable String tenantId,
       @PathVariable String userId,
       @RequestHeader(value = "Authorization") String bearerToken)
@@ -114,7 +114,7 @@ public class UserController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    Set<UserGroup> groups = mapper.getGroupsUserBelongsTo(jsonResponse);
+    Set<UserGroupDTO> groups = mapper.getGroupsUserBelongsTo(jsonResponse);
 
     return ResponseEntity.ok(groups);
   }

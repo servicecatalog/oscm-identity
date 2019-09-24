@@ -12,8 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
-import org.oscm.identity.model.json.RefreshToken;
-import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.RefreshTokenDTO;
+import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfo;
 
 import java.util.HashSet;
@@ -38,9 +38,9 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public UserGroup getUserGroup(JSONObject json) throws JSONException {
+  public UserGroupDTO getUserGroup(JSONObject json) throws JSONException {
 
-    return UserGroup.of()
+    return UserGroupDTO.of()
         .id(json.getString("id"))
         .description(json.getString("description"))
         .name(json.getString("displayName"))
@@ -48,10 +48,10 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public Set<UserGroup> getGroupsUserBelongsTo(JSONObject json) throws JSONException {
+  public Set<UserGroupDTO> getGroupsUserBelongsTo(JSONObject json) throws JSONException {
 
     JSONArray jsonArray = json.getJSONArray("value");
-    Set<UserGroup> userGroups = new HashSet<>();
+    Set<UserGroupDTO> userGroups = new HashSet<>();
 
     for (int i = 0; i < jsonArray.length(); i++) {
       JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -81,10 +81,10 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public Set<UserGroup> getGroups(JSONObject json) throws JSONException {
+  public Set<UserGroupDTO> getGroups(JSONObject json) throws JSONException {
 
     JSONArray jsonArray = json.getJSONArray("value");
-    Set<UserGroup> userGroups = new HashSet<>();
+    Set<UserGroupDTO> userGroups = new HashSet<>();
 
     for (int i = 0; i < jsonArray.length(); i++) {
       JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -99,8 +99,8 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public RefreshToken getRefreshToken(JSONObject json) throws JSONException {
-    return RefreshToken.of()
+  public RefreshTokenDTO getRefreshToken(JSONObject json) throws JSONException {
+    return RefreshTokenDTO.of()
         .refreshToken(json.getString("refresh_token"))
         .accessToken(json.getString("access_token"))
         .build();

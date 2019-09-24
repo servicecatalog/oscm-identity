@@ -11,8 +11,8 @@ package org.oscm.identity.model.response;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
-import org.oscm.identity.model.json.RefreshToken;
-import org.oscm.identity.model.json.UserGroup;
+import org.oscm.identity.model.json.RefreshTokenDTO;
+import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfo;
 
 import java.util.Set;
@@ -36,7 +36,7 @@ public interface ResponseMapper {
    * @return object representing user group
    * @throws JSONException
    */
-  UserGroup getUserGroup(JSONObject json) throws JSONException;
+  UserGroupDTO getUserGroup(JSONObject json) throws JSONException;
 
   /**
    * Maps json object to object representing groups which user belongs to
@@ -45,7 +45,7 @@ public interface ResponseMapper {
    * @return object representing groups which user belongs to
    * @throws JSONException
    */
-  Set<UserGroup> getGroupsUserBelongsTo(JSONObject json) throws JSONException;
+  Set<UserGroupDTO> getGroupsUserBelongsTo(JSONObject json) throws JSONException;
 
   /**
    * Maps json object to object representing group members
@@ -63,7 +63,7 @@ public interface ResponseMapper {
    * @return object representing groups
    * @throws JSONException
    */
-  Set<UserGroup> getGroups(JSONObject json) throws JSONException;
+  Set<UserGroupDTO> getGroups(JSONObject json) throws JSONException;
 
   /**
    * maps json object to object representing access token
@@ -81,5 +81,5 @@ public interface ResponseMapper {
    * @return object representing access token
    * @throws JSONException
    */
-  RefreshToken getRefreshToken(JSONObject json) throws JSONException;
+  RefreshTokenDTO getRefreshToken(JSONObject json) throws JSONException;
 }
