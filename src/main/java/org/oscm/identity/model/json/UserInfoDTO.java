@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 /** Simple object representing json with user information */
 @Data
 @Builder(builderMethodName = "of")
-public class UserInfo {
+public class UserInfoDTO {
 
   @NotNull @NotBlank private String userId;
   private String firstName;

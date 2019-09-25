@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserInfoDTO;
 
 import java.util.Set;
 
@@ -27,7 +27,7 @@ public interface ResponseMapper {
    * @return object representing user information
    * @throws JSONException
    */
-  UserInfo getUserInfo(JSONObject json) throws JSONException;
+  UserInfoDTO getUserInfo(JSONObject json) throws JSONException;
 
   /**
    * Maps json object to object representing user group
@@ -54,7 +54,7 @@ public interface ResponseMapper {
    * @return object representing group members
    * @throws JSONException
    */
-  Set<UserInfo> getGroupMembers(JSONObject json) throws JSONException;
+  Set<UserInfoDTO> getGroupMembers(JSONObject json) throws JSONException;
 
   /**
    * Maps json object to object representing groups

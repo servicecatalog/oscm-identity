@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
 import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.*;
@@ -99,7 +99,7 @@ public class GroupController {
       @PathVariable String tenantId,
       @PathVariable String groupId,
       @RequestHeader(value = "Authorization") String bearerToken,
-      @RequestBody @Valid UserInfo userInfo)
+      @RequestBody @Valid UserInfoDTO userInfo)
       throws JSONException {
 
     ResponseEntity<Set<UserGroupDTO>> groups =
@@ -163,7 +163,7 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    Set<UserInfo> users = mapper.getGroupMembers(jsonResponse);
+    Set<UserInfoDTO> users = mapper.getGroupMembers(jsonResponse);
 
     return ResponseEntity.ok(users);
   }

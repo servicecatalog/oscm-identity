@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.InvalidRequestException;
 import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.oidc.request.GroupRequest;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
@@ -93,7 +93,7 @@ public class GroupControllerTest {
     String tenantId = "default";
     String groupId = "groupId";
     String bearerToken = "Bearer token";
-    UserInfo user = UserInfo.of().userId("userId").build();
+    UserInfoDTO user = UserInfoDTO.of().userId("userId").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -120,7 +120,7 @@ public class GroupControllerTest {
     String tenantId = "default";
     String groupId = "groupId";
     String bearerToken = "Bearer token";
-    UserInfo user = UserInfo.of().userId("userId").build();
+    UserInfoDTO user = UserInfoDTO.of().userId("userId").build();
     UserGroupDTO userGroupDTO =
         UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
@@ -143,8 +143,8 @@ public class GroupControllerTest {
     String bearerToken = "Bearer token";
     String groupId = "groupId";
 
-    UserInfo userInfo = givenUserInfo();
-    HashSet<UserInfo> users = new HashSet<>();
+    UserInfoDTO userInfo = givenUserInfo();
+    HashSet<UserInfoDTO> users = new HashSet<>();
     users.add(userInfo);
 
     String retrievedJson =
@@ -183,7 +183,7 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(retrievedUsers);
 
     // when
-    ResponseEntity<UserInfo> response = controller.getMembers(tenantId, groupId, bearerToken);
+    ResponseEntity<UserInfoDTO> response = controller.getMembers(tenantId, groupId, bearerToken);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
@@ -231,10 +231,10 @@ public class GroupControllerTest {
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
-  private UserInfo givenUserInfo() {
+  private UserInfoDTO givenUserInfo() {
 
-    UserInfo userInfo =
-        UserInfo.of()
+    UserInfoDTO userInfo =
+        UserInfoDTO.of()
             .userId("someUser")
             .firstName("name")
             .lastName("lastName")

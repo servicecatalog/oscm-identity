@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserInfoDTO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,9 +22,9 @@ import java.util.Set;
 public class DefaultResponseMapper implements ResponseMapper {
 
   @Override
-  public UserInfo getUserInfo(JSONObject json) throws JSONException {
+  public UserInfoDTO getUserInfo(JSONObject json) throws JSONException {
 
-    return UserInfo.of()
+    return UserInfoDTO.of()
         .userId(json.getString("userPrincipalName"))
         .firstName(json.getString("givenName"))
         .lastName(json.getString("surname"))
@@ -64,10 +64,10 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public Set<UserInfo> getGroupMembers(JSONObject json) throws JSONException {
+  public Set<UserInfoDTO> getGroupMembers(JSONObject json) throws JSONException {
 
     JSONArray jsonArray = json.getJSONArray("value");
-    Set<UserInfo> users = new HashSet<>();
+    Set<UserInfoDTO> users = new HashSet<>();
 
     for (int i = 0; i < jsonArray.length(); i++) {
       JSONObject jsonObject = jsonArray.getJSONObject(i);

@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.UserRequest;
@@ -46,7 +46,7 @@ public class UserControllerTest {
     // given
     String tenantId = "default";
     String bearerToken = "Bearer token";
-    UserInfo userInfo = givenUserInfo();
+    UserInfoDTO userInfo = givenUserInfo();
     String userInfoJson = givenUserInfoJsonFromIdP(userInfo);
     ResponseEntity<String> retrievedUser = ResponseEntity.ok(userInfoJson);
 
@@ -60,7 +60,7 @@ public class UserControllerTest {
     when(userRequest.execute()).thenReturn(retrievedUser);
 
     // when
-    ResponseEntity<UserInfo> response =
+    ResponseEntity<UserInfoDTO> response =
         controller.getUser(tenantId, userInfo.getUserId(), bearerToken);
 
     // then
@@ -110,10 +110,10 @@ public class UserControllerTest {
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
-  private UserInfo givenUserInfo() {
+  private UserInfoDTO givenUserInfo() {
 
-    UserInfo userInfo =
-        UserInfo.of()
+    UserInfoDTO userInfo =
+        UserInfoDTO.of()
             .userId("someUser")
             .firstName("name")
             .lastName("lastName")
@@ -128,7 +128,7 @@ public class UserControllerTest {
     return userInfo;
   }
 
-  private String givenUserInfoJsonFromIdP(UserInfo userInfo) {
+  private String givenUserInfoJsonFromIdP(UserInfoDTO userInfo) {
 
     String userInfoJson =
         "{'userPrincipalName':'"
