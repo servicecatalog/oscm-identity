@@ -17,13 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
-import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.request.*;
+import org.oscm.identity.oidc.request.DefaultRequestManager;
+import org.oscm.identity.oidc.request.RequestHandler;
+import org.oscm.identity.oidc.request.RequestManager;
+import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
-import org.oscm.identity.oidc.validation.AuthTokenValidator;
-import org.oscm.identity.oidc.validation.TokenValidationResult;
 import org.oscm.identity.service.TenantService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,7 +40,6 @@ import static org.mockito.Mockito.*;
 public class MainControllerTest {
 
   @Mock private TenantService tenantService;
-  @Mock private AuthTokenValidator tokenValidator;
   @Mock private HttpServletResponse response;
   @Mock private RequestHandler requestHandler;
   @Mock private RequestManager requestManager;
@@ -103,7 +101,6 @@ public class MainControllerTest {
   public void shouldRedirectToHomeWithToken_whenPostToIdToken_givenNoErrors() {
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
-    TokenValidationResult validationResult = TokenValidationResult.of().isValid(true).build();
     ResponseEntity<String> entity =
         ResponseEntity.ok().body("{'access_token':'accessToken', 'refresh_token':'refreshToken'}");
 
@@ -117,7 +114,6 @@ public class MainControllerTest {
     assertThatCode(() -> controller.callback("idToken", "code", "state", null, null, response))
         .doesNotThrowAnyException();
 
-    verify(tokenValidator, times(1)).validate(any());
     verify(response, times(1)).sendRedirect(any());
   }
 
@@ -127,7 +123,6 @@ public class MainControllerTest {
     assertThatExceptionOfType(IdentityProviderException.class)
         .isThrownBy(
             () -> controller.callback("idToken", "code", "state", "someError", null, response));
-    verifyZeroInteractions(tokenValidator);
     verify(response, never()).sendRedirect(any());
   }
 
@@ -135,8 +130,6 @@ public class MainControllerTest {
   @Test
   @Disabled("This test should be reimplemented as a part of refresh token refactoring")
   public void shouldReturnError_whenPostToIdToken_givenValidationError() throws Exception {
-    TokenValidationResult validationResult =
-        TokenValidationResult.of().isValid(false).validationFailureReason("Reason").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -152,29 +145,9 @@ public class MainControllerTest {
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> controller.callback("idToken", "code", "state", null, null, response));
 
-    verify(tokenValidator, times(1)).validate(any());
     verifyZeroInteractions(response);
   }
 
-  @Test
-  @SneakyThrows
-  public void shouldSucceed_whenPostToVerifyToken_givenValidToken() {
-    ResponseEntity response = controller.verifyToken(any());
-
-    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  @SneakyThrows
-  public void shouldReturnError_whenPostToVerifyToken_givenInvalidToken() {
-    when(controller.verifyToken(any())).thenCallRealMethod();
-
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(
-            () ->
-                controller.verifyToken(
-                    TokenValidationRequest.of().idToken("thisiscetainlyincvalidtoken").build()));
-  }
 
   @Test
   @SneakyThrows

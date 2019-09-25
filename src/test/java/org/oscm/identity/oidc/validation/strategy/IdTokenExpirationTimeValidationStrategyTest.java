@@ -14,28 +14,25 @@ import com.auth0.jwt.algorithms.Algorithm;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.validation.AuthTokenValidator;
-import org.oscm.identity.oidc.validation.strategy.IdTokenExpirationTimeValidationStrategy;
-import org.oscm.identity.oidc.validation.strategy.TokenValidationStrategy;
+import org.oscm.identity.error.IdTokenValidationException;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 
-import javax.xml.bind.ValidationException;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.assertj.core.api.Java6Assertions.assertThatCode;
 
 public class IdTokenExpirationTimeValidationStrategyTest {
 
   private TokenValidationStrategy strategy;
-  private TokenValidationRequest request;
+  private TenantConfiguration tenantConfiguration;
 
   @BeforeEach
   public void setUp() {
     strategy = new IdTokenExpirationTimeValidationStrategy();
+    tenantConfiguration = new TenantConfiguration();
   }
 
   @Test
@@ -45,10 +42,8 @@ public class IdTokenExpirationTimeValidationStrategyTest {
         JWT.create()
             .withExpiresAt(Date.from(LocalDateTime.now().plusYears(2).toInstant(ZoneOffset.UTC)))
             .sign(Algorithm.none());
-    request = TokenValidationRequest.of().idToken(token).accessToken(token).build();
-    request = AuthTokenValidator.decodeTokens(request);
 
-    assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
+    assertThatCode(() -> strategy.execute(JWT.decode(token), tenantConfiguration)).doesNotThrowAnyException();
   }
 
   @Test
@@ -58,19 +53,8 @@ public class IdTokenExpirationTimeValidationStrategyTest {
         JWT.create()
             .withExpiresAt(Date.from(LocalDateTime.now().minusYears(2).toInstant(ZoneOffset.UTC)))
             .sign(Algorithm.none());
-    request = TokenValidationRequest.of().idToken(token).build();
-    request = AuthTokenValidator.decodeTokens(request);
 
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> strategy.execute(request));
-  }
-
-  @Test
-  public void shouldNotValidateRequest_givenNoToken() {
-    try {
-      strategy.execute(TokenValidationRequest.of().build());
-    } catch (ValidationException e) {
-      fail(e.getMessage());
-    }
+    assertThatExceptionOfType(IdTokenValidationException.class)
+        .isThrownBy(() -> strategy.execute(JWT.decode(token), tenantConfiguration));
   }
 }

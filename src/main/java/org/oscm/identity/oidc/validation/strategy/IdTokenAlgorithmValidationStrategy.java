@@ -9,26 +9,21 @@
  */
 package org.oscm.identity.oidc.validation.strategy;
 
-import lombok.AccessLevel;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.Setter;
-import org.oscm.identity.model.request.TokenValidationRequest;
+import org.oscm.identity.error.IdTokenValidationException;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.xml.bind.ValidationException;
 
 @Component
 public class IdTokenAlgorithmValidationStrategy extends TokenValidationStrategy {
 
   @Override
-  public void execute(TokenValidationRequest request) throws ValidationException {
-    if (request.getDecodedIdToken() == null) {
-      logIDTokenNotFound(this);
-      return;
-    }
-
-    if (!request.getDecodedIdToken().getAlgorithm().equalsIgnoreCase(expectedAlgorithmType))
-      throw new ValidationException(getFailureMessage());
+  public void execute(DecodedJWT decodedToken, TenantConfiguration tenantConfiguration)
+      throws IdTokenValidationException {
+    if (!decodedToken.getAlgorithm().equalsIgnoreCase(expectedAlgorithmType))
+      throw new IdTokenValidationException(getFailureMessage());
   }
 
   @Override

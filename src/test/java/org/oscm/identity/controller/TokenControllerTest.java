@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Sep 16, 2019
+ * <p>Creation Date: Sep 16, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import lombok.SneakyThrows;
@@ -17,16 +18,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshToken;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.TokenRequest;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
+import org.oscm.identity.oidc.validation.IdTokenValidator;
+import org.oscm.identity.oidc.validation.TokenValidationFlow;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +42,8 @@ public class TokenControllerTest {
   @Mock private RequestHandler requestHandler;
   @Mock private RequestManager requestManager;
   @Mock private TokenRequest tokenRequest;
+  @Mock private TokenValidationFlow flow;
+  @Mock private IdTokenValidator tokenValidator;
 
   @InjectMocks private TokenController controller;
 
@@ -101,5 +109,16 @@ public class TokenControllerTest {
         .extracting(ResponseEntity::getStatusCode)
         .isEqualTo(HttpStatus.OK);
     Assertions.assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldCallTokenValidator() {
+    String tenantId = "default";
+    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().build();
+    doReturn(flow).when(flow).forTenantOf(anyString());
+    doReturn(tokenValidator).when(flow).withTokenFrom(any());
+
+    assertThatCode(() -> controller.verifyToken(tenantId, tokenDetails)).doesNotThrowAnyException();
   }
 }

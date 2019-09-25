@@ -1,3 +1,12 @@
+/**
+ * *****************************************************************************
+ *
+ * <p>Copyright FUJITSU LIMITED 2019
+ *
+ * <p>Creation Date: 20-09-2019
+ *
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
@@ -5,24 +14,22 @@ import com.auth0.jwt.algorithms.Algorithm;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.validation.AuthTokenValidator;
+import org.oscm.identity.error.AccessTokenValidationException;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 
-import javax.xml.bind.ValidationException;
-
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.assertj.core.api.Java6Assertions.assertThatCode;
 
 public class AccessTokenAlgorithmValidationStrategyTest {
 
   private AccessTokenAlgorithmValidationStrategy strategy;
-  private TokenValidationRequest request;
+  private TenantConfiguration tenantConfiguration;
 
   @BeforeEach
   public void setUp() {
     strategy = new AccessTokenAlgorithmValidationStrategy();
     strategy.setExpectedAlgorithmType("RS256");
+    tenantConfiguration = new TenantConfiguration();
   }
 
   @Test
@@ -41,29 +48,17 @@ public class AccessTokenAlgorithmValidationStrategyTest {
             + "UnV6AmNP3ecFawIFYdvJB_cm-GvpCSbr8G8y_Ml"
             + "lj8f4x9nBH8pQux89_6gUY618iYv7tuPWBFfEbL"
             + "xtF2pZS6YC1aSfLQxeNe8djT9YjpvRZA";
-    request = TokenValidationRequest.of().accessToken(rsaToken).build();
-    request = AuthTokenValidator.decodeTokens(request);
 
-    assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
+    assertThatCode(() -> strategy.execute(JWT.decode(rsaToken), tenantConfiguration))
+        .doesNotThrowAnyException();
   }
 
   @Test
   @SneakyThrows
   public void shouldNotValidateRequest_givenInvalidToken() {
     String token = JWT.create().sign(Algorithm.none());
-    request = TokenValidationRequest.of().accessToken(token).build();
-    request = AuthTokenValidator.decodeTokens(request);
 
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> strategy.execute(request));
-  }
-
-  @Test
-  public void shouldNotValidateRequest_givenNoToken() {
-    try {
-      strategy.execute(TokenValidationRequest.of().build());
-    } catch (ValidationException e) {
-      fail(e.getMessage());
-    }
+    assertThatExceptionOfType(AccessTokenValidationException.class)
+        .isThrownBy(() -> strategy.execute(JWT.decode(token), tenantConfiguration));
   }
 }

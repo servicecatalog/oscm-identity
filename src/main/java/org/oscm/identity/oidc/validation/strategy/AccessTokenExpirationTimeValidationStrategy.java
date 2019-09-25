@@ -9,34 +9,28 @@
  */
 package org.oscm.identity.oidc.validation.strategy;
 
-import lombok.extern.slf4j.Slf4j;
-import org.oscm.identity.model.request.TokenValidationRequest;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.oscm.identity.error.AccessTokenValidationException;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.springframework.stereotype.Component;
 
-import javax.xml.bind.ValidationException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-@Slf4j
 @Component
 public class AccessTokenExpirationTimeValidationStrategy extends TokenValidationStrategy {
 
   @Override
-  public void execute(TokenValidationRequest request) throws ValidationException {
-    if (request.getDecodedAccessToken() == null) {
-      logIDTokenNotFound(this);
-      return;
-    }
-
-    if (LocalDateTime.now()
-        .isAfter(convertDateToLocalDateTime(request.getDecodedAccessToken().getExpiresAt())))
-      throw new ValidationException(getFailureMessage());
+  public void execute(DecodedJWT decodedToken, TenantConfiguration tenantConfiguration)
+      throws AccessTokenValidationException {
+    if (LocalDateTime.now().isAfter(convertDateToLocalDateTime(decodedToken.getExpiresAt())))
+      throw new AccessTokenValidationException(getFailureMessage());
   }
 
   @Override
   public String getFailureMessage() {
-    return "Id token has expired";
+    return "Access token has expired";
   }
 
   /**

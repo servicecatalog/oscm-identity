@@ -7,21 +7,19 @@
  *
  * <p>*****************************************************************************
  */
-package org.oscm.identity.model.request;
+package org.oscm.identity.model.json;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import org.oscm.identity.commons.TokenType;
+
+import javax.validation.constraints.NotNull;
 
 /** Token validation request wrapper */
 @Getter
 @Builder(builderMethodName = "of")
-public class TokenValidationRequest {
+public class TokenDetailsDTO {
 
-  private String idToken;
-  private String accessToken;
-  private String tenantId;
-  @Setter private DecodedJWT decodedIdToken;
-  @Setter private DecodedJWT decodedAccessToken;
+  @NotNull private String token;
+  @NotNull private TokenType tokenType;
 }

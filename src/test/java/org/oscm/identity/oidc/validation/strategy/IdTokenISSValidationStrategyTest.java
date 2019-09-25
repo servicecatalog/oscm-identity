@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation.strategy;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -18,20 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.oscm.identity.model.request.TokenValidationRequest;
-import org.oscm.identity.oidc.validation.AuthTokenValidator;
-import org.oscm.identity.oidc.validation.strategy.IdTokenISSValidationStrategy;
+import org.oscm.identity.error.IdTokenValidationException;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
-import org.oscm.identity.service.TenantService;
 import org.springframework.web.client.RestTemplate;
 
-import javax.xml.bind.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.assertj.core.api.Java6Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -40,65 +36,42 @@ import static org.mockito.Mockito.when;
 public class IdTokenISSValidationStrategyTest {
 
   @Mock private RestTemplate restTemplate;
-  @Mock private TenantService service;
   @InjectMocks private IdTokenISSValidationStrategy strategy;
-  private TokenValidationRequest request;
 
   @Test
   @SneakyThrows
   public void shouldValidateRequest() {
     String issuerValue = "testIssuer";
-
-    Map<String, String> jsonMap = new HashMap<>();
-    jsonMap.put("issuer", issuerValue);
+    DecodedJWT token =
+        JWT.decode(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()));
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setConfigurationUrl("oidConfigUrl");
 
-    when(service.loadTenant(any())).thenReturn(configuration);
+    Map<String, String> jsonMap = new HashMap<>();
+    jsonMap.put("issuer", issuerValue);
     when(restTemplate.getForObject(anyString(), any()))
         .thenReturn(new JSONObject(jsonMap).toString());
 
-    request =
-        TokenValidationRequest.of()
-            .idToken(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
-            .build();
-    request = AuthTokenValidator.decodeTokens(request);
-
-    assertThatCode(() -> strategy.execute(request)).doesNotThrowAnyException();
+    assertThatCode(() -> strategy.execute(token, configuration)).doesNotThrowAnyException();
   }
 
   @Test
   @SneakyThrows
   public void shouldNotValidateRequest() {
+    DecodedJWT token = JWT.decode(JWT.create().sign(Algorithm.none()));
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setConfigurationUrl("http://url.com");
+
     String issuerValue = "someinvalidvalue";
 
     Map<String, String> jsonMap = new HashMap<>();
     jsonMap.put("issuer", "validIssuer");
 
-    TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setConfigurationUrl("http://url.com");
-
-    when(service.loadTenant(any())).thenReturn(configuration);
     when(restTemplate.getForObject(anyString(), any()))
         .thenReturn(new JSONObject(jsonMap).toString());
 
-    request =
-        TokenValidationRequest.of()
-            .idToken(JWT.create().withClaim("iss", issuerValue).sign(Algorithm.none()))
-            .build();
-    request = AuthTokenValidator.decodeTokens(request);
-
-    assertThatExceptionOfType(ValidationException.class)
-        .isThrownBy(() -> strategy.execute(request));
-  }
-
-  @Test
-  public void shouldNotValidateRequest_givenNoToken() {
-    try {
-      strategy.execute(TokenValidationRequest.of().build());
-    } catch (ValidationException e) {
-      fail(e.getMessage());
-    }
+    assertThatExceptionOfType(IdTokenValidationException.class)
+        .isThrownBy(() -> strategy.execute(token, configuration));
   }
 }
