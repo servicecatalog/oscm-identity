@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshTokenDTO;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.TokenRequest;
@@ -115,7 +115,7 @@ public class TokenControllerTest {
   @SneakyThrows
   public void shouldCallTokenValidator() {
     String tenantId = "default";
-    TokenDetails tokenDetails = TokenDetails.of().build();
+    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().build();
     doReturn(flow).when(flow).forTenantOf(anyString());
     doReturn(tokenValidator).when(flow).withTokenFrom(any());
 

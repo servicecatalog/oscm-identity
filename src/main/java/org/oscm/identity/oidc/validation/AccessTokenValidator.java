@@ -11,7 +11,7 @@ package org.oscm.identity.oidc.validation;
 
 import org.assertj.core.util.Lists;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.validation.strategy.AccessTokenAlgorithmValidationStrategy;
 import org.oscm.identity.oidc.validation.strategy.AccessTokenExpirationTimeValidationStrategy;
 import org.oscm.identity.oidc.validation.strategy.TokenValidationStrategy;
@@ -30,7 +30,7 @@ public class AccessTokenValidator extends TokenValidator {
   private AccessTokenAlgorithmValidationStrategy accessTokenAlgorithmValidationStrategy;
   private AccessTokenExpirationTimeValidationStrategy accessTokenExpirationTimeValidationStrategy;
 
-  AccessTokenValidator(String tenantId, TokenDetails tokenDetails, TenantService tenantService)
+  AccessTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
       throws TokenValidationException {
     super(tenantId, tokenDetails, tenantService);
   }

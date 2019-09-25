@@ -15,7 +15,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.oscm.identity.error.IdTokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 
 import java.sql.Date;

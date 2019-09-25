@@ -40,7 +40,6 @@ import static org.mockito.Mockito.*;
 public class MainControllerTest {
 
   @Mock private TenantService tenantService;
-//  @Mock private AuthTokenValidator tokenValidator;
   @Mock private HttpServletResponse response;
   @Mock private RequestHandler requestHandler;
   @Mock private RequestManager requestManager;
@@ -114,9 +113,8 @@ public class MainControllerTest {
 
     assertThatCode(() -> controller.callback("idToken", "code", "state", null, null, response))
         .doesNotThrowAnyException();
-//
-//    verify(tokenValidator, times(1)).validate(any());
-//    verify(response, times(1)).sendRedirect(any());
+
+    verify(response, times(1)).sendRedirect(any());
   }
 
   @Test
@@ -125,8 +123,7 @@ public class MainControllerTest {
     assertThatExceptionOfType(IdentityProviderException.class)
         .isThrownBy(
             () -> controller.callback("idToken", "code", "state", "someError", null, response));
-//    verifyZeroInteractions(tokenValidator);
-//    verify(response, never()).sendRedirect(any());
+    verify(response, never()).sendRedirect(any());
   }
 
   //FIXME: Fix upon refresh token functionality refactor
@@ -148,29 +145,9 @@ public class MainControllerTest {
     assertThatExceptionOfType(ValidationException.class)
         .isThrownBy(() -> controller.callback("idToken", "code", "state", null, null, response));
 
-//    verify(tokenValidator, times(1)).validate(any());
-//    verifyZeroInteractions(response);
+    verifyZeroInteractions(response);
   }
 
-  @Test
-  @SneakyThrows
-  public void shouldSucceed_whenPostToVerifyToken_givenValidToken() {
-//    ResponseEntity response = controller.verifyToken(any());
-
-//    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  @SneakyThrows
-  public void shouldReturnError_whenPostToVerifyToken_givenInvalidToken() {
-//    when(controller.verifyToken(any())).thenCallRealMethod();
-//
-//    assertThatExceptionOfType(ValidationException.class)
-//        .isThrownBy(
-//            () ->
-//                controller.verifyToken(
-//                    TokenDetails.of().idToken("thisiscetainlyincvalidtoken").build()));
-  }
 
   @Test
   @SneakyThrows

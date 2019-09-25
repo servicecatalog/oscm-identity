@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.commons.TokenType;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.request.TokenDetails;
+import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.validation.strategy.*;
 import org.oscm.identity.service.TenantService;
@@ -68,7 +68,7 @@ public class IdTokenValidatorTest {
                 Algorithm.RSA256(
                     (RSAPublicKey) rsaKeys.getPublic(), (RSAPrivateKey) rsaKeys.getPrivate()));
 
-    TokenDetails tokenDetails = TokenDetails.of().tokenType(TokenType.ID).token(token).build();
+    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().tokenType(TokenType.ID).token(token).build();
     try {
       validator = new IdTokenValidator("default", tokenDetails, service);
       setStrategies();
@@ -80,8 +80,8 @@ public class IdTokenValidatorTest {
 
   @Test
   public void shouldNotValidateIdToken() {
-    TokenDetails tokenDetails =
-        TokenDetails.of().token("SOMETOKEN").tokenType(TokenType.ID).build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of().token("SOMETOKEN").tokenType(TokenType.ID).build();
     assertThatExceptionOfType(TokenValidationException.class)
         .isThrownBy(() -> new IdTokenValidator("default", tokenDetails, service));
   }
