@@ -35,7 +35,7 @@ public class TokenValidationFlowTest {
   @SneakyThrows
   public void shouldReturnIdTokenValidator() {
     TokenDetailsDTO tokenDetails =
-        TokenDetailsDTO.of().tokenType(TokenType.ID).token("sometoken").build();
+        TokenDetailsDTO.of().tokenType(TokenType.ID_TOKEN).token("sometoken").build();
 
     assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
         .doesNotThrowAnyException();
@@ -46,7 +46,7 @@ public class TokenValidationFlowTest {
   @SneakyThrows
   public void shouldReturnAccessTokenValidator() {
     TokenDetailsDTO tokenDetails =
-        TokenDetailsDTO.of().tokenType(TokenType.ACCESS).token("sometoken").build();
+        TokenDetailsDTO.of().tokenType(TokenType.ACCESS_TOKEN).token("sometoken").build();
 
     assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
         .doesNotThrowAnyException();
@@ -56,7 +56,7 @@ public class TokenValidationFlowTest {
   @Test
   public void shouldThrowAnException_whenUnsupportedTokenValidatorIsRequested() {
     TokenDetailsDTO tokenDetails =
-        TokenDetailsDTO.of().tokenType(TokenType.REFRESH).token("sometoken").build();
+        TokenDetailsDTO.of().tokenType(TokenType.REFRESH_TOKEN).token("sometoken").build();
 
     assertThatExceptionOfType(TokenValidationException.class)
         .isThrownBy(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails));
