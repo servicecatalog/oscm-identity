@@ -26,12 +26,11 @@ import java.util.Optional;
 @Slf4j
 public abstract class TokenValidator {
 
-  private DecodedJWT decodedToken;
+  private TokenDetailsDTO tokenDetails;
   private TenantConfiguration tenantConfiguration;
 
-  TokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
-      throws TokenValidationException {
-    this.decodedToken = decodeToken(tokenDetails);
+  TokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService) {
+    this.tokenDetails = tokenDetails;
     this.tenantConfiguration = tenantService.loadTenant(Optional.of(tenantId));
   }
 
@@ -49,7 +48,7 @@ public abstract class TokenValidator {
    * @return decoded JWT token
    * @throws TokenValidationException
    */
-  private DecodedJWT decodeToken(TokenDetailsDTO tokenDetailsDTO) throws TokenValidationException {
+  public DecodedJWT decodeToken(TokenDetailsDTO tokenDetailsDTO) throws TokenValidationException {
     try {
       return JWT.decode(tokenDetailsDTO.getToken());
     } catch (JWTDecodeException e) {
@@ -64,6 +63,7 @@ public abstract class TokenValidator {
    * @throws TokenValidationException
    */
   public final void validate() throws TokenValidationException {
+    DecodedJWT decodedToken = decodeToken(tokenDetails);
     for (TokenValidationStrategy strategy : getValidationStrategies()) {
       strategy.execute(decodedToken, tenantConfiguration);
     }

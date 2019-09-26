@@ -53,10 +53,10 @@ public class TokenValidationFlow {
    */
   public TokenValidator withTokenFrom(TokenDetailsDTO tokenDetails) throws TokenValidationException {
     switch (tokenDetails.getTokenType()) {
-      case ID:
+      case ID_TOKEN:
         return beanFactory.getBean(
             IdTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
-      case ACCESS:
+      case ACCESS_TOKEN:
         return beanFactory.getBean(
             AccessTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
       default:

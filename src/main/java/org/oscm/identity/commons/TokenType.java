@@ -11,7 +11,7 @@ package org.oscm.identity.commons;
 
 /** Enum representing token types used throughout OSCM-IDENTITY module */
 public enum TokenType {
-  ID,
-  ACCESS,
-  REFRESH
+  ID_TOKEN,
+  ACCESS_TOKEN,
+  REFRESH_TOKEN
 }

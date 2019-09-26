@@ -14,7 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.TokenValidationException;
 import org.oscm.identity.model.json.AccessToken;
-import org.oscm.identity.model.json.RefreshToken;
+import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
@@ -86,7 +86,7 @@ public class TokenController {
 
   @PostMapping("/tenants/{tenantId}/token/refresh")
   public ResponseEntity refreshAccessToken(
-      @PathVariable String tenantId, @RequestBody RefreshToken refreshRequest)
+      @PathVariable String tenantId, @RequestBody RefreshTokenDTO refreshRequest)
       throws JSONException {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
@@ -105,7 +105,7 @@ public class TokenController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    RefreshToken refreshResponse = mapper.getRefreshToken(jsonResponse);
+    RefreshTokenDTO refreshResponse = mapper.getRefreshToken(jsonResponse);
 
     return ResponseEntity.ok(refreshResponse);
   }

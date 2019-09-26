@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.InvalidRequestException;
-import org.oscm.identity.model.json.UserGroup;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserGroupDTO;
+import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.oidc.request.GroupRequest;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
@@ -53,8 +53,8 @@ public class GroupControllerTest {
     // given
     String tenantId = "default";
     String bearerToken = "Bearer token";
-    UserGroup userGroup =
-        UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -64,11 +64,11 @@ public class GroupControllerTest {
         ResponseEntity.ok()
             .body(
                 "{'id':'"
-                    + userGroup.getId()
+                    + userGroupDTO.getId()
                     + "', 'displayName':'"
-                    + userGroup.getName()
+                    + userGroupDTO.getName()
                     + "', 'description':'"
-                    + userGroup.getDescription()
+                    + userGroupDTO.getDescription()
                     + "'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
@@ -77,11 +77,13 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(createdUserGroup);
 
     // when
-    ResponseEntity response = controller.createGroup(tenantId, bearerToken, userGroup);
+    ResponseEntity response = controller.createGroup(tenantId, bearerToken,
+            userGroupDTO);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.CREATED);
-    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(userGroup);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(
+            userGroupDTO);
   }
 
   @Test
@@ -91,7 +93,7 @@ public class GroupControllerTest {
     String tenantId = "default";
     String groupId = "groupId";
     String bearerToken = "Bearer token";
-    UserInfo user = UserInfo.of().userId("userId").build();
+    UserInfoDTO user = UserInfoDTO.of().userId("userId").build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
@@ -118,12 +120,12 @@ public class GroupControllerTest {
     String tenantId = "default";
     String groupId = "groupId";
     String bearerToken = "Bearer token";
-    UserInfo user = UserInfo.of().userId("userId").build();
-    UserGroup userGroup =
-        UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    UserInfoDTO user = UserInfoDTO.of().userId("userId").build();
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
-    Set<UserGroup> groups = new HashSet<>();
-    groups.add(userGroup);
+    Set<UserGroupDTO> groups = new HashSet<>();
+    groups.add(userGroupDTO);
 
     when(userController.getGroupsUserBelongsTo(anyString(), anyString(), anyString()))
         .thenReturn(ResponseEntity.ok(groups));
@@ -141,8 +143,8 @@ public class GroupControllerTest {
     String bearerToken = "Bearer token";
     String groupId = "groupId";
 
-    UserInfo userInfo = givenUserInfo();
-    HashSet<UserInfo> users = new HashSet<>();
+    UserInfoDTO userInfo = givenUserInfo();
+    HashSet<UserInfoDTO> users = new HashSet<>();
     users.add(userInfo);
 
     String retrievedJson =
@@ -181,7 +183,7 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(retrievedUsers);
 
     // when
-    ResponseEntity<UserInfo> response = controller.getMembers(tenantId, groupId, bearerToken);
+    ResponseEntity<UserInfoDTO> response = controller.getMembers(tenantId, groupId, bearerToken);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
@@ -195,18 +197,18 @@ public class GroupControllerTest {
     String tenantId = "default";
     String bearerToken = "Bearer token";
 
-    UserGroup userGroup = UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
-    HashSet<UserGroup> groups = new HashSet<>();
-    groups.add(userGroup);
+    UserGroupDTO userGroupDTO = UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    HashSet<UserGroupDTO> groups = new HashSet<>();
+    groups.add(userGroupDTO);
 
     String retrievedJson =
         new StringBuilder("{'value':[{")
             .append("'id':")
-            .append(APOSTROPHE + userGroup.getId() + APOSTROPHE)
+            .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
             .append(",'displayName':")
-            .append(APOSTROPHE + userGroup.getName() + APOSTROPHE)
+            .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
             .append(",'description':")
-            .append(APOSTROPHE + userGroup.getDescription() + APOSTROPHE)
+            .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
             .append("}]}")
             .toString();
 
@@ -222,17 +224,17 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(retrievedGroups);
 
     // when
-    ResponseEntity<UserGroup> response = controller.getGroups(tenantId, bearerToken);
+    ResponseEntity<UserGroupDTO> response = controller.getGroups(tenantId, bearerToken);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
-  private UserInfo givenUserInfo() {
+  private UserInfoDTO givenUserInfo() {
 
-    UserInfo userInfo =
-        UserInfo.of()
+    UserInfoDTO userInfo =
+        UserInfoDTO.of()
             .userId("someUser")
             .firstName("name")
             .lastName("lastName")

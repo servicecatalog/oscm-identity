@@ -12,8 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.oscm.identity.model.json.UserGroup;
-import org.oscm.identity.model.json.UserInfo;
+import org.oscm.identity.model.json.UserGroupDTO;
+import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
 import org.oscm.identity.oidc.request.UserRequest;
@@ -46,7 +46,7 @@ public class UserControllerTest {
     // given
     String tenantId = "default";
     String bearerToken = "Bearer token";
-    UserInfo userInfo = givenUserInfo();
+    UserInfoDTO userInfo = givenUserInfo();
     String userInfoJson = givenUserInfoJsonFromIdP(userInfo);
     ResponseEntity<String> retrievedUser = ResponseEntity.ok(userInfoJson);
 
@@ -60,7 +60,7 @@ public class UserControllerTest {
     when(userRequest.execute()).thenReturn(retrievedUser);
 
     // when
-    ResponseEntity<UserInfo> response =
+    ResponseEntity<UserInfoDTO> response =
         controller.getUser(tenantId, userInfo.getUserId(), bearerToken);
 
     // then
@@ -76,20 +76,20 @@ public class UserControllerTest {
     String tenantId = "default";
     String bearerToken = "Bearer token";
     String userId = "userId";
-    UserGroup userGroup =
-        UserGroup.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
-    HashSet<UserGroup> groups = new HashSet<>();
-    groups.add(userGroup);
+    HashSet<UserGroupDTO> groups = new HashSet<>();
+    groups.add(userGroupDTO);
 
     ResponseEntity<String> retrievedGroups =
         ResponseEntity.ok(
             "{'value':[{'@odata.type': '#microsoft.graph.group','id':'"
-                + userGroup.getId()
+                + userGroupDTO.getId()
                 + "', 'description':'"
-                + userGroup.getDescription()
+                + userGroupDTO.getDescription()
                 + "','displayName':'"
-                + userGroup.getName()
+                + userGroupDTO.getName()
                 + "'}]}");
 
     TenantConfiguration configuration = new TenantConfiguration();
@@ -102,7 +102,7 @@ public class UserControllerTest {
     when(userRequest.execute()).thenReturn(retrievedGroups);
 
     // when
-    ResponseEntity<Set<UserGroup>> response =
+    ResponseEntity<Set<UserGroupDTO>> response =
         controller.getGroupsUserBelongsTo(tenantId, userId, bearerToken);
 
     // then
@@ -110,10 +110,10 @@ public class UserControllerTest {
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
-  private UserInfo givenUserInfo() {
+  private UserInfoDTO givenUserInfo() {
 
-    UserInfo userInfo =
-        UserInfo.of()
+    UserInfoDTO userInfo =
+        UserInfoDTO.of()
             .userId("someUser")
             .firstName("name")
             .lastName("lastName")
@@ -128,7 +128,7 @@ public class UserControllerTest {
     return userInfo;
   }
 
-  private String givenUserInfoJsonFromIdP(UserInfo userInfo) {
+  private String givenUserInfoJsonFromIdP(UserInfoDTO userInfo) {
 
     String userInfoJson =
         "{'userPrincipalName':'"

@@ -52,7 +52,7 @@ public class AccessTokenValidatorTest {
                 Algorithm.RSA256(
                     (RSAPublicKey) rsaKeys.getPublic(), (RSAPrivateKey) rsaKeys.getPrivate()));
 
-    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().tokenType(TokenType.ID).token(token).build();
+    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().tokenType(TokenType.ID_TOKEN).token(token).build();
     try {
       validator = new AccessTokenValidator("default", tokenDetails, service);
       setStrategies();

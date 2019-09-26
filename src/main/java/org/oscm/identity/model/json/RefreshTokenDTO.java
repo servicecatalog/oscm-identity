@@ -2,21 +2,19 @@
  *
  *  Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 9, 2019
+ *  Creation Date: Sep 16, 2019
  *
  *******************************************************************************/
-
 package org.oscm.identity.model.json;
 
 import lombok.Builder;
 import lombok.Data;
 
-/** Simple object representing json with user group */
+/** Object representing json with refresh token request/response */
 @Data
 @Builder(builderMethodName = "of")
-public class UserGroup {
+public class RefreshTokenDTO {
 
-  private String id;
-  private String name;
-  private String description;
+  private String accessToken;
+  private String refreshToken;
 }

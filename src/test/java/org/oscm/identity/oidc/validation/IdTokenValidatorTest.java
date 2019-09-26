@@ -68,7 +68,8 @@ public class IdTokenValidatorTest {
                 Algorithm.RSA256(
                     (RSAPublicKey) rsaKeys.getPublic(), (RSAPrivateKey) rsaKeys.getPrivate()));
 
-    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().tokenType(TokenType.ID).token(token).build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of().tokenType(TokenType.ID_TOKEN).token(token).build();
     try {
       validator = new IdTokenValidator("default", tokenDetails, service);
       setStrategies();
@@ -81,9 +82,9 @@ public class IdTokenValidatorTest {
   @Test
   public void shouldNotValidateIdToken() {
     TokenDetailsDTO tokenDetails =
-        TokenDetailsDTO.of().token("SOMETOKEN").tokenType(TokenType.ID).build();
+        TokenDetailsDTO.of().token("SOMETOKEN").tokenType(TokenType.ID_TOKEN).build();
     assertThatExceptionOfType(TokenValidationException.class)
-        .isThrownBy(() -> new IdTokenValidator("default", tokenDetails, service));
+        .isThrownBy(() -> new IdTokenValidator("default", tokenDetails, service).validate());
   }
 
   @SneakyThrows
