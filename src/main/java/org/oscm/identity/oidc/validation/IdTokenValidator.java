@@ -10,7 +10,6 @@
 package org.oscm.identity.oidc.validation;
 
 import org.assertj.core.util.Lists;
-import org.oscm.identity.error.TokenValidationException;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.validation.strategy.*;
 import org.oscm.identity.service.TenantService;
@@ -31,8 +30,8 @@ public class IdTokenValidator extends TokenValidator {
   private IdTokenISSValidationStrategy idTokenISSValidationStrategy;
   private IdTokenNonceValidationStrategy idTokenNonceValidationStrategy;
 
-  public IdTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
-      throws TokenValidationException {
+  public IdTokenValidator(
+      String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService) {
     super(tenantId, tokenDetails, tenantService);
   }
 

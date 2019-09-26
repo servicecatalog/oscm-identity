@@ -9,6 +9,8 @@
  */
 package org.oscm.identity.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.oscm.identity.commons.TokenType;
 import org.oscm.identity.model.json.AccessToken;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.TokenDetailsDTO;
@@ -115,7 +118,11 @@ public class TokenControllerTest {
   @SneakyThrows
   public void shouldCallTokenValidator() {
     String tenantId = "default";
-    TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().build();
+    TokenDetailsDTO tokenDetails =
+        TokenDetailsDTO.of()
+            .token(JWT.create().sign(Algorithm.none()))
+            .tokenType(TokenType.ACCESS_TOKEN)
+            .build();
     doReturn(flow).when(flow).forTenantOf(anyString());
     doReturn(tokenValidator).when(flow).withTokenFrom(any());
 
