@@ -15,7 +15,7 @@ import java.util.Properties;
 public interface TenantPropertyFileRetriever {
 
   /**
-   * * Gets properties associated with provided tenant ID_TOKEN
+   * * Gets properties associated with provided tenant ID
    *
    * @param tenantId tenant id for which the properties will be loaded
    * @return tenant properties
