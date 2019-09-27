@@ -10,7 +10,7 @@ package org.oscm.identity.model.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.AccessTokenDTO;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
@@ -72,7 +72,7 @@ public interface ResponseMapper {
    * @return object representing access token
    * @throws JSONException
    */
-  AccessToken getAccessToken(JSONObject json) throws JSONException;
+  AccessTokenDTO getAccessToken(JSONObject json) throws JSONException;
 
   /**
    * maps json object to object representing refresh token object

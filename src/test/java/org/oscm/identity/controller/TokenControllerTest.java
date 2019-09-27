@@ -18,8 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.oscm.identity.commons.AccessType;
 import org.oscm.identity.commons.TokenType;
-import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.AccessTokenDTO;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.request.RequestHandler;
@@ -56,22 +57,27 @@ public class TokenControllerTest {
 
     // given
     String accessToken = "someAccessToken";
-    AccessToken tokenResponse = AccessToken.of().accessToken(accessToken).build();
+    AccessType accessType = AccessType.IDP;
+    AccessTokenDTO tokenResponse =
+        AccessTokenDTO.of().accessToken(accessToken).accessType(accessType).build();
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
-    configuration.setUriAppId("defaultUriAppId");
+    configuration.setAppIdUri("defaultUriAppId");
 
     ResponseEntity<String> retrievedToken =
         ResponseEntity.ok("{'access_token':'" + accessToken + "'}");
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestHandler.getScope(any(AccessType.class), any(TenantConfiguration.class)))
+        .thenReturn("uri");
     when(requestManager.initTokenRequest()).thenReturn(tokenRequest);
     when(tokenRequest.execute()).thenReturn(retrievedToken);
 
     // when
-    ResponseEntity response = controller.getAccessToken("default");
+    ResponseEntity response =
+        controller.getAccessToken("default", AccessTokenDTO.of().accessType(accessType).build());
 
     // then
     Assertions.assertThat(response)

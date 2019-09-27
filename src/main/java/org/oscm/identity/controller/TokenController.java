@@ -12,8 +12,9 @@ package org.oscm.identity.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oscm.identity.commons.AccessType;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.AccessTokenDTO;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.model.response.ResponseHandler;
@@ -57,16 +58,20 @@ public class TokenController {
    * according to client credentials grant flow
    *
    * @param tenantId id of the tenant defining identity provider
+   * @param token token including type of access information
    * @return http response object containing json representing the access token
    * @throws JSONException
    */
   @PostMapping("tenants/{tenantId}/token")
-  public ResponseEntity getAccessToken(@PathVariable String tenantId) throws JSONException {
+  public ResponseEntity getAccessToken(
+      @PathVariable String tenantId, @RequestBody AccessTokenDTO token) throws JSONException {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
-    String scope =
-        new StringBuilder(configuration.getUriAppId()).append("/").append(".default").toString();
+    AccessType accessType = token.getAccessType();
+
+    String requestedScope = requestHandler.getScope(accessType, configuration);
+    String scope = new StringBuilder(requestedScope).append("/").append(".default").toString();
 
     TokenRequest tokenRequest = requestHandler.getRequestManager(provider).initTokenRequest();
     tokenRequest.setBaseUrl(configuration.getTokenUrl());
@@ -79,8 +84,8 @@ public class TokenController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    AccessToken accessToken = mapper.getAccessToken(jsonResponse);
-
+    AccessTokenDTO accessToken = mapper.getAccessToken(jsonResponse);
+    accessToken.setAccessType(accessType);
     return ResponseEntity.ok(accessToken);
   }
 
