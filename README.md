@@ -25,7 +25,8 @@ oidc.configurationUrl=url which delivers all necessary identity provider related
 oidc.usersEndpoint=url which is used for accessing users resource
 oidc.groupsEndpoint=url which is used for accessing groups resource
 oidc.nonce=unique request identifier for tenant
-oidc.uriAppId=uri id of the registered oscm-identity application
+oidc.appIdUri=uri id of the registered oscm-identity application
+oidc.idpApiUri=uri of the idp related API
 ```
 3. Start the application using `java -jar` command
 

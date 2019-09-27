@@ -52,7 +52,7 @@ public class MainController {
   @GetMapping("/login")
   public void loginPage(
       @RequestParam(value = "tenantId", required = false) String tenantId,
-      @RequestParam(value = "state", required = false) String state,
+      @RequestParam(value = "state") String state,
       HttpServletResponse response) {
 
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
@@ -78,7 +78,7 @@ public class MainController {
       @RequestParam(value = "error", required = false) String error,
       @RequestParam(value = "error_description", required = false) String errorDescription,
       HttpServletResponse response)
-      throws IOException, ValidationException, JSONException {
+      throws IOException, JSONException {
 
     if (error != null) {
       throw new IdentityProviderException(error + ": " + errorDescription);

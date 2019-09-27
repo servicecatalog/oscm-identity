@@ -9,7 +9,9 @@
 package org.oscm.identity.oidc.request;
 
 import org.apache.logging.log4j.util.Strings;
+import org.oscm.identity.commons.AccessType;
 import org.oscm.identity.error.IdentityProviderException;
+import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -102,5 +104,22 @@ public class RequestHandler {
       state = state.substring(0, tenantParam - 1);
     }
     return state;
+  }
+
+  /**
+   * Retrieves the scope for requesting access token with client credentials grant based on given
+   * access type
+   *
+   * @param accessType type of access
+   * @param configuration tenant's configuration
+   * @return scope parameter
+   */
+  public String getScope(AccessType accessType, TenantConfiguration configuration) {
+
+    if (AccessType.APPLICATION.equals(accessType)) {
+      return configuration.getAppIdUri();
+    } else {
+      return configuration.getIdpApiUri();
+    }
   }
 }

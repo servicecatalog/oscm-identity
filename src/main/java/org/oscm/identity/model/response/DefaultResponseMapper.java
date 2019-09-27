@@ -11,7 +11,7 @@ package org.oscm.identity.model.response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.json.AccessToken;
+import org.oscm.identity.model.json.AccessTokenDTO;
 import org.oscm.identity.model.json.RefreshTokenDTO;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
@@ -94,8 +94,8 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public AccessToken getAccessToken(JSONObject json) throws JSONException {
-    return AccessToken.of().accessToken(json.getString("access_token")).build();
+  public AccessTokenDTO getAccessToken(JSONObject json) throws JSONException {
+    return AccessTokenDTO.of().accessToken(json.getString("access_token")).build();
   }
 
   @Override
