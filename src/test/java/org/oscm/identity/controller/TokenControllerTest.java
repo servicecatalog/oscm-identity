@@ -127,7 +127,7 @@ public class TokenControllerTest {
     TokenDetailsDTO tokenDetails =
         TokenDetailsDTO.of()
             .token(JWT.create().sign(Algorithm.none()))
-            .tokenType(TokenType.ACCESS_TOKEN)
+            .tokenType(TokenType.IDP_ACCESS_TOKEN)
             .build();
     doReturn(flow).when(flow).forTenantOf(anyString());
     doReturn(tokenValidator).when(flow).withTokenFrom(any());

@@ -27,12 +27,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccessTokenValidatorTest {
+public class IdpAccessTokenValidatorTest {
 
   @Mock private TenantService service;
 
   private KeyPair rsaKeys;
-  private AccessTokenValidator validator;
+  private IdpAccessTokenValidator validator;
   private TenantConfiguration tenantConfiguration;
 
   @Test
@@ -44,9 +44,6 @@ public class AccessTokenValidatorTest {
 
     String token =
         JWT.create()
-            .withClaim("nonce", "testNonce")
-            .withClaim("aud", "testClient")
-            .withClaim("iss", "testIssuer")
             .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(1)))
             .sign(
                 Algorithm.RSA256(
@@ -54,7 +51,7 @@ public class AccessTokenValidatorTest {
 
     TokenDetailsDTO tokenDetails = TokenDetailsDTO.of().tokenType(TokenType.ID_TOKEN).token(token).build();
     try {
-      validator = new AccessTokenValidator("default", tokenDetails, service);
+      validator = new IdpAccessTokenValidator("default", tokenDetails, service);
       setStrategies();
       validator.validate();
     } catch (TokenValidationException e) {

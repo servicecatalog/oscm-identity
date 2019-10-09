@@ -9,7 +9,6 @@
  */
 package org.oscm.identity.oidc.validation;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +31,6 @@ public class TokenValidationFlowTest {
   @InjectMocks TokenValidationFlow validationFlow;
 
   @Test
-  @SneakyThrows
   public void shouldReturnIdTokenValidator() {
     TokenDetailsDTO tokenDetails =
         TokenDetailsDTO.of().tokenType(TokenType.ID_TOKEN).token("sometoken").build();
@@ -43,14 +41,23 @@ public class TokenValidationFlowTest {
   }
 
   @Test
-  @SneakyThrows
-  public void shouldReturnAccessTokenValidator() {
+  public void shouldReturnIdpAccessTokenValidator() {
     TokenDetailsDTO tokenDetails =
-        TokenDetailsDTO.of().tokenType(TokenType.ACCESS_TOKEN).token("sometoken").build();
+        TokenDetailsDTO.of().tokenType(TokenType.IDP_ACCESS_TOKEN).token("sometoken").build();
 
     assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
         .doesNotThrowAnyException();
-    verify(beanFactory, times(1)).getBean(eq(AccessTokenValidator.class), any());
+    verify(beanFactory, times(1)).getBean(eq(IdpAccessTokenValidator.class), any());
+  }
+
+  @Test
+  public void shouldReturnApplicationAccessTokenValidator() {
+    TokenDetailsDTO tokenDetails =
+            TokenDetailsDTO.of().tokenType(TokenType.APPLICATION_ACCESS_TOKEN).token("sometoken").build();
+
+    assertThatCode(() -> validationFlow.forTenantOf("default").withTokenFrom(tokenDetails))
+            .doesNotThrowAnyException();
+    verify(beanFactory, times(1)).getBean(eq(ApplicationAccessTokenValidator.class), any());
   }
 
   @Test

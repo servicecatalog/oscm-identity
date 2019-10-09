@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(MockitoExtension.class)
 public class IdTokenNonceValidationStrategyTest {
 
   private IdTokenNonceValidationStrategy strategy;

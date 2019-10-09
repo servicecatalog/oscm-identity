@@ -51,14 +51,18 @@ public class TokenValidationFlow {
    * @return token validator implementation for token that is requested to be validated
    * @throws TokenValidationException
    */
-  public TokenValidator withTokenFrom(TokenDetailsDTO tokenDetails) throws TokenValidationException {
+  public TokenValidator withTokenFrom(TokenDetailsDTO tokenDetails)
+      throws TokenValidationException {
     switch (tokenDetails.getTokenType()) {
       case ID_TOKEN:
         return beanFactory.getBean(
             IdTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
-      case ACCESS_TOKEN:
+      case IDP_ACCESS_TOKEN:
         return beanFactory.getBean(
-            AccessTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
+            IdpAccessTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
+      case APPLICATION_ACCESS_TOKEN:
+        return beanFactory.getBean(
+            ApplicationAccessTokenValidator.class, tenantIdentifier, tokenDetails, tenantService);
       default:
         throw new TokenValidationException(
             String.format(TOKEN_TYPE_NOT_SUPPORTED_ERROR_MESSAGE, tokenDetails.getTokenType()));

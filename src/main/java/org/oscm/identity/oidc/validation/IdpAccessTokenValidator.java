@@ -25,12 +25,12 @@ import java.util.List;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class AccessTokenValidator extends TokenValidator {
+public class IdpAccessTokenValidator extends TokenValidator {
 
   private AccessTokenAlgorithmValidationStrategy accessTokenAlgorithmValidationStrategy;
   private AccessTokenExpirationTimeValidationStrategy accessTokenExpirationTimeValidationStrategy;
 
-  AccessTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
+  IdpAccessTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
       throws TokenValidationException {
     super(tenantId, tokenDetails, tenantService);
   }
