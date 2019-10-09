@@ -14,9 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.commons.AccessType;
 import org.oscm.identity.error.TokenValidationException;
-import org.oscm.identity.model.json.AccessTokenDTO;
-import org.oscm.identity.model.json.RefreshTokenDTO;
-import org.oscm.identity.model.json.TokenDetailsDTO;
+import org.oscm.identity.model.json.*;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
 import org.oscm.identity.oidc.request.RequestHandler;
@@ -89,6 +87,14 @@ public class TokenController {
     return ResponseEntity.ok(accessToken);
   }
 
+  /**
+   * Endpoint for refreshing expired access token
+   *
+   * @param tenantId id of the tenant
+   * @param refreshRequest http request body containing refresh token
+   * @return http response containing new refresh and access token
+   * @throws JSONException
+   */
   @PostMapping("/tenants/{tenantId}/token/refresh")
   public ResponseEntity refreshAccessToken(
       @PathVariable String tenantId, @RequestBody RefreshTokenDTO refreshRequest)
@@ -118,7 +124,7 @@ public class TokenController {
   /**
    * Token validation endpoint
    *
-   * @param tenantId ID of the tenant for which configuration will be loaded
+   * @param tenantId id of the tenant for which configuration will be loaded
    * @param request token details wrapper
    * @return HTTP Response
    */
@@ -128,5 +134,37 @@ public class TokenController {
       throws TokenValidationException {
     validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
     return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
+  }
+
+  /**
+   * Endpoint for getting id token based on resource owner password credentials grant flow
+   *
+   * @param tenantId id of tenant
+   * @param credentials http request body containing IDP credentials
+   * @return http response containing id token
+   * @throws JSONException
+   */
+  @PostMapping("tenants/{tenantId}/token/identify")
+  public ResponseEntity getIdToken(
+      @PathVariable String tenantId, @RequestBody CredentialsDTO credentials) throws JSONException {
+
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    TokenRequest tokenRequest = requestHandler.getRequestManager(provider).initTokenRequest();
+    tokenRequest.setBaseUrl(configuration.getTokenUrl());
+    tokenRequest.setClientId(configuration.getClientId());
+    tokenRequest.setClientSecret(configuration.getClientSecret());
+    tokenRequest.setUsername(credentials.getUsername());
+    tokenRequest.setPassword(credentials.getPassword());
+    tokenRequest.setScope("openid profile");
+    tokenRequest.setGrantType("password");
+
+    ResponseEntity<String> response = tokenRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    IdTokenDTO idToken = mapper.getIdToken(jsonResponse);
+    return ResponseEntity.ok(idToken);
   }
 }

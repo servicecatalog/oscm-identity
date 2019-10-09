@@ -11,10 +11,7 @@ package org.oscm.identity.model.response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.oscm.identity.model.json.AccessTokenDTO;
-import org.oscm.identity.model.json.RefreshTokenDTO;
-import org.oscm.identity.model.json.UserGroupDTO;
-import org.oscm.identity.model.json.UserInfoDTO;
+import org.oscm.identity.model.json.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -104,5 +101,10 @@ public class DefaultResponseMapper implements ResponseMapper {
         .refreshToken(json.getString("refresh_token"))
         .accessToken(json.getString("access_token"))
         .build();
+  }
+
+  @Override
+  public IdTokenDTO getIdToken(JSONObject json) throws JSONException {
+    return IdTokenDTO.of().idToken(json.getString("id_token")).build();
   }
 }
