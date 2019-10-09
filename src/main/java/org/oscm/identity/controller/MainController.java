@@ -83,8 +83,6 @@ public class MainController {
       throw new IdentityProviderException(error + ": " + errorDescription);
     }
 
-    log.info("Authorization code retrieved:" + code);
-
     String tenantId = requestHandler.getTenantIdFromState(state);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
 
@@ -105,6 +103,7 @@ public class MainController {
 
     log.info("Access token received: " + accessToken);
     log.info("Refresh token received: " + refreshToken);
+    log.info("Id token received: " + idToken);
 
     String url =
         new StringBuilder(requestHandler.getStateWithoutTenant(state))

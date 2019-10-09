@@ -46,7 +46,7 @@ public class IdTokenValidator extends TokenValidator {
 
   @Override
   String getTokenUser(DecodedJWT decodedToken) {
-    return decodedToken.getClaim("prefered_username").asString();
+    return decodedToken.getClaim("preferred_username").asString();
   }
 
   @Autowired
