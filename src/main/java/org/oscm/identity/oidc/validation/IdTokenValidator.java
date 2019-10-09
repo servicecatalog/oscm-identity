@@ -9,6 +9,7 @@
  */
 package org.oscm.identity.oidc.validation;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.assertj.core.util.Lists;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.validation.strategy.*;
@@ -43,6 +44,11 @@ public class IdTokenValidator extends TokenValidator {
         idTokenExpirationTimeValidationStrategy,
         idTokenISSValidationStrategy,
         idTokenNonceValidationStrategy);
+  }
+
+  @Override
+  String getTokenUser(DecodedJWT decodedToken) {
+    return decodedToken.getClaim("prefered_username").asString();
   }
 
   @Autowired

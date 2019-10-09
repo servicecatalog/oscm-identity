@@ -9,6 +9,7 @@
  */
 package org.oscm.identity.oidc.validation;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.assertj.core.util.Lists;
 import org.oscm.identity.error.TokenValidationException;
 import org.oscm.identity.model.json.TokenDetailsDTO;
@@ -30,8 +31,7 @@ public class AccessTokenValidator extends TokenValidator {
   private AccessTokenAlgorithmValidationStrategy accessTokenAlgorithmValidationStrategy;
   private AccessTokenExpirationTimeValidationStrategy accessTokenExpirationTimeValidationStrategy;
 
-  AccessTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService)
-      throws TokenValidationException {
+  AccessTokenValidator(String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService) {
     super(tenantId, tokenDetails, tenantService);
   }
 
@@ -39,6 +39,11 @@ public class AccessTokenValidator extends TokenValidator {
   List<TokenValidationStrategy> getValidationStrategies() {
     return Lists.newArrayList(
         accessTokenAlgorithmValidationStrategy, accessTokenExpirationTimeValidationStrategy);
+  }
+
+  @Override
+  String getTokenUser(DecodedJWT decodedToken) {
+    return decodedToken.getClaim("upn").asString();
   }
 
   @Autowired

@@ -36,8 +36,6 @@ import java.util.Optional;
 @RestController
 public class TokenController {
 
-  private static final String TOKEN_VALID_MESSAGE = "Token valid!";
-
   private TenantService tenantService;
   private RequestHandler requestHandler;
   private TokenValidationFlow validationFlow;
@@ -52,12 +50,11 @@ public class TokenController {
   }
 
   /**
-   * Represents the endpoint for retrieving the access token from external identity provider
-   * according to client credentials grant flow
+   * Endpoint for retrieving the access token base on client credentials grant flow
    *
-   * @param tenantId id of the tenant defining identity provider
-   * @param token token including type of access information
-   * @return http response object containing json representing the access token
+   * @param tenantId id of the tenant
+   * @param token http request body containing type of access information
+   * @return http response object containing access token
    * @throws JSONException
    */
   @PostMapping("tenants/{tenantId}/token")
@@ -122,18 +119,19 @@ public class TokenController {
   }
 
   /**
-   * Token validation endpoint
+   * Endpoint for token (both access token and id token) validation
    *
-   * @param tenantId id of the tenant for which configuration will be loaded
-   * @param request token details wrapper
-   * @return HTTP Response
+   * @param tenantId id of the tenant
+   * @param request http request body containing token details
+   * @return http response containing user id
    */
   @PostMapping("/tenants/{tenantId}/token/verify")
   public ResponseEntity verifyToken(
       @PathVariable String tenantId, @RequestBody TokenDetailsDTO request)
       throws TokenValidationException {
-    validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
-    return ResponseEntity.ok(TOKEN_VALID_MESSAGE);
+
+    String username = validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
+    return ResponseEntity.ok(UserInfoDTO.of().userId(username).build());
   }
 
   /**

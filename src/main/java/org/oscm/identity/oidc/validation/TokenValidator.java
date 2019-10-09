@@ -11,6 +11,7 @@ package org.oscm.identity.oidc.validation;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.oscm.identity.error.TokenValidationException;
@@ -42,6 +43,14 @@ public abstract class TokenValidator {
   abstract List<TokenValidationStrategy> getValidationStrategies();
 
   /**
+   * Retrieves username from the related token claim
+   *
+   * @param decodedToken decoded JWT token
+   * @return username
+   */
+  abstract String getTokenUser(DecodedJWT decodedToken);
+
+  /**
    * Transforms string token into DecodedJWT
    *
    * @param tokenDetailsDTO token type along with encoded token
@@ -60,12 +69,18 @@ public abstract class TokenValidator {
   /**
    * Executes provided strategies against given token and tenant configuration
    *
+   * @return username of the related token (if validation is successful)
    * @throws TokenValidationException
    */
-  public final void validate() throws TokenValidationException {
+  public final String validate() throws TokenValidationException {
+
     DecodedJWT decodedToken = decodeToken(tokenDetails);
+
     for (TokenValidationStrategy strategy : getValidationStrategies()) {
       strategy.execute(decodedToken, tenantConfiguration);
     }
+
+    String user = getTokenUser(decodedToken);
+    return user;
   }
 }
