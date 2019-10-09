@@ -65,7 +65,6 @@ public class MainController {
     request.setScope(configuration.getAuthUrlScope());
     request.setResponseType("id_token code");
     request.setResponseMode("form_post");
-    request.setNonce(configuration.getNonce());
     request.setState(requestHandler.appendStateWithTenantId(state, tenantId));
     request.execute(response);
   }

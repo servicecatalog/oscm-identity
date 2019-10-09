@@ -60,7 +60,6 @@ public class IdTokenValidatorTest {
 
     String token =
         JWT.create()
-            .withClaim("nonce", "testNonce")
             .withClaim("aud", "testClient")
             .withClaim("iss", "testIssuer")
             .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(1)))
@@ -103,7 +102,6 @@ public class IdTokenValidatorTest {
 
   private void setTenantConfiguration() {
     tenantConfiguration = new TenantConfiguration();
-    tenantConfiguration.setNonce("testNonce");
     tenantConfiguration.setConfigurationUrl("someUrl");
     tenantConfiguration.setClientId("testClient");
   }
@@ -117,6 +115,5 @@ public class IdTokenValidatorTest {
     validator.setIdTokenExpirationTimeValidationStrategy(
         new IdTokenExpirationTimeValidationStrategy());
     validator.setIdTokenISSValidationStrategy(new IdTokenISSValidationStrategy(restTemplate));
-    validator.setIdTokenNonceValidationStrategy(new IdTokenNonceValidationStrategy());
   }
 }

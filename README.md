@@ -24,7 +24,6 @@ oidc.redirectUrl=url which is used for token callback, must be register in your 
 oidc.configurationUrl=url which delivers all necessary identity provider related informations
 oidc.usersEndpoint=url which is used for accessing users resource
 oidc.groupsEndpoint=url which is used for accessing groups resource
-oidc.nonce=unique request identifier for tenant
 oidc.appIdUri=uri id of the registered oscm-identity application
 oidc.idpApiUri=uri of the idp related API
 ```

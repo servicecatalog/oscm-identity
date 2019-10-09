@@ -25,7 +25,6 @@ public class TenantConfiguration {
   private String configurationUrl;
   private String usersEndpoint;
   private String groupsEndpoint;
-  private String nonce;
   private String appIdUri;
   private String idpApiUri;
 }
