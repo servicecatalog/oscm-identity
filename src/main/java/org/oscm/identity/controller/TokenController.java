@@ -131,7 +131,7 @@ public class TokenController {
       throws TokenValidationException {
 
     String username = validationFlow.forTenantOf(tenantId).withTokenFrom(request).validate();
-    return ResponseEntity.ok(UserInfoDTO.of().userId(username).build());
+    return ResponseEntity.ok(UserIdDTO.of().userId(username).build());
   }
 
   /**
