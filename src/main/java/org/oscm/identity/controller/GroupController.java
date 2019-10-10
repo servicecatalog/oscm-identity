@@ -45,6 +45,34 @@ public class GroupController {
   }
 
   /**
+   * @param tenantId id of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json representation of retrieved groups
+   * @throws JSONException
+   */
+  @GetMapping("/tenants/{tenantId}/groups")
+  public ResponseEntity getGroups(
+      @PathVariable String tenantId, @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
+
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest groupRequest = requestHandler.getRequestManager(provider).initGetGroupsRequest();
+    groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    groupRequest.setToken(token);
+
+    ResponseEntity<String> response = groupRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    Set<UserGroupDTO> groups = mapper.getGroups(jsonResponse);
+
+    return ResponseEntity.ok(groups);
+  }
+
+  /**
    * Represents the endpoint for creating the user group in identity provider
    *
    * @param tenantId id of the tenant defining identity provider
@@ -166,33 +194,5 @@ public class GroupController {
     Set<UserInfoDTO> users = mapper.getGroupMembers(jsonResponse);
 
     return ResponseEntity.ok(users);
-  }
-
-  /**
-   * @param tenantId id of the tenant defining identity provider
-   * @param bearerToken token included in authorization header
-   * @return http response with json representation of retrieved groups
-   * @throws JSONException
-   */
-  @GetMapping("/tenants/{tenantId}/groups")
-  public ResponseEntity getGroups(
-      @PathVariable String tenantId, @RequestHeader(value = "Authorization") String bearerToken)
-      throws JSONException {
-
-    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
-    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-    String provider = configuration.getProvider();
-
-    GroupRequest groupRequest = requestHandler.getRequestManager(provider).initGetGroupsRequest();
-    groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
-    groupRequest.setToken(token);
-
-    ResponseEntity<String> response = groupRequest.execute();
-    JSONObject jsonResponse = new JSONObject(response.getBody());
-
-    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    Set<UserGroupDTO> groups = mapper.getGroups(jsonResponse);
-
-    return ResponseEntity.ok(groups);
   }
 }
