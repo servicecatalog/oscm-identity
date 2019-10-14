@@ -9,6 +9,7 @@
  */
 package org.oscm.identity.oidc.validation;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.assertj.core.util.Lists;
 import org.oscm.identity.model.json.TokenDetailsDTO;
 import org.oscm.identity.oidc.validation.strategy.*;
@@ -28,7 +29,6 @@ public class IdTokenValidator extends TokenValidator {
   private IdTokenAudienceValidationStrategy idTokenAudienceValidationStrategy;
   private IdTokenExpirationTimeValidationStrategy idTokenExpirationTimeValidationStrategy;
   private IdTokenISSValidationStrategy idTokenISSValidationStrategy;
-  private IdTokenNonceValidationStrategy idTokenNonceValidationStrategy;
 
   public IdTokenValidator(
       String tenantId, TokenDetailsDTO tokenDetails, TenantService tenantService) {
@@ -41,8 +41,12 @@ public class IdTokenValidator extends TokenValidator {
         idTokenAlgorithmValidationStrategy,
         idTokenAudienceValidationStrategy,
         idTokenExpirationTimeValidationStrategy,
-        idTokenISSValidationStrategy,
-        idTokenNonceValidationStrategy);
+        idTokenISSValidationStrategy);
+  }
+
+  @Override
+  String getTokenUser(DecodedJWT decodedToken) {
+    return decodedToken.getClaim("preferred_username").asString();
   }
 
   @Autowired
@@ -67,11 +71,5 @@ public class IdTokenValidator extends TokenValidator {
   public final void setIdTokenISSValidationStrategy(
       IdTokenISSValidationStrategy idTokenISSValidationStrategy) {
     this.idTokenISSValidationStrategy = idTokenISSValidationStrategy;
-  }
-
-  @Autowired
-  public final void setIdTokenNonceValidationStrategy(
-      IdTokenNonceValidationStrategy idTokenNonceValidationStrategy) {
-    this.idTokenNonceValidationStrategy = idTokenNonceValidationStrategy;
   }
 }

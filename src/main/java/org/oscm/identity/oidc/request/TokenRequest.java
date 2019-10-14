@@ -22,4 +22,6 @@ public abstract class TokenRequest implements OIDCReturnRequest {
   private String grantType;
   private String scope;
   private String refreshToken;
+  private String username;
+  private String password;
 }
