@@ -8,6 +8,7 @@
 
 package org.oscm.identity.model.response;
 
+import com.jayway.jsonpath.JsonPathException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,15 +80,12 @@ public class DefaultResponseMapper implements ResponseMapper {
 
   @Override
   public Set<UserGroupDTO> getGroups(JSONObject json) throws JSONException {
+    return convertJsonArrayToGroupSet(json);
+  }
 
-    JSONArray jsonArray = json.getJSONArray("value");
-    Set<UserGroupDTO> userGroups = new HashSet<>();
-
-    for (int i = 0; i < jsonArray.length(); i++) {
-      JSONObject jsonObject = jsonArray.getJSONObject(i);
-      userGroups.add(getUserGroup(jsonObject));
-    }
-    return userGroups;
+  @Override
+  public UserGroupDTO getGroup(JSONObject json, String requestedGroupId) throws JSONException {
+    return convertJsonArrayToGroupSet(json).stream().filter(u -> u.getId().equals(requestedGroupId)).findAny().orElseThrow(() -> new JsonPathException("Group of requested ID has not been found"));
   }
 
   @Override
@@ -106,5 +104,17 @@ public class DefaultResponseMapper implements ResponseMapper {
   @Override
   public IdTokenDTO getIdToken(JSONObject json) throws JSONException {
     return IdTokenDTO.of().idToken(json.getString("id_token")).build();
+  }
+
+  private Set<UserGroupDTO> convertJsonArrayToGroupSet(JSONObject json)
+          throws JSONException {
+    JSONArray jsonArray = json.getJSONArray("value");
+    Set<UserGroupDTO> userGroups = new HashSet<>();
+
+    for (int i = 0; i < jsonArray.length(); i++) {
+      JSONObject jsonObject = jsonArray.getJSONObject(i);
+      userGroups.add(getUserGroup(jsonObject));
+    }
+    return userGroups;
   }
 }

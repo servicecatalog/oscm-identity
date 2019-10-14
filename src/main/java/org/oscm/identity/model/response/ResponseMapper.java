@@ -63,6 +63,14 @@ public interface ResponseMapper {
   Set<UserGroupDTO> getGroups(JSONObject json) throws JSONException;
 
   /**
+   * Maps json object to object represening single User Group
+   * @param json object to be mapped
+   * @return object representing single user group
+   * @throws JSONException
+   */
+  UserGroupDTO getGroup(JSONObject json, String requestedGroupId) throws JSONException;
+
+  /**
    * maps json object to object representing access token
    *
    * @param json object to be mapped

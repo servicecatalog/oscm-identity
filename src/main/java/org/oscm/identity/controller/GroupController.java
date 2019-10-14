@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 7, 2019
+ * <p>Creation Date: Aug 7, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,35 @@ public class GroupController {
     this.tenantService = tenantService;
     this.requestHandler = requestHandler;
     this.userController = userController;
+  }
+
+  /**
+   * @param tenantId id of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json representation of retrieved groups
+   * @throws JSONException
+   */
+  @GetMapping("/tenants/{tenantId}/groups/{groupId}")
+  public ResponseEntity getGroup(
+      @PathVariable String tenantId,
+      @PathVariable String groupId,
+      @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest groupRequest = requestHandler.getRequestManager(provider).initGetGroupsRequest();
+    groupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    groupRequest.setToken(token);
+
+    ResponseEntity<String> response = groupRequest.execute();
+    JSONObject jsonResponse = new JSONObject(response.getBody());
+
+    ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    UserGroupDTO group = mapper.getGroup(jsonResponse, groupId);
+
+    return ResponseEntity.ok(group);
   }
 
   /**

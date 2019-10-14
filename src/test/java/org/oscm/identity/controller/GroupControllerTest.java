@@ -231,6 +231,45 @@ public class GroupControllerTest {
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
   }
 
+  @Test
+  public void testGetGroup_validInputSent_properResponseIsReturned() throws Exception {
+
+    // given
+    String tenantId = "default";
+    String bearerToken = "Bearer token";
+
+    UserGroupDTO userGroupDTO = UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+
+    String retrievedJson =
+            new StringBuilder("{'value':[{")
+                    .append("'id':")
+                    .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
+                    .append(",'displayName':")
+                    .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
+                    .append(",'description':")
+                    .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
+                    .append("}]}")
+                    .toString();
+
+    ResponseEntity<String> retrievedGroups = ResponseEntity.ok(retrievedJson);
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setGroupsEndpoint("groupsEndpoint");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupsRequest()).thenReturn(groupRequest);
+    when(groupRequest.execute()).thenReturn(retrievedGroups);
+
+    // when
+    ResponseEntity<UserGroupDTO> response = controller.getGroup(tenantId, userGroupDTO.getId(), bearerToken);
+
+    // then
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(userGroupDTO);
+  }
+
   private UserInfoDTO givenUserInfo() {
 
     UserInfoDTO userInfo =
