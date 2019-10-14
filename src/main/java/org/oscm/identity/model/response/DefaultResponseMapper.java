@@ -84,11 +84,11 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public UserGroupDTO getGroup(JSONObject json, String requestedGroupId) throws JSONException {
+  public UserGroupDTO getGroup(JSONObject json, String requestedGroupName) throws JSONException {
     return convertJsonArrayToGroupSet(json).stream()
-        .filter(u -> u.getId().equals(requestedGroupId))
+        .filter(u -> u.getName().equals(requestedGroupName))
         .findAny()
-        .orElseThrow(() -> new JsonPathException("Group of requested ID has not been found"));
+        .orElseThrow(() -> new JsonPathException("Group of requested name has not been found"));
   }
 
   @Override

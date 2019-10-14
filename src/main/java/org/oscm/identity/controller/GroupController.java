@@ -51,10 +51,10 @@ public class GroupController {
    * @return http response with json representation of retrieved groups
    * @throws JSONException
    */
-  @GetMapping("/tenants/{tenantId}/groups/{groupId}")
+  @GetMapping("/tenants/{tenantId}/groups/{groupName}")
   public ResponseEntity getGroup(
       @PathVariable String tenantId,
-      @PathVariable String groupId,
+      @PathVariable String groupName,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
@@ -69,7 +69,7 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    UserGroupDTO group = mapper.getGroup(jsonResponse, groupId);
+    UserGroupDTO group = mapper.getGroup(jsonResponse, groupName);
 
     return ResponseEntity.ok(group);
   }

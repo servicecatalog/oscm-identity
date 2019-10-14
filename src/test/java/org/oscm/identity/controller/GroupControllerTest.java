@@ -265,7 +265,7 @@ public class GroupControllerTest {
 
     // when
     ResponseEntity<UserGroupDTO> response =
-        controller.getGroup(tenantId, userGroupDTO.getId(), bearerToken);
+        controller.getGroup(tenantId, userGroupDTO.getName(), bearerToken);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
