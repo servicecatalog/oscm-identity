@@ -1,13 +1,15 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 26, 2019
+ * <p>Creation Date: Jul 26, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.model.response;
 
+import com.jayway.jsonpath.JsonPathException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,21 +75,20 @@ public class DefaultResponseMapper implements ResponseMapper {
         users.add(getUserInfo(jsonObject));
       }
     }
-
     return users;
   }
 
   @Override
   public Set<UserGroupDTO> getGroups(JSONObject json) throws JSONException {
+    return convertJsonArrayToGroupSet(json);
+  }
 
-    JSONArray jsonArray = json.getJSONArray("value");
-    Set<UserGroupDTO> userGroups = new HashSet<>();
-
-    for (int i = 0; i < jsonArray.length(); i++) {
-      JSONObject jsonObject = jsonArray.getJSONObject(i);
-      userGroups.add(getUserGroup(jsonObject));
-    }
-    return userGroups;
+  @Override
+  public UserGroupDTO getGroup(JSONObject json, String requestedGroupName) throws JSONException {
+    return convertJsonArrayToGroupSet(json).stream()
+        .filter(u -> u.getName().equals(requestedGroupName))
+        .findAny()
+        .orElseThrow(() -> new JsonPathException("Group of requested name has not been found"));
   }
 
   @Override
@@ -106,5 +107,16 @@ public class DefaultResponseMapper implements ResponseMapper {
   @Override
   public IdTokenDTO getIdToken(JSONObject json) throws JSONException {
     return IdTokenDTO.of().idToken(json.getString("id_token")).build();
+  }
+
+  private Set<UserGroupDTO> convertJsonArrayToGroupSet(JSONObject json) throws JSONException {
+    JSONArray jsonArray = json.getJSONArray("value");
+    Set<UserGroupDTO> userGroups = new HashSet<>();
+
+    for (int i = 0; i < jsonArray.length(); i++) {
+      JSONObject jsonObject = jsonArray.getJSONObject(i);
+      userGroups.add(getUserGroup(jsonObject));
+    }
+    return userGroups;
   }
 }

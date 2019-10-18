@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 12, 2019
+ * <p>Creation Date: Aug 12, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
 import org.junit.jupiter.api.Test;
@@ -77,13 +78,11 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(createdUserGroup);
 
     // when
-    ResponseEntity response = controller.createGroup(tenantId, bearerToken,
-            userGroupDTO);
+    ResponseEntity response = controller.createGroup(tenantId, bearerToken, userGroupDTO);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.CREATED);
-    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(
-            userGroupDTO);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(userGroupDTO);
   }
 
   @Test
@@ -197,7 +196,8 @@ public class GroupControllerTest {
     String tenantId = "default";
     String bearerToken = "Bearer token";
 
-    UserGroupDTO userGroupDTO = UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
     HashSet<UserGroupDTO> groups = new HashSet<>();
     groups.add(userGroupDTO);
 
@@ -229,6 +229,47 @@ public class GroupControllerTest {
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(groups);
+  }
+
+  @Test
+  public void testGetGroup_validInputSent_properResponseIsReturned() throws Exception {
+
+    // given
+    String tenantId = "default";
+    String bearerToken = "Bearer token";
+
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
+
+    String retrievedJson =
+        new StringBuilder("{'value':[{")
+            .append("'id':")
+            .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
+            .append(",'displayName':")
+            .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
+            .append(",'description':")
+            .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
+            .append("}]}")
+            .toString();
+
+    ResponseEntity<String> retrievedGroups = ResponseEntity.ok(retrievedJson);
+
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setGroupsEndpoint("groupsEndpoint");
+
+    when(tenantService.loadTenant(any())).thenReturn(configuration);
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupsRequest()).thenReturn(groupRequest);
+    when(groupRequest.execute()).thenReturn(retrievedGroups);
+
+    // when
+    ResponseEntity<UserGroupDTO> response =
+        controller.getGroup(tenantId, userGroupDTO.getName(), bearerToken);
+
+    // then
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(userGroupDTO);
   }
 
   private UserInfoDTO givenUserInfo() {

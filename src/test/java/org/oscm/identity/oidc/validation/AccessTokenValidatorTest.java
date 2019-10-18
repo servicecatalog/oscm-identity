@@ -44,7 +44,6 @@ public class AccessTokenValidatorTest {
 
     String token =
         JWT.create()
-            .withClaim("nonce", "testNonce")
             .withClaim("aud", "testClient")
             .withClaim("iss", "testIssuer")
             .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(1)))
