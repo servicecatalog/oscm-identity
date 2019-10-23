@@ -68,6 +68,17 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     return new ResponseEntity<>(response, ex.getStatusCode());
   }
+  
+  @ExceptionHandler(JSONException.class)
+  public ResponseEntity<ErrorResponse> handleJsonError(JSONException ex)
+      throws JSONException {
+
+      log.error(ex.getMessage(), ex);
+
+      ErrorResponse errorResponse = ErrorResponse.of().error("Json parsing error").errorDescription(ex.getMessage()).build();
+
+      return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
 
   @Override
   protected ResponseEntity<Object> handleExceptionInternal(
