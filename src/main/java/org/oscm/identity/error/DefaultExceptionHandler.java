@@ -71,8 +71,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
   }
   
   @ExceptionHandler(JsonPathException.class)
-  public ResponseEntity<ErrorResponse> handleJsonError(JsonPathException ex)
-      throws JSONException {
+  public ResponseEntity<ErrorResponse> handleJsonError(JsonPathException ex) {
 
       log.error(ex.getMessage(), ex);
 

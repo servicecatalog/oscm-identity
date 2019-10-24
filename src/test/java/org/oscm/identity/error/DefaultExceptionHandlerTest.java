@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.jayway.jsonpath.JsonPathException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +51,8 @@ public class DefaultExceptionHandlerTest {
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(status);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
   }
+  
+  
 
   @Test
   public void testHandleClientError_HttpClientErrorExceptionThrown_properResponseIsReturned()
@@ -100,6 +104,28 @@ public class DefaultExceptionHandlerTest {
     assertThat(response)
         .extracting(ResponseEntity::getStatusCode)
         .isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
+  }
+  
+  @Test
+  public void testHandleJsonPathException_InvalidExceptionThrown_properResponseIsReturned() {
+
+    // given
+    JsonPathException exception = new JsonPathException("some error message");
+
+    // when
+    ResponseEntity<ErrorResponse> response = handler.handleJsonError(exception);
+
+    // then
+    ErrorResponse errorResponse =
+            ErrorResponse.of()
+                    .error("Json parsing error")
+                    .errorDescription(exception.getMessage())
+                    .build();
+
+    assertThat(response)
+        .extracting(ResponseEntity::getStatusCode)
+        .isEqualTo(HttpStatus.NOT_FOUND);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(errorResponse);
   }
 
