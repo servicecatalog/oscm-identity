@@ -20,7 +20,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.xml.bind.ValidationException;
+import com.jayway.jsonpath.JsonPathException;
+
 
 @ControllerAdvice
 @Slf4j
@@ -67,6 +68,16 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     return new ResponseEntity<>(response, ex.getStatusCode());
+  }
+  
+  @ExceptionHandler(JsonPathException.class)
+  public ResponseEntity<ErrorResponse> handleJsonError(JsonPathException ex) {
+
+      log.error(ex.getMessage(), ex);
+
+      ErrorResponse errorResponse = ErrorResponse.of().error("Json parsing error").errorDescription(ex.getMessage()).build();
+
+      return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
   @Override
