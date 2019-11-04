@@ -9,15 +9,21 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.oidc.tenant.TenantConfigurationPolicy;
+import org.oscm.identity.oidc.validation.TenantConfigurationValidator;
 
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TenantServiceTest {
 
     @Mock
     private TenantConfigurationPolicy policy;
-
+    @Mock
+    private TenantConfigurationValidator validator;
     @InjectMocks
     private TenantService service;
 
@@ -26,7 +32,8 @@ public class TenantServiceTest {
 
         //given
         TenantConfiguration defaultConfiguration = givenDefaultTenantConfiguration();
-        Mockito.when(policy.loadTenant("default")).thenReturn(defaultConfiguration);
+        when(policy.loadTenant("default")).thenReturn(defaultConfiguration);
+        doCallRealMethod().when(validator).validate(any());
 
         //when
         TenantConfiguration tenantConfiguration = service.loadTenant(Optional.empty());
@@ -40,8 +47,9 @@ public class TenantServiceTest {
 
         //given
         String tenantId = "qwe4rt6y";
-        TenantConfiguration simpleConfiguration = givenSimpleTenantConfiguration(tenantId);
-        Mockito.when(policy.loadTenant(Mockito.anyString())).thenReturn(simpleConfiguration);
+        TenantConfiguration simpleConfiguration = givenFullTenantConfiguration(tenantId);
+        when(policy.loadTenant(Mockito.anyString())).thenReturn(simpleConfiguration);
+        doCallRealMethod().when(validator).validate(any());
 
         //when
         TenantConfiguration tenantConfiguration = service.loadTenant(Optional.of(tenantId));
@@ -55,14 +63,36 @@ public class TenantServiceTest {
         configuration.setProvider("default");
         configuration.setClientId("sample-client-id");
         configuration.setTenantId("default");
+        configuration.setAppIdUri("appIdUri");
+        configuration.setConfigurationUrl("configUrl");
+        configuration.setLogoutUrl("logoutUrl");
+        configuration.setAuthUrl("authUrl");
+        configuration.setAuthUrlScope("authUrlScope");
+        configuration.setClientSecret("secret");
+        configuration.setGroupsEndpoint("groupsEndpoint");
+        configuration.setIdpApiUri("idpApiUri");
+        configuration.setRedirectUrl("redirectUrl");
+        configuration.setTokenUrl("tokenUrl");
+        configuration.setUsersEndpoint("userEndpoint");
         return configuration;
     }
 
-    private TenantConfiguration givenSimpleTenantConfiguration(String tenantId) {
+    private TenantConfiguration givenFullTenantConfiguration(String tenantId) {
         TenantConfiguration configuration = new TenantConfiguration();
         configuration.setProvider("other-provider");
         configuration.setClientId("sample-client-id");
         configuration.setTenantId(tenantId);
+        configuration.setAppIdUri("appIdUri");
+        configuration.setConfigurationUrl("configUrl");
+        configuration.setLogoutUrl("logoutUrl");
+        configuration.setAuthUrl("authUrl");
+        configuration.setAuthUrlScope("authUrlScope");
+        configuration.setClientSecret("secret");
+        configuration.setGroupsEndpoint("groupsEndpoint");
+        configuration.setIdpApiUri("idpApiUri");
+        configuration.setRedirectUrl("redirectUrl");
+        configuration.setTokenUrl("tokenUrl");
+        configuration.setUsersEndpoint("userEndpoint");
         return configuration;
     }
 }
