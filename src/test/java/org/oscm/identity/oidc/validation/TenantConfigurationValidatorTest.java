@@ -21,7 +21,6 @@ public class TenantConfigurationValidatorTest {
   public void shouldValidateConfiguration_givenValidConfiguration() {
     // GIVEN
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setAppIdUri("appIdUri");
     configuration.setClientId("clientId");
     configuration.setConfigurationUrl("configUrl");
     configuration.setLogoutUrl("logoutUrl");
@@ -44,7 +43,6 @@ public class TenantConfigurationValidatorTest {
   public void shouldNotValidateConfiguration_givenMissingConfigParam() {
     // GIVEN
     TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setAppIdUri("appIdUri");
     configuration.setClientId("clientId");
     configuration.setConfigurationUrl("configUrl");
     configuration.setLogoutUrl("logoutUrl");

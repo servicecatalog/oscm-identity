@@ -63,7 +63,6 @@ public class TenantServiceTest {
         configuration.setProvider("default");
         configuration.setClientId("sample-client-id");
         configuration.setTenantId("default");
-        configuration.setAppIdUri("appIdUri");
         configuration.setConfigurationUrl("configUrl");
         configuration.setLogoutUrl("logoutUrl");
         configuration.setAuthUrl("authUrl");
@@ -82,7 +81,6 @@ public class TenantServiceTest {
         configuration.setProvider("other-provider");
         configuration.setClientId("sample-client-id");
         configuration.setTenantId(tenantId);
-        configuration.setAppIdUri("appIdUri");
         configuration.setConfigurationUrl("configUrl");
         configuration.setLogoutUrl("logoutUrl");
         configuration.setAuthUrl("authUrl");
