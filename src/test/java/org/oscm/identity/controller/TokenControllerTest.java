@@ -61,7 +61,6 @@ public class TokenControllerTest {
 
     TenantConfiguration configuration = new TenantConfiguration();
     configuration.setProvider("default");
-    configuration.setAppIdUri("defaultUriAppId");
 
     ResponseEntity<String> retrievedToken =
         ResponseEntity.ok("{'access_token':'" + accessToken + "'}");
