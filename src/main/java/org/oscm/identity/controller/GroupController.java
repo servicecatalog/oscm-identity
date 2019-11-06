@@ -9,7 +9,13 @@
  */
 package org.oscm.identity.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.validation.Valid;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
@@ -17,19 +23,23 @@ import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
-import org.oscm.identity.oidc.request.*;
+import org.oscm.identity.oidc.request.DefaultAddGroupMemberRequest;
+import org.oscm.identity.oidc.request.DefaultCreateGroupRequest;
+import org.oscm.identity.oidc.request.DefaultGetGroupMembersRequest;
+import org.oscm.identity.oidc.request.GroupRequest;
+import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Optional;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 /** Controller class for handling incoming group related requests */
 @Slf4j
@@ -78,7 +88,7 @@ public class GroupController {
     try {
       groupName = URLDecoder.decode(encodedGroupName, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      // Can't occur
+      throw new RuntimeException(e);
     }
     UserGroupDTO group = mapper.getGroup(jsonResponse, groupName);
     return ResponseEntity.ok(group);
