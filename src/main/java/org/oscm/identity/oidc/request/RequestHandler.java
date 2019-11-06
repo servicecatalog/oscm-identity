@@ -115,11 +115,6 @@ public class RequestHandler {
    * @return scope parameter
    */
   public String getScope(AccessType accessType, TenantConfiguration configuration) {
-
-    if (AccessType.APPLICATION.equals(accessType)) {
-      return configuration.getAppIdUri();
-    } else {
       return configuration.getIdpApiUri();
-    }
   }
 }
