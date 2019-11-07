@@ -69,7 +69,7 @@ public class UserController {
       DefaultGetUserRequest defaultRequest = (DefaultGetUserRequest) request;
       defaultRequest.setUserId(userId);
       defaultRequest.setSelect(
-          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode,otherMails");
     }
 
     ResponseEntity<String> response = request.execute();
