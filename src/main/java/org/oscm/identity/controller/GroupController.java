@@ -58,7 +58,7 @@ public class GroupController {
   public ResponseEntity getGroup(
       @PathVariable String tenantId,
       @PathVariable String groupName,
-      @RequestParam(value = "logErrors", required = false, defaultValue = "${system.log.errors}")
+      @RequestParam(value = "logErrors", required = false, defaultValue = "true")
           Boolean logErrors,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException, ResourceNotFoundException {
