@@ -9,7 +9,13 @@
  */
 package org.oscm.identity.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.validation.Valid;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
@@ -17,16 +23,23 @@ import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
-import org.oscm.identity.oidc.request.*;
+import org.oscm.identity.oidc.request.DefaultAddGroupMemberRequest;
+import org.oscm.identity.oidc.request.DefaultCreateGroupRequest;
+import org.oscm.identity.oidc.request.DefaultGetGroupMembersRequest;
+import org.oscm.identity.oidc.request.GroupRequest;
+import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.Optional;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 /** Controller class for handling incoming group related requests */
 @Slf4j
@@ -47,14 +60,16 @@ public class GroupController {
 
   /**
    * @param tenantId id of the tenant defining identity provider
+   * @param encodedGroupName - the URL encoded group name
    * @param bearerToken token included in authorization header
-   * @return http response with json representation of retrieved groups
+   * @return HTTP response with JSON representation of retrieved groups
    * @throws JSONException
    */
-  @GetMapping("/tenants/{tenantId}/groups/{groupName}")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @GetMapping("/tenants/{tenantId}/groups/{encodedGroupName}")
   public ResponseEntity getGroup(
       @PathVariable String tenantId,
-      @PathVariable String groupName,
+      @PathVariable String encodedGroupName,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
@@ -69,17 +84,23 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
+    String groupName = encodedGroupName;
+    try {
+      groupName = URLDecoder.decode(encodedGroupName, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
     UserGroupDTO group = mapper.getGroup(jsonResponse, groupName);
-
     return ResponseEntity.ok(group);
   }
 
   /**
-   * @param tenantId id of the tenant defining identity provider
-   * @param bearerToken token included in authorization header
-   * @return http response with json representation of retrieved groups
+   * @param tenantId - id of the tenant defining identity provider
+   * @param bearerToken - token included in authorization header
+   * @return HTTP response with JSON representation of retrieved groups
    * @throws JSONException
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @GetMapping("/tenants/{tenantId}/groups")
   public ResponseEntity getGroups(
       @PathVariable String tenantId, @RequestHeader(value = "Authorization") String bearerToken)
@@ -105,12 +126,13 @@ public class GroupController {
   /**
    * Represents the endpoint for creating the user group in identity provider
    *
-   * @param tenantId id of the tenant defining identity provider
-   * @param bearerToken token included in authorization header
-   * @param userGroupRequest body of the request
-   * @return http response with json representation of created user group
+   * @param tenantId - id of the tenant defining identity provider
+   * @param bearerToken - token included in authorization header
+   * @param userGroupRequest - body of the request
+   * @return HTTP response with JSON representation of created user group
    * @throws JSONException
    */
+  @SuppressWarnings("unchecked")
   @PostMapping("/tenants/{tenantId}/groups")
   public ResponseEntity<UserGroupDTO> createGroup(
       @PathVariable String tenantId,
@@ -148,10 +170,11 @@ public class GroupController {
    * @param tenantId id of the tenant defining identity provider
    * @param groupId id of the group existing in identity provider
    * @param bearerToken token included in authorization header
-   * @param userInfo json representation of new member
-   * @return http response with no content (204)
+   * @param userInfo JSON representation of new member
+   * @return HTTP response with no content (204)
    * @throws JSONException
    */
+  @SuppressWarnings("rawtypes")
   @PostMapping("/tenants/{tenantId}/groups/{groupId}/members")
   public ResponseEntity addMember(
       @PathVariable String tenantId,
@@ -191,9 +214,10 @@ public class GroupController {
    * @param tenantId id of the tenant defining identity provider
    * @param groupId id of the group existing in identity provider
    * @param bearerToken token included in authorization header
-   * @return http response with json representation of retrieved group members
+   * @return HTTP response with JSON representation of retrieved group members
    * @throws JSONException
    */
+  @SuppressWarnings({ "rawtypes", "unchecked"})
   @GetMapping("/tenants/{tenantId}/groups/{groupId}/members")
   public ResponseEntity getMembers(
       @PathVariable String tenantId,

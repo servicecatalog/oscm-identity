@@ -9,6 +9,19 @@
  */
 package org.oscm.identity.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,16 +37,6 @@ import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GroupControllerTest {
@@ -202,15 +205,7 @@ public class GroupControllerTest {
     groups.add(userGroupDTO);
 
     String retrievedJson =
-        new StringBuilder("{'value':[{")
-            .append("'id':")
-            .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
-            .append(",'displayName':")
-            .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
-            .append(",'description':")
-            .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
-            .append("}]}")
-            .toString();
+        givenJSONResponseFromDTO(userGroupDTO);
 
     ResponseEntity<String> retrievedGroups = ResponseEntity.ok(retrievedJson);
 
@@ -242,21 +237,11 @@ public class GroupControllerTest {
         UserGroupDTO.of().id("userGroupId").name("OSCM_org").description("testGroup").build();
 
     String retrievedJson =
-        new StringBuilder("{'value':[{")
-            .append("'id':")
-            .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
-            .append(",'displayName':")
-            .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
-            .append(",'description':")
-            .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
-            .append("}]}")
-            .toString();
+        givenJSONResponseFromDTO(userGroupDTO);
 
     ResponseEntity<String> retrievedGroups = ResponseEntity.ok(retrievedJson);
 
-    TenantConfiguration configuration = new TenantConfiguration();
-    configuration.setProvider("default");
-    configuration.setGroupsEndpoint("groupsEndpoint");
+    TenantConfiguration configuration = anyTenantConfiguration();
 
     when(tenantService.loadTenant(any())).thenReturn(configuration);
     when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
@@ -270,6 +255,60 @@ public class GroupControllerTest {
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertThat(response).extracting(ResponseEntity::getBody).isEqualTo(userGroupDTO);
+  }
+
+  @Test
+  public void testGetGroup_withBanks() throws Exception {
+  
+    // given
+    String tenantId = "default";
+    String bearerToken = "Bearer token";
+
+    UserGroupDTO userGroupDTO =
+        UserGroupDTO.of().id("userGroupId").name("OSCM_Group with blanks").description("testGroup").build();
+
+    ResponseEntity<String> retrievedGroups = ResponseEntity.ok(givenJSONResponseFromDTO(userGroupDTO));
+
+    when(tenantService.loadTenant(any())).thenReturn(anyTenantConfiguration());
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupsRequest()).thenReturn(groupRequest);
+    when(groupRequest.execute()).thenReturn(retrievedGroups);
+    
+    // when
+    final String encodedGroupName = URLEncoder.encode(userGroupDTO.getName(), "UTF-8");
+    
+    ResponseEntity<UserGroupDTO> response =
+        controller.getGroup(tenantId, encodedGroupName, bearerToken);
+    
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
+    assertResponseGroupNameIsDecoded(encodedGroupName, response);
+  }
+
+  private void assertResponseGroupNameIsDecoded(String encodedName, ResponseEntity<UserGroupDTO> response) throws UnsupportedEncodingException {
+    String decodedName = URLDecoder.decode(encodedName, "UTF-8");
+    assertThat(response).extracting(ResponseEntity::getBody).extracting("name").contains(decodedName);
+    assertThat(decodedName).doesNotContain("+");
+    assertThat(encodedName).contains("+");
+    assertThat(response).extracting(ResponseEntity::getBody).extracting("name").doesNotContain("+");
+  }
+ 
+  private TenantConfiguration anyTenantConfiguration() {
+    TenantConfiguration configuration = new TenantConfiguration();
+    configuration.setProvider("default");
+    configuration.setGroupsEndpoint("groupsEndpoint");
+    return configuration;
+  }
+ 
+  private String givenJSONResponseFromDTO(UserGroupDTO userGroupDTO) {
+    return new StringBuilder("{'value':[{")
+        .append("'id':")
+        .append(APOSTROPHE + userGroupDTO.getId() + APOSTROPHE)
+        .append(",'displayName':")
+        .append(APOSTROPHE + userGroupDTO.getName() + APOSTROPHE)
+        .append(",'description':")
+        .append(APOSTROPHE + userGroupDTO.getDescription() + APOSTROPHE)
+        .append("}]}")
+        .toString();
   }
 
   private UserInfoDTO givenUserInfo() {
