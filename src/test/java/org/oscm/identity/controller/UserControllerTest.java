@@ -139,9 +139,9 @@ public class UserControllerTest {
             + userInfo.getAddress()
             + "','country':'"
             + userInfo.getCountry()
-            + "','businessPhones':'"
+            + "','businessPhones':['"
             + userInfo.getPhone()
-            + "','surname':'"
+            + "'],'surname':'"
             + userInfo.getLastName()
             + "','givenName':'"
             + userInfo.getFirstName()

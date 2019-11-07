@@ -10,6 +10,7 @@
 package org.oscm.identity.model.response;
 
 import com.jayway.jsonpath.JsonPathException;
+import org.apache.logging.log4j.util.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,12 +24,19 @@ public class DefaultResponseMapper implements ResponseMapper {
   @Override
   public UserInfoDTO getUserInfo(JSONObject json) throws JSONException {
 
+    String mail = json.getString("mail");
+    if (Strings.isBlank(mail) || json.isNull("mail")) {
+      JSONArray otherMails = json.getJSONArray("otherMails");
+      mail = getFirst(otherMails);
+    }
+    JSONArray phones = json.getJSONArray("businessPhones");
+
     return UserInfoDTO.of()
         .userId(json.getString("userPrincipalName"))
         .firstName(json.getString("givenName"))
         .lastName(json.getString("surname"))
-        .email(json.getString("mail"))
-        .phone(json.get("businessPhones").toString())
+        .email(mail)
+        .phone(getFirst(phones))
         .country(json.getString("country"))
         .city(json.getString("city"))
         .address(json.getString("streetAddress"))
@@ -118,5 +126,18 @@ public class DefaultResponseMapper implements ResponseMapper {
       userGroups.add(getUserGroup(jsonObject));
     }
     return userGroups;
+  }
+
+  /**
+   * Retrieves first element out of the json array
+   *
+   * @param array json array
+   * @return first string element if array is not empty, null string otherwise
+   */
+  private String getFirst(JSONArray array) {
+    if (array.length() == 0) {
+      return "null";
+    }
+    return array.optString(array.length() - 1);
   }
 }
