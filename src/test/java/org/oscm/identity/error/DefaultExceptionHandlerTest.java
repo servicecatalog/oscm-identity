@@ -111,7 +111,7 @@ public class DefaultExceptionHandlerTest {
   public void testHandleJsonPathException_InvalidExceptionThrown_properResponseIsReturned() {
 
     // given
-    JsonPathException exception = new JsonPathException("some error message");
+    ResourceNotFoundException exception = new ResourceNotFoundException(true);
 
     // when
     ResponseEntity<ErrorResponse> response = handler.handleJsonError(exception);

@@ -1,15 +1,17 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 26, 2019
+ * <p>Creation Date: Jul 26, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.model.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.*;
 
 import java.util.Set;
@@ -67,10 +69,12 @@ public interface ResponseMapper {
    *
    * @param json object to be mapped
    * @param requestedGroupName name of the group that is requested
+   * @param isLoggable determines whether errors thrown in the method should be logged
    * @return object representing User Group
    * @throws JSONException
    */
-  UserGroupDTO getGroup(JSONObject json, String requestedGroupName) throws JSONException;
+  UserGroupDTO getGroup(JSONObject json, String requestedGroupName, boolean isLoggable)
+      throws ResourceNotFoundException, JSONException;
 
   /**
    * maps json object to object representing access token

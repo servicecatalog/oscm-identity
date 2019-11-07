@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
+import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
@@ -48,6 +49,8 @@ public class GroupController {
   /**
    * @param tenantId id of the tenant defining identity provider
    * @param bearerToken token included in authorization header
+   * @param logErrors specifies whether exceptions should be logged. This value is configured inside
+   *     globally in 'application.properties'. Default value for this param is 'true'.
    * @return http response with json representation of retrieved groups
    * @throws JSONException
    */
@@ -55,8 +58,11 @@ public class GroupController {
   public ResponseEntity getGroup(
       @PathVariable String tenantId,
       @PathVariable String groupName,
+      @RequestParam(value = "logErrors", required = false, defaultValue = "${system.log.errors}")
+          Boolean logErrors,
       @RequestHeader(value = "Authorization") String bearerToken)
-      throws JSONException {
+      throws JSONException, ResourceNotFoundException {
+
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
@@ -69,7 +75,7 @@ public class GroupController {
     JSONObject jsonResponse = new JSONObject(response.getBody());
 
     ResponseMapper mapper = ResponseHandler.getResponseMapper(provider);
-    UserGroupDTO group = mapper.getGroup(jsonResponse, groupName);
+    UserGroupDTO group = mapper.getGroup(jsonResponse, groupName, logErrors);
 
     return ResponseEntity.ok(group);
   }
