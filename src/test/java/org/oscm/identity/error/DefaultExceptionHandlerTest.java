@@ -108,7 +108,7 @@ public class DefaultExceptionHandlerTest {
   }
   
   @Test
-  public void testHandleJsonPathException_InvalidExceptionThrown_properResponseIsReturned() {
+  public void testHandleRequestedResourceNotFoundException_InvalidExceptionThrown_properResponseIsReturned() {
 
     // given
     ResourceNotFoundException exception = new ResourceNotFoundException(true);
@@ -119,7 +119,7 @@ public class DefaultExceptionHandlerTest {
     // then
     ErrorResponse errorResponse =
             ErrorResponse.of()
-                    .error("Json parsing error")
+                    .error("Requested resource not found")
                     .errorDescription(exception.getMessage())
                     .build();
 

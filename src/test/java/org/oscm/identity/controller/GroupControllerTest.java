@@ -164,7 +164,7 @@ public class GroupControllerTest {
             .append(",'streetAddress':")
             .append(APOSTROPHE + userInfo.getAddress() + APOSTROPHE)
             .append(",'businessPhones':")
-            .append(APOSTROPHE + userInfo.getPhone() + APOSTROPHE)
+            .append("[" + APOSTROPHE + userInfo.getPhone() + APOSTROPHE + "]")
             .append(",'postalCode':")
             .append(APOSTROPHE + userInfo.getPostalCode() + APOSTROPHE)
             .append("}]}")
