@@ -1,10 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jun 18, 2019
+ * <p>Creation Date: Jun 18, 2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.error;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +22,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.jayway.jsonpath.JsonPathException;
-
-
 @ControllerAdvice
 @Slf4j
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
@@ -32,10 +31,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     log.error(ex.getMessage(), ex);
     ErrorResponse response =
-        ErrorResponse.of()
-            .error("Internal error")
-            .errorDescription(ex.getMessage())
-            .build();
+        ErrorResponse.of().error("Internal error").errorDescription(ex.getMessage()).build();
 
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -69,15 +65,16 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     return new ResponseEntity<>(response, ex.getStatusCode());
   }
-  
-  @ExceptionHandler(JsonPathException.class)
-  public ResponseEntity<ErrorResponse> handleJsonError(JsonPathException ex) {
 
-      log.error(ex.getMessage(), ex);
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleJsonError(ResourceNotFoundException ex) {
 
-      ErrorResponse errorResponse = ErrorResponse.of().error("Json parsing error").errorDescription(ex.getMessage()).build();
+    if (ex.isLoggable()) log.error(ex.getMessage(), ex);
 
-      return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    ErrorResponse errorResponse =
+        ErrorResponse.of().error("Requested resource not found").errorDescription(ex.getMessage()).build();
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
   @Override
@@ -108,11 +105,15 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(TokenValidationException.class)
-  protected ResponseEntity<ErrorResponse> handleTokenValidationException(TokenValidationException ex) {
+  protected ResponseEntity<ErrorResponse> handleTokenValidationException(
+      TokenValidationException ex) {
     log.error(ex.getMessage(), ex);
 
-
-    ErrorResponse errorResponse = ErrorResponse.of().error("Token validation failed").errorDescription(ex.getMessage()).build();
+    ErrorResponse errorResponse =
+        ErrorResponse.of()
+            .error("Token validation failed")
+            .errorDescription(ex.getMessage())
+            .build();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_ACCEPTABLE);
   }

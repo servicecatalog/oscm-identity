@@ -19,6 +19,7 @@ import javax.validation.Valid;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
+import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
@@ -32,12 +33,7 @@ import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +58,9 @@ public class GroupController {
    * @param tenantId id of the tenant defining identity provider
    * @param encodedGroupName - the URL encoded group name
    * @param bearerToken token included in authorization header
-   * @return HTTP response with JSON representation of retrieved groups
+   * @param logErrors specifies whether exceptions should be logged. This value is configured inside
+   *     globally in 'application.properties'. Default value for this param is 'true'.
+   * @return http response with json representation of retrieved groups
    * @throws JSONException
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -70,8 +68,11 @@ public class GroupController {
   public ResponseEntity getGroup(
       @PathVariable String tenantId,
       @PathVariable String encodedGroupName,
+      @RequestParam(value = "logErrors", required = false, defaultValue = "true")
+          Boolean logErrors,
       @RequestHeader(value = "Authorization") String bearerToken)
-      throws JSONException {
+      throws JSONException, ResourceNotFoundException {
+
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
     TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
     String provider = configuration.getProvider();
@@ -90,7 +91,7 @@ public class GroupController {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
-    UserGroupDTO group = mapper.getGroup(jsonResponse, groupName);
+    UserGroupDTO group = mapper.getGroup(jsonResponse, groupName, logErrors);
     return ResponseEntity.ok(group);
   }
 

@@ -9,11 +9,11 @@
  */
 package org.oscm.identity.model.response;
 
-import com.jayway.jsonpath.JsonPathException;
 import org.apache.logging.log4j.util.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.*;
 
 import java.util.HashSet;
@@ -92,11 +92,15 @@ public class DefaultResponseMapper implements ResponseMapper {
   }
 
   @Override
-  public UserGroupDTO getGroup(JSONObject json, String requestedGroupName) throws JSONException {
+  public UserGroupDTO getGroup(JSONObject json, String requestedGroupName, boolean isLoggable)
+      throws ResourceNotFoundException, JSONException {
     return convertJsonArrayToGroupSet(json).stream()
         .filter(u -> u.getName().equals(requestedGroupName))
         .findAny()
-        .orElseThrow(() -> new JsonPathException("Group of requested name has not been found"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "Group of requested name has not been found", isLoggable));
   }
 
   @Override

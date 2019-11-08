@@ -250,7 +250,7 @@ public class GroupControllerTest {
 
     // when
     ResponseEntity<UserGroupDTO> response =
-        controller.getGroup(tenantId, userGroupDTO.getName(), bearerToken);
+        controller.getGroup(tenantId, userGroupDTO.getName(), true, bearerToken);
 
     // then
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
@@ -278,7 +278,7 @@ public class GroupControllerTest {
     final String encodedGroupName = URLEncoder.encode(userGroupDTO.getName(), "UTF-8");
     
     ResponseEntity<UserGroupDTO> response =
-        controller.getGroup(tenantId, encodedGroupName, bearerToken);
+        controller.getGroup(tenantId, encodedGroupName, true, bearerToken);
     
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertResponseGroupNameIsDecoded(encodedGroupName, response);
