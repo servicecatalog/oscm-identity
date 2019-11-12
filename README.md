@@ -11,22 +11,7 @@ To build the application
 
 ## Starting the application
 1. Copy *config* directory to the same path, where You've put Your JAR file
-2. Provide default tenant configuration in *config/tenants/tenant-default.properties* where:
-```properties
-oidc.provider=external identity provider's name
-oidc.clientId=oscm-identity must be register in external identity provider, this is the id of such registered application
-oidc.clientSecret=secret key of the registered oscm-identity application
-oidc.authUrl=url which is used for authenticating users
-oidc.authUrlScope=scope of the authorization request
-oidc.logoutUrl=url which is used for logging out users
-oidc.tokenUrl=url which is used for retrieving the access token
-oidc.redirectUrl=url which is used for token callback, must be register in your external identity provider list of URL responses
-oidc.configurationUrl=url which delivers all necessary identity provider related informations
-oidc.usersEndpoint=url which is used for accessing users resource
-oidc.groupsEndpoint=url which is used for accessing groups resource
-oidc.appIdUri=uri id of the registered oscm-identity application
-oidc.idpApiUri=uri of the idp related API
-```
+2. Provide default tenant configuration in *config/tenants/tenant-default.properties* as described in [the tenant configuration template](https://github.com/servicecatalog/oscm-identity/blob/master/config/tenants/tenant-default.properties)
 3. Start the application using `java -jar` command
 
 ## Application profiles
