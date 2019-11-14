@@ -15,16 +15,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.IdentityProviderException;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RequestHandlerTest {
 
   @Mock
-  private RestTemplate restTemplate;
+  private ObjectFactory factory;
 
   @InjectMocks
   private RequestHandler requestHandler;
@@ -34,6 +36,7 @@ public class RequestHandlerTest {
 
     // given
     String provider = "default";
+    when(factory.getObject()).thenReturn(new RestTemplate());
 
     // when
     RequestManager manager = requestHandler.getRequestManager(provider);

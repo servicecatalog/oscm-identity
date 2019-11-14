@@ -12,19 +12,27 @@ import org.apache.logging.log4j.util.Strings;
 import org.oscm.identity.commons.AccessType;
 import org.oscm.identity.error.IdentityProviderException;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import javax.xml.ws.Provider;
 
 /** Simple handler for getting proper RequestManager instance */
 @Component
 public class RequestHandler {
 
-  RestTemplate restTemplate;
+  @Autowired private ObjectFactory<RestTemplate> restTemplateFactory;
 
-  @Autowired
-  public RequestHandler(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
+  /**
+   * Retrieves prototype scoped rest template bean form the spring context
+   *
+   * @return RestTemplate instance
+   */
+  public RestTemplate getRestTemplate() {
+    return restTemplateFactory.getObject();
   }
 
   /**
@@ -39,7 +47,7 @@ public class RequestHandler {
 
     switch (provider) {
       case "default":
-        requestManager = new DefaultRequestManager(this.restTemplate);
+        requestManager = new DefaultRequestManager(getRestTemplate());
         break;
       default:
         throw new IdentityProviderException(

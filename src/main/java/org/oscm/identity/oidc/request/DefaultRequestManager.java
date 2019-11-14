@@ -39,6 +39,11 @@ public class DefaultRequestManager implements RequestManager {
   }
 
   @Override
+  public UserRequest initUpdateUserRequest() {
+    return new DefaultUpdateUserRequest(this.restTemplate);
+  }
+
+  @Override
   public UserRequest initGetUserGroupsRequest() {
     return new DefaultGetUserGroupsRequest(this.restTemplate);
   }
