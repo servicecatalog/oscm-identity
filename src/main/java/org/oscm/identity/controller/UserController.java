@@ -14,16 +14,14 @@ import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
-import org.oscm.identity.oidc.request.DefaultGetUserGroupsRequest;
-import org.oscm.identity.oidc.request.DefaultGetUserRequest;
-import org.oscm.identity.oidc.request.RequestHandler;
-import org.oscm.identity.oidc.request.UserRequest;
+import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.Set;
 
@@ -117,5 +115,41 @@ public class UserController {
     Set<UserGroupDTO> groups = mapper.getGroupsUserBelongsTo(jsonResponse);
 
     return ResponseEntity.ok(groups);
+  }
+
+  /**
+   * Represents the endpoint for updating user information in identity provider
+   *
+   * @param userId userId of the user
+   * @param tenantId userId of the tenant defining identity provider
+   * @param bearerToken token included in authorization header
+   * @param userInfo request body including values to be updated
+   * @return http response with no content
+   * @throws JSONException
+   */
+  @PutMapping("/tenants/{tenantId}/users/{userId}")
+  public ResponseEntity updateUser(
+      @PathVariable String tenantId,
+      @PathVariable String userId,
+      @RequestHeader(value = "Authorization") String bearerToken,
+      @RequestBody UserInfoDTO userInfo)
+      throws JSONException {
+
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    UserRequest userRequest = requestHandler.getRequestManager(provider).initUpdateUserRequest();
+    userRequest.setBaseUrl(configuration.getUsersEndpoint());
+    userRequest.setToken(token);
+
+    if (userRequest instanceof DefaultUpdateUserRequest) {
+      DefaultUpdateUserRequest request = (DefaultUpdateUserRequest) userRequest;
+      request.setUserId(userId);
+      request.setEmail(userInfo.getEmail());
+    }
+
+    userRequest.execute();
+    return ResponseEntity.noContent().build();
   }
 }

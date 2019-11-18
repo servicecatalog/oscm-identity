@@ -47,6 +47,14 @@ public interface RequestManager {
   UserRequest initGetUserRequest();
 
   /**
+   * Creates user request representing http request for updating user information in specific
+   * identity provider
+   *
+   * @return user request
+   */
+  UserRequest initUpdateUserRequest();
+
+  /**
    * Creates user request representing http request for retrieving groups which given user belongs
    * to in specific identity provider
    *

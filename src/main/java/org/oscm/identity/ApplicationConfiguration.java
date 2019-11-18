@@ -12,11 +12,13 @@ import org.apache.catalina.connector.Connector;
 import org.oscm.identity.oidc.request.proxy.ProxyHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,6 +36,7 @@ public class ApplicationConfiguration {
   @Autowired private ProxyHandler proxyHandler;
 
   @Bean
+  @Scope(BeanDefinition.SCOPE_PROTOTYPE)
   public RestTemplate restTemplate() {
 
     RestTemplate restTemplate = new RestTemplate();
