@@ -41,8 +41,6 @@ public class DefaultUpdateUserRequest extends UserRequest {
     JSONObject json = new JSONObject();
     json.put("otherMails", otherMails);
 
-    System.out.println(json.toString());
-
     HttpEntity entity = new HttpEntity(json.toString(), headers);
     String url = getBaseUrl() + "/" + getUserId();
 
