@@ -15,6 +15,8 @@ import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.UUID;
+
 /** Object representing the http request to identity provider for creating user group */
 public class DefaultCreateGroupRequest extends GroupRequest {
 
@@ -39,7 +41,7 @@ public class DefaultCreateGroupRequest extends GroupRequest {
     json.put("description", description);
     json.put("mailEnabled", false);
     json.put("securityEnabled", true);
-    json.put("mailNickname", displayName);
+    json.put("mailNickname", UUID.randomUUID());
 
     HttpEntity entity = new HttpEntity(json.toString(), headers);
     String url = getBaseUrl();
