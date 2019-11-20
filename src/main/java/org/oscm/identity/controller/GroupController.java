@@ -239,7 +239,7 @@ public class GroupController {
       DefaultGetGroupMembersRequest request = (DefaultGetGroupMembersRequest) groupRequest;
       request.setGroupId(groupId);
       request.setSelect(
-          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode");
+          "userPrincipalName,givenName,surname,mail,businessPhones,country,city,streetAddress,postalCode,otherMails");
     }
 
     ResponseEntity<String> response = groupRequest.execute();
