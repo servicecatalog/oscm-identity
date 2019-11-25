@@ -9,6 +9,9 @@
 package org.oscm.identity;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.oscm.identity.oidc.request.proxy.ProxyHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,16 +45,14 @@ public class ApplicationConfiguration {
 
     RestTemplate restTemplate = new RestTemplate();
 
+    HttpClient httpClient = HttpClientBuilder.create().build();
+
     if (proxyHandler.isRequired()) {
-      SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-      Proxy proxy =
-          new Proxy(
-              Proxy.Type.HTTP,
-              new InetSocketAddress(proxyHandler.getHost(), proxyHandler.getPort()));
-      factory.setProxy(proxy);
-      restTemplate.setRequestFactory(factory);
+      HttpHost proxyHost = new HttpHost(proxyHandler.getHost(), proxyHandler.getPort());
+      httpClient = HttpClientBuilder.create().setProxy(proxyHost).build();
     }
 
+    restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
     return restTemplate;
   }
 

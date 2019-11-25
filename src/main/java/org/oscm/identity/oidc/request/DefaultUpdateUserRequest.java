@@ -9,13 +9,13 @@ package org.oscm.identity.oidc.request;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class DefaultUpdateUserRequest extends UserRequest {
@@ -44,13 +44,8 @@ public class DefaultUpdateUserRequest extends UserRequest {
     HttpEntity entity = new HttpEntity(json.toString(), headers);
     String url = getBaseUrl() + "/" + getUserId();
 
-    // Workaround for PATCH method
-    HttpClient httpClient = HttpClientBuilder.create().build();
-    restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+    restTemplate.patchForObject(url, entity, String.class);
 
-    ResponseEntity<String> responseEntity =
-        restTemplate.exchange(url, HttpMethod.PATCH, entity, String.class);
-
-    return responseEntity;
+    return ResponseEntity.noContent().build();
   }
 }
