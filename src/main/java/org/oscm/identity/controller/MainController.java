@@ -101,10 +101,6 @@ public class MainController {
     String accessToken = jsonResponse.get("access_token").toString();
     String refreshToken = jsonResponse.get("refresh_token").toString();
 
-    log.info("Access token received: " + accessToken);
-    log.info("Refresh token received: " + refreshToken);
-    log.info("Id token received: " + idToken);
-
     String url =
         new StringBuilder(requestHandler.getStateWithoutTenant(state))
             .append("?id_token=" + idToken)
@@ -112,7 +108,6 @@ public class MainController {
             .append("&refresh_token=" + refreshToken)
             .toString();
 
-    log.info("Redirecting to " + url);
     response.sendRedirect(url);
   }
 
