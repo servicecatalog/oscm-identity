@@ -48,12 +48,6 @@ public class MainControllerTest {
   @InjectMocks private MainController controller;
 
   @Test
-  public void shouldSucceed_whenGetToDefault() {
-    String result = controller.homePage();
-    assertThat(result).isNotBlank();
-  }
-
-  @Test
   @SneakyThrows
   public void shouldRedirect_whenGetToLogin_givenNoErrors() {
     TenantConfiguration configuration = new TenantConfiguration();

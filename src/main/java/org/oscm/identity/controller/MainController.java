@@ -44,11 +44,6 @@ public class MainController {
     this.requestHandler = requestHandler;
   }
 
-  @GetMapping
-  public String homePage() {
-    return "Welcome to the oscm-identity home page";
-  }
-
   @GetMapping("/login")
   public void loginPage(
       @RequestParam(value = "tenantId", required = false) String tenantId,
