@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.oscm.identity.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -45,6 +45,7 @@ public class MainController {
   }
 
   @GetMapping("/login")
+  @Hidden
   public void loginPage(
       @RequestParam(value = "tenantId", required = false) String tenantId,
       @RequestParam(value = "state") String state,
@@ -65,6 +66,7 @@ public class MainController {
   }
 
   @PostMapping("/callback")
+  @Hidden
   public void callback(
       @RequestParam(value = "id_token", required = false) String idToken,
       @RequestParam(value = "code", required = false) String code,
@@ -107,6 +109,7 @@ public class MainController {
   }
 
   @GetMapping("/logout")
+  @Hidden
   public void logoutPage(
       @RequestParam(value = "tenantId", required = false) String tenantId,
       @RequestParam(value = "state", required = false) String state,
