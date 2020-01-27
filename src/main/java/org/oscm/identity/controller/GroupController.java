@@ -9,13 +9,13 @@
  */
 package org.oscm.identity.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.validation.Valid;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscm.identity.error.InvalidRequestException;
@@ -24,18 +24,19 @@ import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.model.response.ResponseHandler;
 import org.oscm.identity.model.response.ResponseMapper;
-import org.oscm.identity.oidc.request.DefaultAddGroupMemberRequest;
-import org.oscm.identity.oidc.request.DefaultCreateGroupRequest;
-import org.oscm.identity.oidc.request.DefaultGetGroupMembersRequest;
-import org.oscm.identity.oidc.request.GroupRequest;
-import org.oscm.identity.oidc.request.RequestHandler;
+import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Optional;
+import java.util.Set;
 
 /** Controller class for handling incoming group related requests */
 @Slf4j
@@ -63,12 +64,27 @@ public class GroupController {
    * @return http response with json representation of retrieved groups
    * @throws JSONException
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @GetMapping("/tenants/{tenantId}/groups/{encodedGroupName}")
+  @Operation(
+      summary = "Gets group by its name for selected tenant",
+      tags = {"groups"},
+      description = "Gets group by its name for selected tenant",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Group of selected name",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = UserGroupDTO.class)))
+      })
+  @ResponseBody
   public ResponseEntity getGroup(
-      @PathVariable String tenantId,
-      @PathVariable String encodedGroupName,
-      @RequestParam(value = "logErrors", required = false, defaultValue = "true")
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "Name of the group to get") @PathVariable String encodedGroupName,
+      @Parameter(description = "Specifies whether exceptions should be logged")
+          @RequestParam(value = "logErrors", required = false, defaultValue = "true")
           Boolean logErrors,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException, ResourceNotFoundException {
@@ -101,10 +117,24 @@ public class GroupController {
    * @return HTTP response with JSON representation of retrieved groups
    * @throws JSONException
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @GetMapping("/tenants/{tenantId}/groups")
+  @Operation(
+      summary = "Gets all groups for selected tenant",
+      tags = "groups",
+      description = "Gets all groups for selected tenant",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Group array for selected tenant",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = UserGroupDTO.class))))
+      })
   public ResponseEntity getGroups(
-      @PathVariable String tenantId, @RequestHeader(value = "Authorization") String bearerToken)
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
 
     String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
@@ -135,8 +165,19 @@ public class GroupController {
    */
   @SuppressWarnings("unchecked")
   @PostMapping("/tenants/{tenantId}/groups")
+  @Operation(
+      summary = "Creates group for selected tenant",
+      tags = "groups",
+      description = "Creates group for selected tenant",
+      responses = @ApiResponse(responseCode = "201", description = "Group has been created"),
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @Content(
+                      mediaType = MediaType.APPLICATION_JSON_VALUE,
+                      schema = @Schema(implementation = UserGroupDTO.class))))
   public ResponseEntity<UserGroupDTO> createGroup(
-      @PathVariable String tenantId,
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
       @RequestHeader(value = "Authorization") String bearerToken,
       @RequestBody UserGroupDTO userGroupRequest)
       throws JSONException {
@@ -177,9 +218,22 @@ public class GroupController {
    */
   @SuppressWarnings("rawtypes")
   @PostMapping("/tenants/{tenantId}/groups/{groupId}/members")
+  @Operation(
+      summary = "Adds member to the group",
+      tags = "groups",
+      description = "Adds member to the group that belongs to selected tenant",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "Member to be added",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = MediaType.APPLICATION_JSON_VALUE,
+                      schema = @Schema(implementation = UserInfoDTO.class))),
+      responses = {@ApiResponse(responseCode = "204")})
   public ResponseEntity addMember(
-      @PathVariable String tenantId,
-      @PathVariable String groupId,
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of the selected group") @PathVariable String groupId,
       @RequestHeader(value = "Authorization") String bearerToken,
       @RequestBody @Valid UserInfoDTO userInfo)
       throws JSONException {
@@ -218,11 +272,24 @@ public class GroupController {
    * @return HTTP response with JSON representation of retrieved group members
    * @throws JSONException
    */
-  @SuppressWarnings({ "rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @GetMapping("/tenants/{tenantId}/groups/{groupId}/members")
+  @Operation(
+      summary = "Gets all members for selected group",
+      tags = "groups",
+      description = "Gets all members that belongs to selected group, assigned for selected tenant",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Member array for selected tenant",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = UserInfoDTO.class))))
+      })
   public ResponseEntity getMembers(
-      @PathVariable String tenantId,
-      @PathVariable String groupId,
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of the selected group") @PathVariable String groupId,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
 

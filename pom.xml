@@ -21,6 +21,9 @@
         <guava.version>28.0-jre</guava.version>
         <auth0.version>3.8.1</auth0.version>
         <httpclient.version>4.5.9</httpclient.version>
+
+        <springdoc.version>1.1.49</springdoc.version>
+
         <jupiter.version>5.3.2</jupiter.version>
         <mockito.version>2.23.4</mockito.version>
         <jacoco.version>0.8.2</jacoco.version>
@@ -56,23 +59,36 @@
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
         </dependency>
+
+        <!-- Springdoc Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-core</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- Test dependencies-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${jupiter.version}</version><!--$NO-MVN-MAN-VER$-->
+            <version>${jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version><!--$NO-MVN-MAN-VER$-->
+            <version>${jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version><!--$NO-MVN-MAN-VER$-->
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

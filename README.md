@@ -23,4 +23,9 @@ By default, application starts with `prod` profile, it is however possible to ov
 - **dev** - development profile. It allows application to run under IDE. Retrieved resources from the classpath.
 
 ## Setup with Docker
-The Identity Service is included with the OSCM Docker installation. Find the [description in the oscm-dockerbuild repository](https://github.com/servicecatalog/oscm-dockerbuild#quick-start-oscm-with-docker) on how to install OSCM with docker-compose. 
+The Identity Service is included with the OSCM Docker installation. Find the [description in the oscm-dockerbuild repository](https://github.com/servicecatalog/oscm-dockerbuild#quick-start-oscm-with-docker) on how to install OSCM with docker-compose.
+
+## API Documentation
+The OpenAPI/Swagger documentation is provided for the *oscm-identity* module.
+- OpenAPI 3.0 JSON documentation is accessible at `<your-app-host>/oscm-identity/api/docs`
+- Swagger UI for the documentation is accessible at `<your-app-host>/oscm-identity/api/ui`

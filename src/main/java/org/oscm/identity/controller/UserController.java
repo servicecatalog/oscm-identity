@@ -1,12 +1,20 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Jul 26, 2019
+ * <p>Creation Date: Jul 26, 2019
  *
- *******************************************************************************/
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +26,10 @@ import org.oscm.identity.oidc.request.*;
 import org.oscm.identity.oidc.tenant.TenantConfiguration;
 import org.oscm.identity.service.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,9 +57,22 @@ public class UserController {
    * @throws JSONException
    */
   @GetMapping("/tenants/{tenantId}/users/{userId}")
+  @Operation(
+      summary = "Gets single User",
+      tags = "users",
+      description = "Gets single user by the ID",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Requested user representation",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = UserInfoDTO.class)))
+      })
   public ResponseEntity<UserInfoDTO> getUser(
-      @PathVariable String tenantId,
-      @PathVariable String userId,
+      @Parameter(description = "ID of selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of selected user") @PathVariable String userId,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
 
@@ -89,9 +110,22 @@ public class UserController {
    * @throws JSONException
    */
   @GetMapping("/tenants/{tenantId}/users/{userId}/groups")
+  @Operation(
+      description = "Gets groups which given user belongs to",
+      tags = "users",
+      summary = "Gets groups which given user belongs to",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Array of groups which given user belongs to",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = UserGroupDTO.class))))
+      })
   public ResponseEntity<Set<UserGroupDTO>> getGroupsUserBelongsTo(
-      @PathVariable String tenantId,
-      @PathVariable String userId,
+      @Parameter(description = "ID of selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of selected user") @PathVariable String userId,
       @RequestHeader(value = "Authorization") String bearerToken)
       throws JSONException {
 
@@ -128,9 +162,22 @@ public class UserController {
    * @throws JSONException
    */
   @PutMapping("/tenants/{tenantId}/users/{userId}")
+  @Operation(
+      description = "Updates user information in identity provider",
+      tags = "users",
+      summary = "Updates user information in identity provider",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "User to be updated",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = MediaType.APPLICATION_JSON_VALUE,
+                      schema = @Schema(implementation = UserInfoDTO.class))),
+      responses = {@ApiResponse(responseCode = "204")})
   public ResponseEntity updateUser(
-      @PathVariable String tenantId,
-      @PathVariable String userId,
+      @Parameter(description = "ID of selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of selected user") @PathVariable String userId,
       @RequestHeader(value = "Authorization") String bearerToken,
       @RequestBody UserInfoDTO userInfo)
       throws JSONException {
