@@ -93,4 +93,13 @@ public interface RequestManager {
    * @return group request
    */
   GroupRequest initGetGroupsRequest();
+
+  /**
+   * Creates group request representing http request for retrieving groups in specific identity
+   * provider
+   *
+   * @return group request
+   */
+   GroupRequest initDeleteGroupRequest();
+
 }
