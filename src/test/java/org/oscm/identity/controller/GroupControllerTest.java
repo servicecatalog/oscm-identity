@@ -13,8 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,14 +23,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.InvalidRequestException;
+import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
+import org.oscm.identity.oidc.request.DefaultDeleteGroupRequest;
 import org.oscm.identity.oidc.request.GroupRequest;
 import org.oscm.identity.oidc.request.RequestHandler;
 import org.oscm.identity.oidc.request.RequestManager;
@@ -283,6 +288,28 @@ public class GroupControllerTest {
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK);
     assertResponseGroupNameIsDecoded(encodedGroupName, response);
   }
+
+  @Test
+  public void deleteGroupTest() throws JSONException, ResourceNotFoundException, IOException {
+    final String tenantId = "default";
+    final String bearerToken = "Bearer token";
+    final String userGroupId = "userGroupId";
+    final UserGroupDTO userGroupDTO = UserGroupDTO.of().id(userGroupId).name("OSCM_Group").description("testGroup").build();
+    final ResponseEntity<String> retrievedGroups = ResponseEntity.ok(givenJSONResponseFromDTO(userGroupDTO));
+    final DefaultDeleteGroupRequest deleteRequest = mock(DefaultDeleteGroupRequest.class);
+    when(tenantService.loadTenant(any())).thenReturn(anyTenantConfiguration());
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initGetGroupsRequest()).thenReturn(groupRequest);
+    when(requestManager.initDeleteGroupRequest()).thenReturn(deleteRequest);
+    when(groupRequest.execute()).thenReturn(retrievedGroups);
+
+    final String encodedGroupName = URLEncoder.encode(userGroupDTO.getName(), "UTF-8");
+    ResponseEntity<?> response = controller.deleteGroup(tenantId, encodedGroupName, true, bearerToken);
+
+    verify(deleteRequest, times(1)).setGroupId(eq(userGroupId));
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.NO_CONTENT);
+  }
+
 
   private void assertResponseGroupNameIsDecoded(String encodedName, ResponseEntity<UserGroupDTO> response) throws UnsupportedEncodingException {
     String decodedName = URLDecoder.decode(encodedName, "UTF-8");

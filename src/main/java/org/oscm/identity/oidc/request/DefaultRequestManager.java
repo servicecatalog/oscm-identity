@@ -67,4 +67,9 @@ public class DefaultRequestManager implements RequestManager {
   public GroupRequest initGetGroupsRequest() {
     return new DefaultGetGroupsRequest(this.restTemplate);
   }
+
+  @Override
+  public GroupRequest initDeleteGroupRequest() {
+    return new DefaultDeleteGroupRequest(this.restTemplate);
+  }
 }
