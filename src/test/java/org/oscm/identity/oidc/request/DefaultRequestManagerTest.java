@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 13, 2019
+ * <p>Creation Date: Aug 13, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.oidc.request;
 
 import org.assertj.core.api.Assertions;
@@ -111,5 +112,25 @@ public class DefaultRequestManagerTest {
 
     // then
     Assertions.assertThat(request).isInstanceOf(DefaultGetGroupsRequest.class);
+  }
+
+  @Test
+  public void testInitUpdateUserRequest_invoked_DefaultUpdateUserRequestIsReturned() {
+
+    // when
+    UserRequest request = requestManager.initUpdateUserRequest();
+
+    // then
+    Assertions.assertThat(request).isInstanceOf(DefaultUpdateUserRequest.class);
+  }
+
+  @Test
+  public void testInitDeleteGroupRequest_invoked_DefaultUpdateUserRequestIsReturned() {
+
+    // when
+    GroupRequest request = requestManager.initDeleteGroupRequest();
+
+    // then
+    Assertions.assertThat(request).isInstanceOf(DefaultDeleteGroupRequest.class);
   }
 }
