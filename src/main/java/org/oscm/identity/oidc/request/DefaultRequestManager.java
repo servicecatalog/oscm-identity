@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 6, 2019
+ * <p>Creation Date: Aug 6, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.oidc.request;
 
 import org.springframework.web.client.RestTemplate;
@@ -66,5 +67,10 @@ public class DefaultRequestManager implements RequestManager {
   @Override
   public GroupRequest initGetGroupsRequest() {
     return new DefaultGetGroupsRequest(this.restTemplate);
+  }
+
+  @Override
+  public GroupRequest initDeleteGroupRequest() {
+    return new DefaultDeleteGroupRequest(this.restTemplate);
   }
 }

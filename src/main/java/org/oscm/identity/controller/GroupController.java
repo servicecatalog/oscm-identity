@@ -317,4 +317,41 @@ public class GroupController {
 
     return ResponseEntity.ok(users);
   }
+
+  /**
+   * @param tenantId id of the tenant defining identity provider
+   * @param groupId id of the group existing in identity provider
+   * @param bearerToken token included in authorization header
+   * @return http response with json representation of retrieved groups
+   * @throws JSONException
+   */
+  @DeleteMapping("/tenants/{tenantId}/groups/{groupId}")
+  @Operation(
+      summary = "Delete group",
+      tags = "groups",
+      description = "Deletes provided group from selected tenant",
+      responses = {@ApiResponse(responseCode = "204")})
+  public ResponseEntity deleteGroup(
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of the selected group") @PathVariable String groupId,
+      @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest deleteGroupRequest =
+        requestHandler.getRequestManager(provider).initDeleteGroupRequest();
+    deleteGroupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    deleteGroupRequest.setToken(token);
+
+    if (deleteGroupRequest instanceof DefaultDeleteGroupRequest) {
+      DefaultDeleteGroupRequest request = (DefaultDeleteGroupRequest) deleteGroupRequest;
+      request.setGroupId(groupId);
+    }
+
+    deleteGroupRequest.execute();
+
+    return ResponseEntity.noContent().build();
+  }
 }

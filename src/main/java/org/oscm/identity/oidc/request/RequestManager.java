@@ -1,11 +1,12 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2019
+ * <p>Copyright FUJITSU LIMITED 2019
  *
- *  Creation Date: Aug 6, 2019
+ * <p>Creation Date: Aug 6, 2019
  *
- *******************************************************************************/
-
+ * <p>*****************************************************************************
+ */
 package org.oscm.identity.oidc.request;
 
 /**
@@ -93,4 +94,12 @@ public interface RequestManager {
    * @return group request
    */
   GroupRequest initGetGroupsRequest();
+
+  /**
+   * Creates group request representing http request for deleting groups in specific identity
+   * provider
+   *
+   * @return group request
+   */
+  GroupRequest initDeleteGroupRequest();
 }
