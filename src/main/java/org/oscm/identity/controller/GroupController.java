@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -319,48 +318,40 @@ public class GroupController {
     return ResponseEntity.ok(users);
   }
 
-
   /**
    * @param tenantId id of the tenant defining identity provider
-   * @param encodedGroupName - the URL encoded group name
+   * @param groupId id of the group existing in identity provider
    * @param bearerToken token included in authorization header
-//   * @param logErrors specifies whether exceptions should be logged. This value is configured inside
-//   *     globally in 'application.properties'. Default value for this param is 'true'.
    * @return http response with json representation of retrieved groups
    * @throws JSONException
    */
-
-  @DeleteMapping("/tenants/{tenantId}/groups/{encodedGroupName}")
+  @DeleteMapping("/tenants/{tenantId}/groups/{groupId}")
   @Operation(
-          summary = "Delete group",
-          tags = "groups",
-          description = "Deletes provided group from selected tenant",
-          responses = {@ApiResponse(responseCode = "204")})
+      summary = "Delete group",
+      tags = "groups",
+      description = "Deletes provided group from selected tenant",
+      responses = {@ApiResponse(responseCode = "204")})
   public ResponseEntity deleteGroup(
-          @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
-          @Parameter(description = "Name of the group to delete") @PathVariable String encodedGroupName,
-          @Parameter(description = "Specifies whether exceptions should be logged")
-          @RequestParam(value = "logErrors", required = false, defaultValue = "true")
-                  Boolean logErrors,
-          @RequestHeader(value = "Authorization") String bearerToken)
-          throws ResourceNotFoundException, JSONException {
-      String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
-      TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
-      String provider = configuration.getProvider();
+      @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+      @Parameter(description = "ID of the selected group") @PathVariable String groupId,
+      @RequestHeader(value = "Authorization") String bearerToken)
+      throws JSONException {
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
 
-      ResponseEntity<UserGroupDTO> getGroupResponse = getGroup(tenantId, encodedGroupName, logErrors, bearerToken);
+    GroupRequest deleteGroupRequest =
+        requestHandler.getRequestManager(provider).initDeleteGroupRequest();
+    deleteGroupRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    deleteGroupRequest.setToken(token);
 
-      GroupRequest deleteGroupRequest = requestHandler.getRequestManager(provider).initDeleteGroupRequest();
-      deleteGroupRequest.setBaseUrl(configuration.getGroupsEndpoint());
-      deleteGroupRequest.setToken(token);
-
-      if(deleteGroupRequest instanceof  DefaultDeleteGroupRequest) {
-        DefaultDeleteGroupRequest request = (DefaultDeleteGroupRequest) deleteGroupRequest;
-        request.setGroupId(Objects.requireNonNull(getGroupResponse.getBody()).getId());
-      }
-
-      deleteGroupRequest.execute();
-
-      return ResponseEntity.noContent().build();
+    if (deleteGroupRequest instanceof DefaultDeleteGroupRequest) {
+      DefaultDeleteGroupRequest request = (DefaultDeleteGroupRequest) deleteGroupRequest;
+      request.setGroupId(groupId);
     }
+
+    deleteGroupRequest.execute();
+
+    return ResponseEntity.noContent().build();
+  }
 }
