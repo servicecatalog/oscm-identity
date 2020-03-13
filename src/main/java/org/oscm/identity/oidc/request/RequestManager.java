@@ -102,4 +102,12 @@ public interface RequestManager {
    * @return group request
    */
   GroupRequest initDeleteGroupRequest();
+
+  /**
+   * Creates group request representing http request for removing member from a group in specific identity
+   * provider
+   *
+   * @return group request
+   */
+  GroupRequest initRemoveGroupMemberRequest();
 }
