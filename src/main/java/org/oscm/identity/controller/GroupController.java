@@ -354,4 +354,34 @@ public class GroupController {
 
     return ResponseEntity.noContent().build();
   }
+
+  @DeleteMapping("/tenants/{tenantId}/groups/{groupId}/members/{memberId}")
+  @Operation(
+          summary = "Remove member from a group",
+          tags = "groups",
+          description = "Removed provided member from selected group in selected tenant",
+          responses = {@ApiResponse(responseCode = "204")})
+  public ResponseEntity removeMember(
+          @Parameter(description = "ID of the selected tenant") @PathVariable String tenantId,
+          @Parameter(description = "ID of the selected group") @PathVariable String groupId,
+          @Parameter(description = "ID of the member to remove") @PathVariable String memberId,
+          @RequestHeader(value = "Authorization") String bearerToken)
+  throws JSONException {
+    String token = requestHandler.getTokenOutOfAuthHeader(bearerToken);
+    TenantConfiguration configuration = tenantService.loadTenant(Optional.ofNullable(tenantId));
+    String provider = configuration.getProvider();
+
+    GroupRequest removeMemberRequest = requestHandler.getRequestManager(provider).initRemoveGroupMemberRequest();
+    removeMemberRequest.setBaseUrl(configuration.getGroupsEndpoint());
+    removeMemberRequest.setToken(token);
+
+    if (removeMemberRequest instanceof DefaultRemoveGroupMemberRequest) {
+      DefaultRemoveGroupMemberRequest request = (DefaultRemoveGroupMemberRequest) removeMemberRequest;
+      request.setMemberId(memberId);
+      request.setGroupId(groupId);
+    }
+
+    removeMemberRequest.execute();
+    return ResponseEntity.noContent().build();
+  }
 }
