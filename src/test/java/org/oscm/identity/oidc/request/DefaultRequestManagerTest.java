@@ -125,7 +125,7 @@ public class DefaultRequestManagerTest {
   }
 
   @Test
-  public void testInitDeleteGroupRequest_invoked_DefaultUpdateUserRequestIsReturned() {
+  public void testInitDeleteGroupRequest_invoked_DefaultDeleteGroupRequestIsReturned() {
 
     // when
     GroupRequest request = requestManager.initDeleteGroupRequest();
@@ -133,4 +133,15 @@ public class DefaultRequestManagerTest {
     // then
     Assertions.assertThat(request).isInstanceOf(DefaultDeleteGroupRequest.class);
   }
+
+  @Test
+  public void testIniRemoveGroupMemberRequest_invoked_DefaultRemoveGroupMemberRequestIsReturned() {
+
+    // when
+    GroupRequest request = requestManager.initRemoveGroupMemberRequest();
+
+    // then
+    Assertions.assertThat(request).isInstanceOf(DefaultRemoveGroupMemberRequest.class);
+  }
+
 }

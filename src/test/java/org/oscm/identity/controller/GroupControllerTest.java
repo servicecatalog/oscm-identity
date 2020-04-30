@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oscm.identity.error.InvalidRequestException;
-import org.oscm.identity.error.ResourceNotFoundException;
 import org.oscm.identity.model.json.UserGroupDTO;
 import org.oscm.identity.model.json.UserInfoDTO;
 import org.oscm.identity.oidc.request.GroupRequest;
@@ -27,7 +26,6 @@ import org.oscm.identity.service.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -305,6 +303,22 @@ public class GroupControllerTest {
     when(groupRequest.execute()).thenReturn(retrievedGroups);
 
     ResponseEntity<?> response = controller.deleteGroup(tenantId, userGroupId, bearerToken);
+
+    assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.NO_CONTENT);
+  }
+
+  @Test
+  public void removeMemberTest() throws JSONException {
+    final String tenantId = "default";
+    final String bearerToken = "Bearer token";
+    final String groupId = "groupId";
+    final String memberId = "memberId";
+
+    when(tenantService.loadTenant(any())).thenReturn(anyTenantConfiguration());
+    when(requestHandler.getRequestManager(anyString())).thenReturn(requestManager);
+    when(requestManager.initRemoveGroupMemberRequest()).thenReturn(groupRequest);
+
+    ResponseEntity<?> response = controller.removeMember(tenantId, groupId, memberId, bearerToken);
 
     assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.NO_CONTENT);
   }
