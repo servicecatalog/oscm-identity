@@ -1,4 +1,4 @@
-[![Build status](https://travis-ci.org/servicecatalog/oscm-identity.svg?branch=master)](https://travis-ci.org/servicecatalog/oscm-identity)
+[![Build status](https://travis-ci.com/servicecatalog/oscm-identity.svg?branch=master)](https://travis-ci.com/servicecatalog/oscm-identity)
 [![codecov](https://codecov.io/gh/servicecatalog/oscm-identity/branch/master/graph/badge.svg)](https://codecov.io/gh/servicecatalog/oscm-identity)
 
 # oscm-identity
