@@ -1,5 +1,4 @@
-[![Build status](https://travis-ci.com/servicecatalog/oscm-identity.svg?branch=master)](https://travis-ci.com/servicecatalog/oscm-identity)
-[![codecov](https://codecov.io/gh/servicecatalog/oscm-identity/branch/master/graph/badge.svg)](https://codecov.io/gh/servicecatalog/oscm-identity)
+[![Maven](https://github.com/servicecatalog/oscm-identity/actions/workflows/maven.yml/badge.svg)](https://github.com/servicecatalog/oscm-identity/actions) [![codecov](https://codecov.io/gh/servicecatalog/oscm-identity/branch/master/graph/badge.svg)](https://codecov.io/gh/servicecatalog/oscm-identity)
 
 # oscm-identity
 Identity Service for managing authentication with external IdPs using [OpenID Connect](https://openid.net/connect/)
