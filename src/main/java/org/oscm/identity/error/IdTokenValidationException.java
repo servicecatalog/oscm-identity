@@ -5,6 +5,7 @@ package org.oscm.identity.error;
  */
 public class IdTokenValidationException extends TokenValidationException {
 
+        
         public IdTokenValidationException(String message) {
                 super(message);
         }
