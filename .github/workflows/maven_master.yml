@@ -1,0 +1,67 @@
+# Copyright FUJITSU LIMITED 2021
+
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Master CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    env:
+      COMMIT: ${{ github.sha }}
+      BRANCH: master
+      REPOSITORY: ${{ github.repository }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Workspace
+        if: env.GH_TOKEN == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "GH_TOKEN=${GH_TOKEN}" >> $GITHUB_ENV
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
+      - name: Install Java Runtime
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '8'
+      - run: |
+          chmod +x ./scripts/*.sh
+      - name: Check Copyright Headers
+        run: ./scripts/check_copyrights.sh
+        shell: bash
+      - name: Apply Code Formatting
+        run: ./scripts/format_code.sh
+        shell: bash
+      - name: Build with Maven
+        run: mvn clean install -f pom.xml
+      - name: Publish Formatted Code
+        run: ./scripts/repush_formatted_code.sh
+        env:
+          COMMIT: ${{ github.sha }}
+          BRANCH: master
+          GH_TOKEN: ${{ env.GH_TOKEN }}
+        shell: bash
+      - name: Surefire Report
+        uses: ScaCap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Archive Code Coverage Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.event.repository.name }}-coveragereport
+          path: ./**/target/site/jacoco
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.event.repository.name }}-testresults
+          path: ./**/target/surefire-reports
