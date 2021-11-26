@@ -1,28 +1,31 @@
+# Copyright FUJITSU LIMITED 2021
+
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Maven
+name: Pull Request CI
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
+
     steps:
-     - uses: actions/checkout@v2
-     - uses: actions/setup-java@v2
-       with:
-           distribution: 'temurin' # See 'Supported distributions' for available options
-           java-version: '8'
-     - name: Build with Maven      
-       run: mvn clean install -f pom.xml
-     - name: Surefire Report
-       uses: ScaCap/action-surefire-report@v1
-       with:
-           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install Java Runtime
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '8'
+      - name: Build with Maven
+        run: mvn clean install -f pom.xml
+      - name: Surefire Report
+        uses: ScaCap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
